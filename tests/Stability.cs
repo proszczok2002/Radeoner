@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -99,6 +100,12 @@ internal static partial class Tests
         }));
         Test("Driver IPC preserves complete snapshots, fan/range types and verified tuning transactions", () =>
         {
+            var originalEncoding = Console.InputEncoding;
+            try
+            {
+            // A UTF-8 console can prefix redirected stdin with a BOM. The host
+            // must accept it instead of terminating on the first Base64 frame.
+            Console.InputEncoding = new UTF8Encoding(true);
             using (var backend = new IsolatedBackend(Assembly.GetExecutingAssembly().Location, "--driver-fixture", 3000))
             {
                 var s = backend.Read(0);
@@ -109,6 +116,8 @@ internal static partial class Tests
                 TuningTransaction.Apply(backend, applied.After, applied.Undo);
                 Check(backend.Read(0).Fan[0].Speed == 20 && backend.ReadSensors(0).Settings.Count == 0, "IPC undo or fast polling failed");
             }
+            }
+            finally { Console.InputEncoding = originalEncoding; }
         });
         Test("Driver child crash is contained; reconnect is read-only until an explicit settings refresh", () =>
         {

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading;
+using System.Text;
 
 namespace Radeoner
 {
@@ -46,10 +47,12 @@ namespace Radeoner
             {
                 using (var parent = Process.GetProcessById(parentId))
                 using (var watcher = new Timer(s => { try { if (parent.HasExited) Environment.Exit(0); } catch { Environment.Exit(0); } }, null, 1000, 1000))
+                using (var input = new StreamReader(Console.OpenStandardInput(), new UTF8Encoding(false, true), true))
+                using (var output = new StreamWriter(Console.OpenStandardOutput(), new UTF8Encoding(false)) { AutoFlush = true })
                 using (var backend = factory())
                 {
                     string line;
-                    while ((line = Console.ReadLine()) != null)
+                    while ((line = input.ReadLine()) != null)
                     {
                         var request = DriverWire.Decode<DriverRequest>(line);
                         if (request.Operation == "exit") break;
@@ -71,7 +74,7 @@ namespace Radeoner
                             }
                         }
                         catch (Exception ex) { result.Error = ex.Message; Diagnostics.Log(request.Operation, ex); }
-                        Console.WriteLine(DriverWire.Encode(result)); Console.Out.Flush();
+                        output.WriteLine(DriverWire.Encode(result));
                     }
                 }
                 return 0;
