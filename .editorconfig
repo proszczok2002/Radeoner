@@ -1,0 +1,15 @@
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,ps1}]
+indent_style = space
+indent_size = 4
+
+[*.lng]
+# Some translations are prefixes and intentionally end in a space.
+charset = utf-8-bom
+trim_trailing_whitespace = false
