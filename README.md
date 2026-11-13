@@ -85,6 +85,8 @@ Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
 [wynik testu i sumy plików](docs/UPDATE_TEST.md).
 Także **1.01 → 1.02** przeszło pełny test publicznego kanału:
 [wynik testu 1.02](docs/UPDATE_TEST_1.02.md).
+Najnowsze **1.02 → 1.03** przeszło pełny test aktualizacji z GitHuba:
+[wynik testu 1.03](docs/UPDATE_TEST_1.03.md).
 
 ## Klawiatura, tray i pliki
 

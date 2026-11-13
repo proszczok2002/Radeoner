@@ -10,6 +10,9 @@
   zatrzymania timera i zachowanie szkicu. [Stabilność, ograniczenia RX 9060](STABILITY.md).
 - RGB sprawdzono na serwerze testowym TCP z kontrolą pakietów; nie na fizycznym
   podświetleniu GPU. [Obsługa RGB i wymaganie OpenRGB](RGB.md).
+- Publiczny update **1.02 → 1.03** przeszedł pełną podmianę, start okna i
+  pomocnika ADLX, sprzątanie oraz kontrolę sum profilu/preferencji.
+  [Wynik i sumy](UPDATE_TEST_1.03.md). CI również przeszło 50 testów.
 - Audyt 1.02: pięć zakładek, nazwy edycji liczbowych, odtworzenie fokusu
   po wymianie pól, zaznaczenie raportu, Ctrl+1…5 i motyw systemowy przeszły
   kontrolę. Rzeczywiste okna TaskDialog udostępniają treść zmian oraz przyciski
@@ -47,6 +50,9 @@ running; speech was not captured. [Audit](ACCESSIBILITY.md).
 Controlled real child-process crashes/hangs and transient sensor errors passed
 recovery/draft-preservation checks. [RX 9060 verification limits](STABILITY.md).
 RGB uses a strict loopback TCP fixture, not a physical RGB GPU. [RGB details](RGB.md).
+The public **1.02 → 1.03** update passed replacement, window/ADLX-child startup,
+cleanup and preserved-data checksums. [Evidence](UPDATE_TEST_1.03.md).
+GitHub Actions also passed all 50 tests.
 
 The 1.02 audit passed five-tab navigation, numeric edit names, focus after
 field replacement, report selection, Ctrl+1…5 and system-theme checks. Actual

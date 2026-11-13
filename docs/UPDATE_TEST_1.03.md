@@ -12,7 +12,14 @@ Opublikowany EXE 1.02 zaktualizował się do paczki 1.03. Potwierdzono:
 - brak zmian parametrów fizycznego GPU i RGB.
 
 Test działał w osobnej kopii portable ze spacjami w ścieżce. Działająca kopia
-użytkownika i NVDA pozostały uruchomione. Test publiczny zostanie dopisany po publikacji.
+użytkownika i NVDA pozostały uruchomione.
+
+Publiczny kanał GitHub: **PASS**, 2026-11-13, 23:11 UTC. Opublikowany EXE 1.02
+bez konta/tokena pobrał manifest i ZIP 1.03 z latest. Przeszły podmiana,
+inicjalizacja okna i ADLX, usunięcie starego EXE/pomocnika oraz kontrola sum
+profilu i preferencji. Końcowy EXE ma sumę podaną w tabeli.
+Kompilacja i wszystkie 50 testów przeszły też na czystym runnerze GitHub Actions,
+łącznie z testem komunikacji z terminala UTF-8.
 
 ## English
 
@@ -22,7 +29,11 @@ the actual new window and ADLX child initialized; startup was acknowledged,
 old EXE/update helper were removed, and preference/profile hashes stayed equal.
 No physical GPU tuning or RGB changes were made. The test used an isolated
 portable copy with spaces; the user's running app and NVDA were left running.
-Public-feed evidence will be added after publication.
+Public GitHub-feed test: **PASS**, 2026-11-13, 23:11 UTC. The published 1.02
+EXE downloaded 1.03 from the anonymous latest-release feed. Replacement, real
+window/ADLX startup, old EXE/helper cleanup and unchanged preference/profile
+checksums passed. The final EXE matches the table. Build and all 50 tests also
+passed on a clean GitHub Actions runner, including the UTF-8 console regression.
 
 ## SHA-256
 
@@ -34,4 +45,6 @@ Public-feed evidence will be added after publication.
 
 Raw local evidence before housekeeping:
 `artifacts/update-e2e/local-20261114-000850/result.json`.
+Public-feed evidence:
+`artifacts/update-e2e/github-20261114-001114/result.json`.
 After housekeeping use the corresponding `niepotrzebne/*/INDEKS.csv`.

@@ -83,6 +83,8 @@ The complete **1.0 → 1.01 update from public GitHub has been verified**:
 [test result and file checksums](docs/UPDATE_TEST.md).
 The **1.01 → 1.02** public-feed integration test also passed:
 [1.02 test result](docs/UPDATE_TEST_1.02.md).
+The latest **1.02 → 1.03** public GitHub update also passed:
+[1.03 test result](docs/UPDATE_TEST_1.03.md).
 
 ## Keyboard, tray and preferences
 
