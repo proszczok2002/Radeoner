@@ -18,7 +18,11 @@ $sources = @(Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.cs' | ForEach-O
 & $compiler /nologo /utf8output /target:exe /platform:x64 /optimize+ /warn:4 "/win32manifest:$(Join-Path $root 'app.manifest')" "/out:$testExe" "/reference:$app" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:Accessibility.dll /reference:System.Runtime.Serialization.dll /reference:System.Net.Http.dll /reference:System.IO.Compression.dll $sources
 if ($LASTEXITCODE -ne 0) { throw 'Test build failed.' }
 & $testExe
-if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
+if ($LASTEXITCODE -ne 0) {
+    $driverLog = Join-Path $output 'Radeoner.log'
+    if (Test-Path -LiteralPath $driverLog) { Get-Content -LiteralPath $driverLog -Encoding UTF8 -Tail 60 }
+    throw 'Tests failed.'
+}
 if ($LiveRead) {
     $report = Join-Path $output 'live-read.txt'
     $process = Start-Process -FilePath $app -ArgumentList @('--report', ('"' + $report + '"')) -WindowStyle Hidden -PassThru
