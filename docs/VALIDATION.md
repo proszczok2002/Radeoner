@@ -13,7 +13,10 @@
   oraz odczyty w tle, bez zmian GPU.
 - Lokalny test 1.0 → 1.01 przeszedł przez rzeczywistą podmianę, start nowego
   okna, usunięcie starego EXE/pomocnika i kontrolę sum preferencji/profile.
-- Wynik testu publicznego kanału zostanie dopisany po opublikowaniu obu wydań.
+- Pełny test publicznego kanału GitHub **1.0 → 1.01** przeszedł 2026-11-13:
+  pobranie przez updater, SHA-256, rzeczywista podmiana EXE, start nowego
+  okna i usunięcie starego EXE/pomocnika. Preferencje i profil zachowały sumy.
+  Szczegóły: [wynik testu aktualizacji](UPDATE_TEST.md).
 
 Pozostają: odsłuch w prawdziwej sesji NVDA, fizyczne zapisy na kartach z
 odblokowaną regulacją i szersze testy wielu GPU/sterowników/laptopów. Zgłoszenia
@@ -35,7 +38,10 @@ MSAA names, tray hide/restore and background reads were checked without tuning.
 
 A local 1.0 → 1.01 integration test passed real executable replacement, new
 window initialization, old EXE/helper cleanup and preserved preference/profile
-hashes. The public-feed result will be added after both releases are published.
+hashes. The full public GitHub-feed **1.0 → 1.01** test also passed on
+2026-11-13: download through the app's updater, SHA-256 validation, real EXE
+replacement, new window initialization and old EXE/helper cleanup. Preference
+and profile checksums were unchanged. See [update test evidence](UPDATE_TEST.md).
 
 Outstanding: an actual NVDA listening session, physical writes on GPUs exposing
 tuning, and wider GPU/driver/laptop coverage. Please report hardware, driver,

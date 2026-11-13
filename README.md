@@ -78,6 +78,8 @@ Profile i `Radeoner.settings.json` są zachowywane. Sterowniki i ustawienia
 GPU nie są aktualizowane ani stosowane.
 
 Szczegóły formatu, odzyskiwania i testowania: [aktualizacje / updates](docs/UPDATING.md).
+Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
+[wynik testu i sumy plików](docs/UPDATE_TEST.md).
 
 ## Klawiatura, tray i pliki
 

@@ -76,6 +76,8 @@ to restore the previous files. User profiles and `Radeoner.settings.json` are
 preserved. Driver packages and GPU tuning settings are not updated or applied.
 
 See [update format, recovery and tests](docs/UPDATING.md) for details.
+The complete **1.0 → 1.01 update from public GitHub has been verified**:
+[test result and file checksums](docs/UPDATE_TEST.md).
 
 ## Keyboard, tray and preferences
 
