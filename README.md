@@ -30,8 +30,9 @@ nie jest dołączana ani pobierana oddzielnie przez aplikację.
 | Obszar | Funkcje |
 | --- | --- |
 | Karty | Wybór AMD GPU i rozpoznawanie integry/karty dedykowanej przez sterownik |
-| Odczyty | Obciążenie, temperatura, zegary, moc, pamięć, obroty i napięcie, jeśli dostępne |
+| Odczyty | Natywna lista parametrów i wartości, domyślnie aktualizowana co sekundę, także w trayu |
 | Regulacja | Procentowy limit mocy, zegary GPU/VRAM, napięcie, stany starszych kart |
+| RGB | Kolor, jasność i wyłączenie przez opcjonalny lokalny serwer OpenRGB |
 | Chłodzenie | Krzywa wentylatora, Zero RPM, minimalne/docelowe RPM, jeśli dostępne |
 | Profile | Eksport/import JSON z kontrolą modelu GPU, podsystemu, jednostek i zakresów |
 | Tray | Alt+F4 chowa okno; ikona pokazuje nazwę GPU i rzeczywiste odczyty |
@@ -82,7 +83,7 @@ GPU nie są aktualizowane ani stosowane.
 Szczegóły formatu, odzyskiwania i testowania: [aktualizacje / updates](docs/UPDATING.md).
 Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
 [wynik testu i sumy plików](docs/UPDATE_TEST.md).
-Najnowsze **1.01 → 1.02** również przeszło pełny test publicznego kanału:
+Także **1.01 → 1.02** przeszło pełny test publicznego kanału:
 [wynik testu 1.02](docs/UPDATE_TEST_1.02.md).
 
 ## Klawiatura, tray i pliki
@@ -90,6 +91,7 @@ Najnowsze **1.01 → 1.02** również przeszło pełny test publicznego kanału:
 | Skrót | Działanie |
 | --- | --- |
 | Tab / Shift+Tab | Pola i przyciski |
+| Strzałki góra/dół | Wiersze listy odczytów |
 | Ctrl+Tab / Ctrl+Shift+Tab | Zakładki |
 | Ctrl+1 … Ctrl+5 | Odczyty, Regulacja, Wentylator, Raport, Ustawienia |
 | F5 | Odczyt ustawień i czujników |
@@ -100,7 +102,7 @@ Najnowsze **1.01 → 1.02** również przeszło pełny test publicznego kanału:
 | Alt+F4 | Ukrycie do traya |
 
 **Zakończ** w oknie lub menu traya kończy cały program. Ponowne uruchomienie
-EXE otwiera istniejące okno. Odświeżanie czujników co 3 sekundy jest opcjonalne
+EXE otwiera istniejące okno. Odświeżanie czujników co sekundę jest domyślnie włączone
 i działa także w trayu; może podtrzymywać aktywność GPU na baterii.
 
 Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Języki:
@@ -151,3 +153,23 @@ Wsparcie jest dobrowolne; przyciski otwierają przeglądarkę.
 - [Kontakt na Telegramie](https://t.me/proszczok)
 
 Zakres audytu i lista prób z czytnikiem: [dostępność](docs/ACCESSIBILITY.md).
+
+## Odczyty na żywo i RGB w 1.03
+
+Odczyty i tray odświeżają się co sekundę. Lista zachowuje wybrany wiersz
+i pokazuje nowe wartości również z fokusem. Ctrl+A zaznacza wszystkie wiersze,
+Ctrl+C kopiuje zaznaczone. Tytuł i tray zawierają numer, np. **Radeoner v1.03**.
+Ctrl+Tab i Ctrl+Shift+Tab działają z pól, listy i przycisków, także poza zakładkami.
+
+ADLX działa w osobnym procesie uruchamianym z tego samego EXE. Awaria lub
+przekroczenie czasu odpowiedzi pomocnika nie zamyka okna. Pojedynczy błąd
+nie wyłącza odświeżania; stare dane są oznaczane, odczyty są ponawiane.
+Log lokalny: `Radeoner.log`. Niczego nie wysyłamy automatycznie.
+Pomocnik kończy się z aplikacją; nie jest instalowaną usługą.
+[Szczegóły stabilności i ograniczenia testu RX 9060](docs/STABILITY.md).
+
+**Regulacja → Podświetlenie karty (RGB)** otwiera standardowe okno z wyborem
+karty, trybu, gotowego koloru lub kanałów R/G/B 0–255 oraz jasności 0–100%.
+Wymaga uruchomionego **OpenRGB z włączonym lokalnym serwerem SDK** (domyślnie
+port 6742). Składnik jest opcjonalny: Radeoner nie instaluje OpenRGB i nie
+łączy się z nim bez użycia Połącz. [Instrukcja i ograniczenia RGB](docs/RGB.md).

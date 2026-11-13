@@ -1,4 +1,4 @@
-param([string]$AppDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'portable'), [switch]$LiveRead, [switch]$LiveUi, [switch]$LiveTray, [switch]$LiveDialogs)
+param([string]$AppDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'portable'), [switch]$LiveRead, [switch]$LiveUi, [switch]$LiveTray, [switch]$LiveDialogs, [switch]$LiveKeyboard)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $output = Join-Path $root 'artifacts/tests'
@@ -28,10 +28,11 @@ if ($LiveRead) {
     if ($text -notmatch 'Radeoner|ADLX') { throw 'Invalid diagnostic report.' }
     Write-Output "PASS live read-only diagnostic: $report"
 }
-if ($LiveUi -or $LiveTray) {
-    $report = Join-Path $output $(if($LiveTray){'live-tray.txt'}else{'live-ui.txt'})
-    $mode = if($LiveTray){'--live-tray'}else{'--live-ui'}
-    $process = Start-Process -FilePath $testExe -ArgumentList @($mode, ('"' + $report + '"')) -WindowStyle Hidden -PassThru
+if ($LiveUi -or $LiveTray -or $LiveKeyboard) {
+    $report = Join-Path $output $(if($LiveKeyboard){'live-keyboard.txt'}elseif($LiveTray){'live-tray.txt'}else{'live-ui.txt'})
+    $mode = if($LiveKeyboard){'--live-keyboard'}elseif($LiveTray){'--live-tray'}else{'--live-ui'}
+    $windowStyle = if($LiveKeyboard){'Normal'}else{'Hidden'}
+    $process = Start-Process -FilePath $testExe -ArgumentList @($mode, ('"' + $report + '"')) -WindowStyle $windowStyle -PassThru
     if (-not $process.WaitForExit(40000)) { throw "UI test is still running (PID $($process.Id))." }
     if ($process.ExitCode -ne 0) { throw "UI startup failed: $report" }
     Write-Output (Get-Content -LiteralPath $report -Encoding UTF8 -TotalCount 1)

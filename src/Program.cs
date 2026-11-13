@@ -19,6 +19,7 @@ namespace Radeoner
         private static int Main(string[] args)
         {
             if (args.Length == 2 && args[0] == "--apply-update") return UpdateInstall.RunWorker(Path.GetFullPath(args[1]));
+            if (args.Length == 2 && args[0] == "--driver-worker") return DriverHost.Run(int.Parse(args[1]), DriverHost.CreateBackend);
             L.Load(AppSettings.Load(AppSettings.DefaultPath).Language);
             if ((args.Length == 1 || args.Length == 3) && args[0] == "--test-update") return UpdateDiagnostics.RunAsync(args).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--report")
@@ -44,7 +45,8 @@ namespace Radeoner
             }
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            Application.ThreadException += (sender, e) => MessageBox.Show(e.Exception.Message, L.T("driver.123"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.ThreadException += (sender, e) => { Diagnostics.Log("UI exception", e.Exception); MessageBox.Show(e.Exception.Message, L.T("driver.123"), MessageBoxButtons.OK, MessageBoxIcon.Error); };
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => Diagnostics.Log("unhandled exception", e.ExceptionObject as Exception ?? new Exception(Convert.ToString(e.ExceptionObject)));
             string completePlan = null;
             for (int i = 0; i + 1 < args.Length; i++) if (args[i] == "--complete-update") completePlan = Path.GetFullPath(args[i + 1]);
             string mutexName = @"Local\Radeoner-SingleInstance";

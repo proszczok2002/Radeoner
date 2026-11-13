@@ -56,6 +56,9 @@ jest potwierdzeniem odsłuchu czytnika ekranu.
 | `Model.cs`, `Transaction.cs` | Walidacja, zapis, odczyt po zapisie i cofanie |
 | `Profiles.cs`, `Persistence.cs` | JSON, preferencje i autostart |
 | `MainForm.cs`, `Appearance.cs`, `TrayIcon.cs` | Interfejs, motywy i tray |
+| `Navigation.cs`, `Accessibility.cs` | Klawiatura, lista odczytów i dostępność |
+| `DriverHost.cs`, `Diagnostics.cs` | Izolacja ADLX, komunikacja i log lokalny |
+| `OpenRgb.cs`, `RgbDialog.cs` | Opcjonalny klient RGB i natywne kontrolki |
 | `Localization.cs`, `lang/` | Polski/English, teksty i zapasowe zasoby |
 | `UpdateFeed.cs`, `UpdateInstall.cs`, `UpdateUI.cs` | Pobieranie, podmiana i obsługa aktualizacji |
 | `version.json`, `build.ps1`, `package.ps1` | Wersja, kompilacja i paczka z manifestem |
@@ -89,3 +92,17 @@ resulting behavior and validation performed.
 
 By contributing, you agree to license your contribution under this project's
 [MIT license](LICENSE).
+
+## Test widocznej klawiatury / Visible keyboard test
+
+`tests/Smoke.ps1 -LiveKeyboard -LiveDialogs` otwiera własne okno testowe
+i używa prawdziwego SendInput dla Ctrl+Tab/Ctrl+Shift+Tab. Nie wysyła klawiszy,
+jeżeli fokus jest w innej aplikacji lub użytkownik trzyma modyfikator.
+Jest opcjonalny i nie jest częścią CI. Aktywny NVDA jest odnotowywany;
+test nie potwierdza treści syntezy mowy.
+
+`-LiveKeyboard` opens an owned visible test window and sends real keyboard input.
+It refuses to send keys outside its own foreground window or with user modifiers
+held. This optional desktop test is excluded from CI and does not verify speech.
+`tests/Stability.cs` covers driver-process crashes/timeouts and sensor recovery;
+`tests/Rgb.cs` uses a loopback SDK fixture, without touching real lighting.

@@ -44,7 +44,7 @@ namespace Radeoner
             foreach (var o in new[] { Gfx, Vram, Power, Fan, GfxStates, VramStates, Gpu }) if (o != null) o.Dispose();
         }
     }
-    public sealed class AmdBackend : IBackend
+    public sealed class AmdBackend : IBackend, ISensorBackend
     {
         private AdlxLibrary library;
         private IntPtr system;
@@ -234,6 +234,14 @@ namespace Radeoner
                 snapshot.Settings.AddRange(settings);
             }
             catch (Exception ex) { snapshot.Notes.Add(L.T("driver.051") + ex.Message); }
+        }
+        public Snapshot ReadSensors(int gpuIndex)
+        {
+            if (gpuIndex < 0 || gpuIndex >= contexts.Count) throw new InvalidOperationException(L.T("driver.018"));
+            var c = contexts[gpuIndex]; var data = new Snapshot { Gpu = c.Info };
+            ReadMetrics(c, data);
+            if (monitoring != null && data.MetricValues.Count == 0) throw new InvalidOperationException(string.Join("; ", data.Metrics));
+            return data;
         }
         private void ReadMetrics(GpuContext c, Snapshot snapshot)
         {

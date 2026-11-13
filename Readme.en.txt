@@ -1,4 +1,4 @@
-Radeoner 1.02 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.03 - lightweight, portable AMD GPU control for Windows
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner
@@ -18,7 +18,7 @@ editor. Only Apply writes settings to the driver. Starting Radeoner or enabling
 Windows startup never applies a GPU tuning profile.
 
 Alt+F4 and the close button hide to the tray. Use Exit in the window or tray
-menu to stop the app. Sensor updates every three seconds are optional and can
+menu to stop the app. Sensor updates every second are enabled by default and can
 keep a laptop GPU awake. Missing readings are marked rather than estimated.
 
 Settings tab: optional checks at startup and every 5-10080 minutes (default 60).
@@ -57,3 +57,23 @@ Author: https://proszczok.pl/
 PayPal: https://paypal.me/proszczok
 Revolut: https://revolut.me/r_rosiejka
 Telegram: https://t.me/proszczok
+
+1.03: LIVE READINGS, STABILITY, KEYBOARD AND RGB
+Readings use a native parameter/value list: Up/Down, Ctrl+A, Ctrl+C.
+Values update every second while focused and in the tray. Title and icon
+include the version. Ctrl+Tab/Ctrl+Shift+Tab work from every main-window control.
+Settings use groups, short descriptions and scrolling to the focused control.
+
+ADLX runs in an owned child of the same EXE, without installing a service.
+Helper crashes/timeouts leave the UI open; failed reads show stale values and
+retry. Radeoner.log stays local. After a write failure check current settings
+with F5; failed writes are never replayed automatically. The reported RX 9060
+load crash has not been reproduced on physical RX 9060 hardware locally.
+
+Tuning -> GPU lighting (RGB): start OpenRGB and enable its SDK server on
+127.0.0.1, usually port 6742; Connect, select a GPU, mode and color, Apply RGB.
+Turn off or 0% disables lighting. Brightness uses hardware capability when
+reported, otherwise selected RGB channels are dimmed. Only GPU devices exposed
+by OpenRGB appear. Support depends on its version. Physical TUF RX 9070 XT RGB
+was not tested locally. OpenRGB is optional and not bundled/installed.
+Radeoner JSON profiles currently store ADLX tuning, not RGB settings.

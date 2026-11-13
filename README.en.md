@@ -29,8 +29,9 @@ or download a replacement copy.
 | Area | Capabilities |
 | --- | --- |
 | GPUs | Select an AMD GPU; integrated/discrete identification from the driver |
-| Monitoring | Usage, temperatures, clocks, power, memory, RPM and voltage when exposed |
+| Monitoring | Native parameter/value list, live every second by default, including the tray |
 | Tuning | Percentage power limit, GPU/VRAM clocks, voltage and legacy performance states |
+| RGB | Color, brightness and off through an optional local OpenRGB SDK server |
 | Cooling | Fan curve, Zero RPM, minimum/target RPM when exposed |
 | Profiles | JSON export/import with GPU/subsystem, unit and range validation |
 | Tray | Alt+F4 hides the window; the icon shows the GPU and actual readings |
@@ -80,7 +81,7 @@ preserved. Driver packages and GPU tuning settings are not updated or applied.
 See [update format, recovery and tests](docs/UPDATING.md) for details.
 The complete **1.0 → 1.01 update from public GitHub has been verified**:
 [test result and file checksums](docs/UPDATE_TEST.md).
-The latest **1.01 → 1.02** public-feed integration test also passed:
+The **1.01 → 1.02** public-feed integration test also passed:
 [1.02 test result](docs/UPDATE_TEST_1.02.md).
 
 ## Keyboard, tray and preferences
@@ -88,6 +89,7 @@ The latest **1.01 → 1.02** public-feed integration test also passed:
 | Shortcut | Action |
 | --- | --- |
 | Tab / Shift+Tab | Fields and buttons |
+| Up / Down | Sensor rows |
 | Ctrl+Tab / Ctrl+Shift+Tab | Tabs |
 | Ctrl+1 … Ctrl+5 | Readings, Tuning, Fan, Report, Settings |
 | F5 | Read settings and sensors |
@@ -98,8 +100,7 @@ The latest **1.01 → 1.02** public-feed integration test also passed:
 | Alt+F4 | Hide to the tray |
 
 **Exit** in the window or tray menu stops the app completely. Launching the
-EXE again shows the existing window. Optional sensor updates every three
-seconds continue in the tray and can keep a laptop GPU awake.
+EXE again shows the existing window. Sensor updates every second are enabled by default and continue in the tray and can keep a laptop GPU awake.
 
 Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
 `lang/pl.lng` and `lang/en.lng` (UTF-8, `key=value`, `\n` for a new line).
@@ -140,3 +141,22 @@ Support is optional; link buttons open your browser.
 - [Contact on Telegram](https://t.me/proszczok)
 
 Audit scope and screen-reader checklist: [accessibility](docs/ACCESSIBILITY.md).
+
+## Live readings and RGB in 1.03
+
+Readings and tray update every second. The native list preserves selection
+and updates values while focused. Ctrl+A selects all rows; Ctrl+C copies them.
+Window title and tray include the version, such as **Radeoner v1.03**.
+Ctrl+Tab/Ctrl+Shift+Tab work from controls inside and outside tab pages.
+
+ADLX runs in an owned child process using the same EXE. A native helper crash
+or timeout leaves the UI open. A single failed read no longer disables polling:
+last values are marked stale and reads are retried. `Radeoner.log` stays local.
+The helper exits with the app; no service is installed.
+[Stability and RX 9060 verification limits](docs/STABILITY.md).
+
+**Tuning → GPU lighting (RGB)** opens standard controls for device, mode,
+preset or R/G/B 0–255, and brightness 0–100%. This optional feature requires
+**OpenRGB with its local SDK server enabled** (default port 6742). Radeoner
+does not install OpenRGB or connect until Connect is selected.
+[RGB setup and limitations](docs/RGB.md).

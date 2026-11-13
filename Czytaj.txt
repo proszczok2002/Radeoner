@@ -1,4 +1,4 @@
-Radeoner 1.02 — panel sterownika AMD
+Radeoner 1.03 — panel sterownika AMD
 
 Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
 4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu
@@ -53,7 +53,7 @@ Ikona zawiera prawdziwe odczyty dla wybranego GPU, np. temperaturę, obroty
 w RPM i moc całej karty, a jeśli tego czujnika nie ma — moc GPU. Brak odczytu
 jest oznaczony tekstowo. Długość nazwy jest dopasowana do limitu ikony Windows.
 Po wyłączeniu odświeżania lub błędzie ikona pokazuje czas ostatniego odczytu.
-Odświeżanie co 3 sekundy jest domyślnie włączone i działa także w trayu.
+Odświeżanie co sekundę jest domyślnie włączone i działa także w trayu.
 Można je wyłączyć polem nad zakładkami; ustawienie zostanie zapamiętane.
 Taki odczyt może podtrzymywać aktywność GPU, co ma znaczenie na baterii.
 
@@ -160,3 +160,27 @@ PayPal: https://paypal.me/proszczok
 Revolut: https://revolut.me/r_rosiejka
 Telegram: https://t.me/proszczok
 Wsparcie jest dobrowolne; linki otwierają domyślną przeglądarkę.
+
+NOWOŚCI 1.03: ODCZYTY, STABILNOŚĆ, KLAWIATURA I RGB
+Odczyty to lista Parametr/Wartość: strzałki góra/dół, Ctrl+A i Ctrl+C.
+Wartości zmieniają się co sekundę również z fokusem i w trayu. Numer wersji
+jest odczytywany w tytule oraz nazwie ikony, np. Radeoner v1.03.
+Ctrl+Tab / Ctrl+Shift+Tab przechodzą między zakładkami z dowolnej kontrolki.
+Przyciski regulacji widać na zakładkach Regulacja i Wentylator; skróty są globalne.
+Ustawienia mają grupy, krótsze komunikaty i przewijanie do pola z fokusem.
+
+Sterownik obsługuje własny proces pomocniczy tego samego EXE. Nie jest usługą.
+Awaria lub zawieszenie pomocnika nie zamyka interfejsu. Po błędzie odczytu
+program oznacza stare wartości i ponawia odczyt. Szczegóły: lokalny Radeoner.log.
+Po błędzie zapisu zawsze sprawdź bieżące ustawienia przez F5; zapis nie jest
+automatycznie ponawiany po awarii. Nie potwierdzono jeszcze reprodukcji awarii
+pod obciążeniem na fizycznej RX 9060; testowano izolację błędów i odczyty 880M.
+
+Regulacja -> Podświetlenie karty (RGB): uruchom OpenRGB, włącz jego serwer SDK
+na 127.0.0.1 (zwykle port 6742), kliknij Połącz, wybierz kartę, tryb i kolor.
+Zastosuj RGB wysyła ustawienia. Wyłącz podświetlenie lub 0% gasi światło.
+Jasność używa funkcji karty, gdy dostępna; w innym przypadku przyciemnia kolor.
+Wyświetlane są tylko urządzenia GPU wykryte przez OpenRGB. Obsługa modelu
+zależy od wersji OpenRGB. Fizycznego RGB TUF RX 9070 XT nie testowano lokalnie.
+OpenRGB nie jest dołączony ani instalowany automatycznie. Profile JSON Radeonera
+zawierają regulacje ADLX; nie zapisują obecnie ustawień podświetlenia.

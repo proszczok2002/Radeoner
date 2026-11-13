@@ -31,8 +31,9 @@ Binaria nie mają obecnie podpisu Authenticode.
 ### Wersje i tworzenie wydania
 
 Źródłem wersji jest `version.json`. Widoczne **1.0** ma numer wewnętrzny
-`1.0.0.0`, widoczne **1.01** — `1.0.1.0`, a **1.02** — `1.0.2.0`. Porównywana jest wersja wewnętrzna,
-nie liczba dziesiętna. Każde następne wydanie musi mieć większy numer wewnętrzny.
+`1.0.0.0`, **1.01** — `1.0.1.0`, **1.02** — `1.0.2.0`, a **1.03** — `1.0.3.0`.
+Porównywana jest wersja wewnętrzna, nie liczba dziesiętna. Każde następne
+wydanie musi mieć większy numer wewnętrzny.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -Test

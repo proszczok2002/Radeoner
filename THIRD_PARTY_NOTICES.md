@@ -1,5 +1,16 @@
 # Third-party notices / Informacje o składnikach zewnętrznych
 
+Optional RGB support uses an independently implemented client of the public
+[OpenRGB SDK protocol](https://github.com/CalcProgrammer1/OpenRGB/blob/master/Documentation/OpenRGBSDK.md).
+OpenRGB is an external application; no OpenRGB source, executable, library or
+hardware-access driver is redistributed in this repository or portable package.
+Its names and protocol identifiers are used for interoperability.
+
+Opcjonalna obsługa RGB korzysta z niezależnie zaimplementowanego klienta
+publicznego protokołu SDK OpenRGB. OpenRGB jest zewnętrznym programem;
+nie dołączamy jego kodu, binariów, bibliotek ani sterowników sprzętowych.
+Nazwy i identyfikatory protokołu służą zgodności komunikacji.
+
 Radeoner's application source is published under the MIT license in `LICENSE`.
 The repository and release packages do not redistribute the AMD ADLX SDK,
 AMD sample implementations or AMD driver binaries. Radeoner defines the native

@@ -48,9 +48,11 @@ namespace Radeoner
             Color background = system ? SystemColors.Control : dark ? Color.FromArgb(30, 30, 32) : Color.FromArgb(248, 248, 248);
             Color field = system ? SystemColors.Window : dark ? Color.FromArgb(43, 43, 46) : Color.White;
             Color foreground = system ? SystemColors.ControlText : dark ? Color.FromArgb(242, 242, 242) : Color.FromArgb(24, 24, 24);
-            ApplyRecursive(root, theme, background, field, foreground, system);
+            root.SuspendLayout();
+            try { ApplyRecursive(root, dark, background, field, foreground, system); }
+            finally { root.ResumeLayout(true); }
         }
-        private static void ApplyRecursive(Control control, string theme, Color background, Color field, Color text, bool system)
+        private static void ApplyRecursive(Control control, bool dark, Color background, Color field, Color text, bool system)
         {
             control.BackColor = control is TextBoxBase || control is NumericUpDown || control is ComboBox ? field : background;
             control.ForeColor = text;
@@ -59,19 +61,19 @@ namespace Radeoner
             {
                 button.UseVisualStyleBackColor = system;
                 button.FlatStyle = system ? FlatStyle.Standard : FlatStyle.Flat;
-                button.FlatAppearance.BorderColor = Dark(theme) ? Color.FromArgb(130, 130, 135) : Color.FromArgb(110, 110, 110);
+                button.FlatAppearance.BorderColor = dark ? Color.FromArgb(130, 130, 135) : Color.FromArgb(110, 110, 110);
             }
             var themed = control as ThemedButton;
-            if (themed != null) themed.DarkTheme = Dark(theme);
+            if (themed != null) themed.DarkTheme = dark;
             var checkbox = control as CheckBox;
             if (checkbox != null) { checkbox.UseVisualStyleBackColor = system; checkbox.FlatStyle = system ? FlatStyle.Standard : FlatStyle.Flat; }
             var themedCheck = control as ThemedCheckBox;
-            if (themedCheck != null) themedCheck.DarkTheme = Dark(theme);
+            if (themedCheck != null) themedCheck.DarkTheme = dark;
             var page = control as TabPage;
             if (page != null) page.UseVisualStyleBackColor = system;
             var tabs = control as TabControl;
             if (tabs != null) tabs.DrawMode = system ? TabDrawMode.Normal : TabDrawMode.OwnerDrawFixed;
-            foreach (Control child in control.Controls) ApplyRecursive(child, theme, background, field, text, system);
+            foreach (Control child in control.Controls) ApplyRecursive(child, dark, background, field, text, system);
             control.Invalidate();
         }
         internal static void DrawTab(TabControl tabs, DrawItemEventArgs e)

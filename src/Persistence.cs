@@ -50,7 +50,7 @@ namespace Radeoner
         [DataMember(Order = 7)] public int UpdateIntervalMinutes = 60;
         [OnDeserializing]
         private void Defaults(StreamingContext context)
-        { CheckUpdates = true; CheckUpdatesOnStartup = true; UpdateIntervalMinutes = 60; }
+        { RefreshSensors = true; CheckUpdates = true; CheckUpdatesOnStartup = true; UpdateIntervalMinutes = 60; }
         internal AppSettings Copy() { return (AppSettings)MemberwiseClone(); }
         public static string DefaultPath { get { return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Radeoner.settings.json"); } }
         public static AppSettings Load(string path)

@@ -2,6 +2,14 @@
 
 ## Polski
 
+- 1.03: jawne Ctrl+Tab/Ctrl+Shift+Tab, odczyty co sekundę i wersja w tytule/trayu.
+  Widoczny test rzeczywistych klawiszy oraz okien przeszedł z aktywnym NVDA 2026.3.1;
+  mowy nie przechwycono. [Zakres audytu](ACCESSIBILITY.md).
+- Awaria i zawieszenie własnego procesu sterownika zostały sprawdzone przez
+  kontrolowane rzeczywiste procesy. Test błędu próbki potwierdza ponowienie bez
+  zatrzymania timera i zachowanie szkicu. [Stabilność, ograniczenia RX 9060](STABILITY.md).
+- RGB sprawdzono na serwerze testowym TCP z kontrolą pakietów; nie na fizycznym
+  podświetleniu GPU. [Obsługa RGB i wymaganie OpenRGB](RGB.md).
 - Audyt 1.02: pięć zakładek, nazwy edycji liczbowych, odtworzenie fokusu
   po wymianie pól, zaznaczenie raportu, Ctrl+1…5 i motyw systemowy przeszły
   kontrolę. Rzeczywiste okna TaskDialog udostępniają treść zmian oraz przyciski
@@ -9,7 +17,7 @@
   [audyt dostępności](ACCESSIBILITY.md).
 - Publiczna aktualizacja **1.01 → 1.02** przeszła pełną podmianę, start nowego
   okna i sprzątanie kopii, zachowując profil i preferencje. [Wynik](UPDATE_TEST_1.02.md).
-- 37 testów automatycznych: interfejsy ADLX w pamięci, walidacja/zapis/cofanie,
+- 50 testów automatycznych: interfejsy ADLX w pamięci, walidacja/zapis/cofanie,
   JSON profili, WinForms/MSAA, preferencje, LNG, autostart w kluczu testowym,
   kanał aktualizacji, sumy, archiwa, kopie i wycofanie po nieudanym starcie.
 - Domyślne testy nie zapisują żadnych parametrów rzeczywistego GPU.
@@ -33,6 +41,13 @@ potwierdzenia działania funkcji na każdej karcie.
 
 ## English
 
+1.03 passed explicit Ctrl+Tab/Ctrl+Shift+Tab routing, one-second live readings
+and version labels. A visible real-keyboard/dialog test passed with NVDA 2026.3.1
+running; speech was not captured. [Audit](ACCESSIBILITY.md).
+Controlled real child-process crashes/hangs and transient sensor errors passed
+recovery/draft-preservation checks. [RX 9060 verification limits](STABILITY.md).
+RGB uses a strict loopback TCP fixture, not a physical RGB GPU. [RGB details](RGB.md).
+
 The 1.02 audit passed five-tab navigation, numeric edit names, focus after
 field replacement, report selection, Ctrl+1…5 and system-theme checks. Actual
 TaskDialog windows expose release notes, Yes/No and information/support
@@ -40,7 +55,7 @@ buttons through MSAA. See the [audit and NVDA checklist](ACCESSIBILITY.md).
 The public **1.01 → 1.02** update passed replacement, new startup and cleanup
 with preserved preferences/profile. [Evidence](UPDATE_TEST_1.02.md).
 
-37 automated tests cover in-memory ADLX interfaces, validation/readback/rollback,
+50 automated tests cover in-memory ADLX interfaces, validation/readback/rollback,
 JSON profiles, WinForms/MSAA, preferences/LNG, an isolated startup registry key,
 the update feed, checksums, archives, backups and failed-candidate rollback.
 Default tests never tune a physical GPU.

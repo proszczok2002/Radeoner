@@ -41,8 +41,9 @@ internal static partial class Tests
     [STAThread]
     private static int Main(string[] args)
     {
-        if (args.Length == 2 && (args[0] == "--live-ui" || args[0] == "--live-tray")) return LiveUi(args[1], args[0] == "--live-tray");
+        if (args.Length == 2 && (args[0] == "--live-ui" || args[0] == "--live-tray" || args[0] == "--live-keyboard")) return LiveUi(args[1], args[0] == "--live-tray", args[0] == "--live-keyboard");
         if (args.Length == 2 && args[0] == "--live-dialogs") return LiveDialogs(args[1]);
+        if (args.Length == 2 && args[0] == "--driver-fixture") return DriverHost.Run(int.Parse(args[1]), () => new RpcFixture());
         try
         {
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
@@ -179,7 +180,7 @@ internal static partial class Tests
                     }
                     var numbers = controls.OfType<NumericUpDown>().ToList();
                     Check(numbers.Count == 12 && numbers.All(n => !string.IsNullOrWhiteSpace(n.AccessibleDescription)), "Numeric fields or accessible ranges missing");
-                    Check(controls.OfType<TextBox>().Any(t => t.ReadOnly && t.Text.Contains("Temperatura GPU")), "Readable sensor text missing");
+                    Check(controls.OfType<ListView>().Any(t => t.Items.Cast<ListViewItem>().Any(i => i.Text.Contains("Temperatura GPU"))), "Readable sensor rows missing");
                     var automatic = controls.OfType<CheckBox>().Single(x => x.AccessibleName == L.T("ui.monitoringName"));
                     Check(automatic.Checked && driver.Writes == 0, "Tray monitoring must be available without tuning writes");
                     numbers[0].Text = "900";
@@ -189,12 +190,14 @@ internal static partial class Tests
             RunFeatureTests();
             RunUpdateTests();
             RunAccessibilityTests();
+            RunStabilityTests();
+            RunRgbTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;
         }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
     }
-    private static int LiveUi(string output, bool startInTray)
+    private static int LiveUi(string output, bool startInTray, bool keyboard = false)
     {
         // Run the real message loop and read-only initialization off screen. This is
         // a UI startup check, not a screen-reader listening session.
@@ -203,7 +206,7 @@ internal static partial class Tests
         using (var form = new MainForm(startInTray, TestFile("live.settings.json"), new StartupRegistration(Application.ExecutablePath, @"Software\Radeoner\Tests", "Unused")) { SuppressAutomaticUpdateChecks = true })
         using (var timer = new System.Windows.Forms.Timer { Interval = 100 })
         {
-            form.ShowInTaskbar = false; form.Opacity = 0; form.StartPosition = FormStartPosition.Manual; form.Location = new Point(-20000, -20000);
+            form.ShowInTaskbar = keyboard; form.Opacity = keyboard ? 1 : 0; form.StartPosition = FormStartPosition.Manual; form.Location = keyboard ? new Point(100, 100) : new Point(-20000, -20000);
             var watch = Stopwatch.StartNew();
             timer.Tick += async (sender, e) =>
             {
@@ -217,8 +220,8 @@ internal static partial class Tests
                     var controls = Descendants(form).ToList();
                     var selected = controls.OfType<ComboBox>().Single(x => x.AccessibleName == L.T("ui.gpu"));
                     Check(selected.SelectedItem != null && selected.AccessibilityObject.Name == "Karta AMD", "GPU selection inaccessible");
-                    var text = controls.OfType<TextBox>().Single(x => x.AccessibleName == "Odczyty i informacje o wybranej karcie");
-                    Check(text.Text.Contains(snapshot.Gpu.Name) && text.ReadOnly && text.AccessibilityObject.Value.Contains(snapshot.Gpu.Name), "Sensor text missing from MSAA");
+                    var text = controls.OfType<SensorView>().Single();
+                    Check(text.Text.Contains(snapshot.Gpu.Name) && text.AccessibilityObject.Role == AccessibleRole.List && text.Items.Count > 4, "Native sensor list missing from MSAA");
                     var actions = controls.OfType<Button>().ToList();
                     Check(actions.All(x => !string.IsNullOrWhiteSpace(x.AccessibilityObject.Name)), "Button MSAA name missing");
                     Check(actions.Single(x => x.AccessibleName.StartsWith("Zastosuj")).Enabled == false, "Apply enabled without edits");
@@ -238,7 +241,8 @@ internal static partial class Tests
                         typeof(MainForm).GetMethod("ProcessCmdKey", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(form, new object[] { message, Keys.Control | (Keys)((int)Keys.D1 + i) });
                         Check(tabControl.SelectedIndex == i && tabControl.Focused, "Direct tab shortcut failed");
                     }
-                    result = "PASS live WinForms/MSAA, native tray icon, close-to-tray, background sensor updates, restore and explicit exit" + (startInTray ? ", startup hidden" : "") + ".\r\n" + sensors.Report();
+                    string tour = keyboard ? await VisibleKeyboardTour(form) : "";
+                    result = "PASS live WinForms/MSAA, native tray icon, close-to-tray, background sensor updates, restore and explicit exit" + (startInTray ? ", startup hidden" : "") + ". " + tour + "\r\n" + sensors.Report();
                 }
                 catch (Exception ex) { result = "FAIL " + ex; }
                 // Wait for initialization before Close so disposal cannot race the driver.

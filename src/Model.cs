@@ -2,41 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Radeoner
 {
-    public sealed class GpuInfo
+    [DataContract] public sealed class GpuInfo
     {
-        public int Index, Type;
-        public string Name, Id, Memory, Driver;
+        [DataMember] public int Index, Type;
+        [DataMember] public string Name, Id, Memory, Driver;
         public string MemoryDescription { get { return string.IsNullOrEmpty(Memory) ? L.T("common.unavailable") : Memory; } }
         public string DriverDescription { get { return string.IsNullOrEmpty(Driver) ? L.T("common.unavailable") : Driver; } }
         public override string ToString() { return Name + " (" + L.T(Type == 1 ? "gpu.integrated" : Type == 2 ? "gpu.discrete" : "gpu.unknown") + ")"; }
     }
-    public sealed class Setting
+    [DataContract] public sealed class Setting
     {
-        public string Id, Name, Unit, Note;
-        public IntRange Range;
-        public int Value;
+        [DataMember] public string Id, Name, Unit, Note;
+        [DataMember] public IntRange Range;
+        [DataMember] public int Value;
     }
-    public sealed class FanPoint
+    [DataContract] public sealed class FanPoint
     {
-        public int Temperature, Speed;
+        [DataMember] public int Temperature, Speed;
         public FanPoint(int temperature, int speed) { Temperature = temperature; Speed = speed; }
     }
-    public sealed class Snapshot
+    [DataContract] public sealed class Snapshot
     {
-        public GpuInfo Gpu;
-        public List<Setting> Settings = new List<Setting>();
-        public List<FanPoint> Fan = new List<FanPoint>();
-        public IntRange FanTemperature, FanSpeed;
-        public bool? ZeroRpm, AtFactory;
-        public bool CanReset;
-        public List<string> Notes = new List<string>();
-        public List<string> Metrics = new List<string>();
-        public Dictionary<string, double> MetricValues = new Dictionary<string, double>();
-        public DateTimeOffset CapturedAt = DateTimeOffset.Now;
-        public string EnvironmentInfo;
+        [DataMember] public GpuInfo Gpu;
+        [DataMember] public List<Setting> Settings = new List<Setting>();
+        [DataMember] public List<FanPoint> Fan = new List<FanPoint>();
+        [DataMember] public IntRange FanTemperature, FanSpeed;
+        [DataMember] public bool? ZeroRpm, AtFactory;
+        [DataMember] public bool CanReset;
+        [DataMember] public List<string> Notes = new List<string>();
+        [DataMember] public List<string> Metrics = new List<string>();
+        [DataMember] public Dictionary<string, double> MetricValues = new Dictionary<string, double>();
+        [DataMember] public DateTimeOffset CapturedAt = DateTimeOffset.Now;
+        [DataMember] public string EnvironmentInfo;
         public string Report()
         {
             var b = new StringBuilder("Radeoner " + L.Version + "\r\n");
@@ -59,6 +60,10 @@ namespace Radeoner
         public List<FanPoint> Fan; // Null means leave the fan curve unchanged.
         public bool? ZeroRpm;
         public bool Empty { get { return Values.Count == 0 && Fan == null && !ZeroRpm.HasValue; } }
+    }
+    public interface ISensorBackend
+    {
+        Snapshot ReadSensors(int gpuIndex);
     }
     public interface IBackend : IDisposable
     {

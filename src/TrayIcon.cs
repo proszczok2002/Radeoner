@@ -16,11 +16,11 @@ namespace Radeoner
         }
         public static string Format(Snapshot snapshot, bool stale)
         {
-            if (snapshot == null) return "Radeoner — " + L.T("tray.waiting");
+            if (snapshot == null) return "Radeoner v" + L.Version + " — " + L.T("tray.waiting");
             string suffix = L.T("tray.sensors", Value(snapshot, "temperature", "°C"), Value(snapshot, "fan", "RPM"),
                 Value(snapshot, snapshot.MetricValues.ContainsKey("boardPower") ? "boardPower" : "power", "W"));
             if (stale) suffix += ", " + L.T("tray.lastRead", snapshot.CapturedAt.ToLocalTime().ToString("HH:mm"));
-            const string prefix = "Radeoner, ";
+            string prefix = "Radeoner v" + L.Version + ", ";
             int budget = Math.Max(1, 127 - prefix.Length - 2 - suffix.Length);
             string name = snapshot.Gpu.Name.Replace('\r', ' ').Replace('\n', ' ');
             if (name.Length > budget) name = name.Substring(0, Math.Max(0, budget - 1)) + "…";
@@ -60,7 +60,7 @@ namespace Radeoner
         private readonly ContextMenuStrip menu;
         private readonly Icon icon;
         private bool added, disposed;
-        private string text = "Radeoner";
+        private string text = "Radeoner v" + L.Version;
         internal event Action ShowRequested;
         internal bool Visible { get { return added; } }
         internal TrayIcon(ContextMenuStrip contextMenu)

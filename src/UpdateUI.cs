@@ -13,6 +13,7 @@ namespace Radeoner
         internal string UpdateCompletionPlan;
         internal bool UpdateWasRolledBack;
         private readonly FlowLayoutPanel updateFields = new FlowLayoutPanel();
+        private readonly GroupBox updateGroup = new GroupBox();
         private readonly CheckBox automaticUpdates = new ThemedCheckBox { AutoSize = true }, updatesAtStartup = new ThemedCheckBox { AutoSize = true };
         private readonly NumericUpDown updateMinutes = new NumericUpDown { Minimum = 5, Maximum = 10080, Width = 130 };
         private readonly Label updateIntervalLabel = new Label { AutoSize = true }, updateVersionLabel = new Label { AutoSize = true }, updateNote = new Label { AutoSize = true, MaximumSize = new Size(820, 0) };
@@ -28,8 +29,9 @@ namespace Radeoner
 
         private void BuildUpdates()
         {
+            var groupFields = SettingsGroup(updateGroup);
             ConfigureFields(updateFields); updateFields.Dock = DockStyle.None; updateFields.AutoSize = true; updateFields.AutoScroll = false;
-            personalFields.Controls.Add(updateFields);
+            groupFields.Controls.Add(updateFields);
             automaticUpdates.Checked = settings.CheckUpdates; updatesAtStartup.Checked = settings.CheckUpdatesOnStartup; updateMinutes.Value = settings.UpdateIntervalMinutes;
             updateFields.Controls.Add(updateVersionLabel); updateFields.Controls.Add(automaticUpdates); updateFields.Controls.Add(updatesAtStartup);
             var interval = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; interval.Controls.Add(updateIntervalLabel); interval.Controls.Add(updateMinutes); updateFields.Controls.Add(interval);
@@ -42,6 +44,7 @@ namespace Radeoner
         }
         private void LocalizeUpdates()
         {
+            updateGroup.Text = updateGroup.AccessibleName = L.T("update.tab");
             automaticUpdates.Text = L.T("update.automatic"); automaticUpdates.AccessibleName = L.T("update.automaticName");
             updatesAtStartup.Text = L.T("update.onStartup"); updatesAtStartup.AccessibleName = L.T("update.onStartupName");
             updateIntervalLabel.Text = L.T("update.interval"); updateMinutes.AccessibleName = L.T("update.intervalName"); updateMinutes.AccessibleDescription = L.T("update.intervalRange");

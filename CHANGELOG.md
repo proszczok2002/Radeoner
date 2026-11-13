@@ -1,5 +1,51 @@
 # Zmiany / Changelog
 
+## 1.03
+
+### Polski
+
+- Jawna obsługa Ctrl+Tab i Ctrl+Shift+Tab z każdej kontrolki głównego okna;
+  zachowano Ctrl+1…5. Poprawiono konflikty skrótów Alt po polsku i angielsku.
+- Odczyty są natywną listą parametrów i wartości. Domyślnie odświeżają się
+  co sekundę, również z fokusem i w trayu. Błąd próbki nie zatrzymuje timera.
+- ADLX przeniesiono do własnego procesu pomocniczego: izolacja awarii,
+  timeout i ponowne łączenie. Zapisy po awarii wymagają pełnego odczytu.
+  Dodano ograniczony lokalny Radeoner.log. Konkretnej awarii RX 9060 pod
+  obciążeniem nie odtworzono na fizycznej RX 9060; sprawdzono kontrolowane błędy.
+- Tytuł i tray podają wersję, np. Radeoner v1.03.
+- Ustawienia mają grupy, krótsze opisy i przewijanie do fokusu także przy
+  tekście 200%. Przyciski regulacji są na właściwych zakładkach; skróty globalne działają dalej.
+- Skrócono treść okien informacji i wsparcia, ograniczono powtarzane adresy
+  i wielokrotne odczyty ustawień motywu podczas malowania.
+- Regulacja → Podświetlenie karty (RGB): opcjonalny lokalny OpenRGB SDK,
+  wybór GPU/trybu, gotowe kolory lub R/G/B, jasność i wyłączenie. Jasność
+  sprzętowa, gdy zgłoszona; w pozostałych przypadkach przyciemnianie koloru.
+- 50 testów automatycznych. Widoczna próba rzeczywistych klawiszy oraz okien
+  informacji/wsparcia przeszła przy aktywnym NVDA; maksymalny czas utworzenia
+  dialogu w tej próbie: 52 ms. Nie przechwycono ani nie odsłuchano syntezy.
+- Dokumentacja PL/EN opisuje zakres audytu, stabilność i konfigurację RGB.
+
+### English
+
+- Explicit Ctrl+Tab/Ctrl+Shift+Tab handling from all main-window controls,
+  retained Ctrl+1…5, unique Polish/English Alt mnemonics.
+- Native parameter/value sensor list, live every second by default, including
+  focused rows and tray. A failed sample no longer stops polling.
+- ADLX runs in an owned child process with crash isolation, timeout and
+  reconnect. Full settings read is required after failure before writes.
+  Added bounded local Radeoner.log. The specific physical RX 9060 load crash
+  was not reproduced; controlled crash/hang tests were verified.
+- Window title and tray include the version, such as Radeoner v1.03.
+- Grouped Settings, shorter descriptions and scrolling to focus at 200% text.
+  Tuning buttons appear on relevant pages; global shortcuts remain available.
+- Shorter About/support content and fewer repeated theme-registry queries.
+- Optional GPU lighting through a local OpenRGB SDK server: GPU/mode, presets
+  or RGB channels, brightness and off. Hardware brightness when exposed,
+  otherwise color scaling. No OpenRGB installation or connection at startup.
+- 50 automated tests. A visible real-keyboard/native-dialog tour passed with
+  NVDA running; maximum dialog creation time in that tour was 52 ms. Speech
+  was not captured/listened to. Bilingual audit, stability and RGB documentation.
+
 ## 1.02
 
 ### Polski
