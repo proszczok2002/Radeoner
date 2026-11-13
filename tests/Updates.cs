@@ -49,7 +49,7 @@ internal static partial class Tests
     {
         string metadata = "https://github.com/proszczok2002/Radeoner/releases/download/" + update.Tag + "/update.json";
         var transport = new FakeUpdateTransport();
-        transport.Responses[UpdateFeed.LatestUrl] = Json(new GithubRelease { Tag = update.Tag, Assets = new List<GithubAsset> {
+        transport.Responses[UpdateFeed.LatestUrl] = Json(new GithubRelease { Tag = update.Tag, Body = "## Zmiany\n- Test aktualizacji", Assets = new List<GithubAsset> {
             new GithubAsset { Name = "update.json", Url = metadata }, new GithubAsset { Name = update.Manifest.Asset, Url = update.DownloadUrl, Size = update.Manifest.Size } } });
         transport.Responses[metadata] = Json(update.Manifest); transport.Responses[update.DownloadUrl] = archive; return transport;
     }
@@ -75,6 +75,7 @@ internal static partial class Tests
             {
                 var feed = new UpdateFeed(transport); var found = feed.CheckAsync(new Version(1, 0, 0, 0), CancellationToken.None).GetAwaiter().GetResult();
                 Check(found.Manifest.Version == "99.0.0.0" && found.Tag == "v99.0", "Newer release not found");
+                Check(found.ReleaseNotes.Contains("Test aktualizacji"), "Release notes were not read from GitHub");
                 Check(feed.DownloadAsync(found, CancellationToken.None).GetAwaiter().GetResult().SequenceEqual(archive), "Archive verification failed");
                 Check(feed.CheckAsync(new Version(99, 0, 0, 0), CancellationToken.None).GetAwaiter().GetResult() == null, "Same-version update offered");
                 transport.Responses[found.DownloadUrl] = Encoding.UTF8.GetBytes("corrupt");

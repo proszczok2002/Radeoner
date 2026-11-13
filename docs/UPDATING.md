@@ -2,10 +2,13 @@
 
 ## Polski
 
-W Aktualizacjach można włączyć lub wyłączyć sprawdzanie, wybrać sprawdzanie
+W Ustawieniach można włączyć lub wyłączyć sprawdzanie, wybrać sprawdzanie
 przy starcie i odstęp 5–10080 minut. Ustawienia są pamiętane w
 `Radeoner.settings.json`. `Sprawdź teraz` działa także przy wyłączonym harmonogramie.
-Pobranie i instalacja wymagają użycia osobnego przycisku. Przed restartem
+Nowa wersja pokazuje systemowe okno z opisem zmian z treści wydania GitHub.
+Tak pobiera i instaluje, Nie odkłada; Wszystkie zmiany otwiera pełny tekst.
+Odmowa nie jest ponawiana automatycznie dla tej samej wersji w bieżącej sesji.
+Sprawdź teraz lub Pobierz i zainstaluj pozwala wrócić do propozycji. Przed restartem
 wyeksportuj niezastosowane pola, jeżeli chcesz je zachować.
 
 ### Źródło i przebieg
@@ -28,7 +31,7 @@ Binaria nie mają obecnie podpisu Authenticode.
 ### Wersje i tworzenie wydania
 
 Źródłem wersji jest `version.json`. Widoczne **1.0** ma numer wewnętrzny
-`1.0.0.0`, a widoczne **1.01** — `1.0.1.0`. Porównywana jest wersja wewnętrzna,
+`1.0.0.0`, widoczne **1.01** — `1.0.1.0`, a **1.02** — `1.0.2.0`. Porównywana jest wersja wewnętrzna,
 nie liczba dziesiętna. Każde następne wydanie musi mieć większy numer wewnętrzny.
 
 ```powershell
@@ -56,14 +59,14 @@ sprawdza potwierdzenie i sprzątanie; nie zapisuje ustawień GPU.
 ```powershell
 # Pobranie przez prawdziwy publiczny kanał GitHub:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Update-E2E.ps1 `
-  -OldArchive .\artifacts\releases\1.0\Radeoner-1.0-portable.zip `
-  -ExpectedManifest .\artifacts\releases\1.01\update.json -FromGitHub
+  -OldArchive .\artifacts\releases\1.01\Radeoner-1.01-portable.zip `
+  -ExpectedManifest .\artifacts\releases\1.02\update.json -FromGitHub
 
 # To samo podmienianie z lokalnych plików, bez pobierania:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Update-E2E.ps1 `
-  -OldArchive .\artifacts\releases\1.0\Radeoner-1.0-portable.zip `
-  -ExpectedManifest .\artifacts\releases\1.01\update.json `
-  -NewArchive .\artifacts\releases\1.01\Radeoner-1.01-portable.zip
+  -OldArchive .\artifacts\releases\1.01\Radeoner-1.01-portable.zip `
+  -ExpectedManifest .\artifacts\releases\1.02\update.json `
+  -NewArchive .\artifacts\releases\1.02\Radeoner-1.02-portable.zip
 ```
 
 Opcja diagnostyczna `Radeoner.exe --test-update` wykonuje rzeczywisty update
@@ -83,9 +86,12 @@ potwierdzeniem działania EXE. Dowiązania w ścieżce plików aplikacji nie są
 
 ## English
 
-The Updates tab controls automatic checks, startup checks and a 5–10080 minute
+The Settings tab controls automatic checks, startup checks and a 5–10080 minute
 interval. Preferences persist next to the EXE. Check now works independently.
-Checking never installs automatically; Download and install is a separate action.
+Checking never installs automatically. A new version opens a native Windows
+prompt with GitHub release notes: Yes downloads and installs; No postpones.
+All changes opens the full readable/copyable text. An automatic offer appears
+once per version per session; manual checks can reopen it.
 Export unapplied edits before restarting if you want to retain them.
 
 The updater reads this repository's public latest-release API, accepts only a

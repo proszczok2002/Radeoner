@@ -1,4 +1,4 @@
-param([string]$AppDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'portable'), [switch]$LiveRead, [switch]$LiveUi, [switch]$LiveTray)
+param([string]$AppDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'portable'), [switch]$LiveRead, [switch]$LiveUi, [switch]$LiveTray, [switch]$LiveDialogs)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $output = Join-Path $root 'artifacts/tests'
@@ -15,7 +15,7 @@ $fixture = Join-Path $output 'Radeoner.UpdateFixture.exe'
 & $compiler /nologo /target:winexe /platform:x64 /optimize+ "/out:$fixture" (Join-Path $PSScriptRoot 'fixtures/UpdateFixture.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Update fixture build failed.' }
 $sources = @(Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.cs' | ForEach-Object { $_.FullName })
-& $compiler /nologo /utf8output /target:exe /platform:x64 /optimize+ /warn:4 "/out:$testExe" "/reference:$app" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:Accessibility.dll /reference:System.Runtime.Serialization.dll /reference:System.Net.Http.dll /reference:System.IO.Compression.dll $sources
+& $compiler /nologo /utf8output /target:exe /platform:x64 /optimize+ /warn:4 "/win32manifest:$(Join-Path $root 'app.manifest')" "/out:$testExe" "/reference:$app" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:Accessibility.dll /reference:System.Runtime.Serialization.dll /reference:System.Net.Http.dll /reference:System.IO.Compression.dll $sources
 if ($LASTEXITCODE -ne 0) { throw 'Test build failed.' }
 & $testExe
 if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
@@ -34,5 +34,12 @@ if ($LiveUi -or $LiveTray) {
     $process = Start-Process -FilePath $testExe -ArgumentList @($mode, ('"' + $report + '"')) -WindowStyle Hidden -PassThru
     if (-not $process.WaitForExit(40000)) { throw "UI test is still running (PID $($process.Id))." }
     if ($process.ExitCode -ne 0) { throw "UI startup failed: $report" }
+    Write-Output (Get-Content -LiteralPath $report -Encoding UTF8 -TotalCount 1)
+}
+if ($LiveDialogs) {
+    $report = Join-Path $output 'live-dialogs.txt'
+    $process = Start-Process -FilePath $testExe -ArgumentList @('--live-dialogs', ('"' + $report + '"')) -WindowStyle Hidden -PassThru
+    if (-not $process.WaitForExit(20000)) { throw "Native dialog test is still running (PID $($process.Id))." }
+    if ($process.ExitCode -ne 0) { throw "Native dialog test failed: $report" }
     Write-Output (Get-Content -LiteralPath $report -Encoding UTF8 -TotalCount 1)
 }

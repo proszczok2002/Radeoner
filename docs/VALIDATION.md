@@ -2,7 +2,12 @@
 
 ## Polski
 
-- 34 testy automatyczne: interfejsy ADLX w pamięci, walidacja/zapis/cofanie,
+- Audyt 1.02: pięć zakładek, nazwy edycji liczbowych, odtworzenie fokusu
+  po wymianie pól, zaznaczenie raportu, Ctrl+1…5 i motyw systemowy przeszły
+  kontrolę. Rzeczywiste okna TaskDialog udostępniają treść zmian oraz przyciski
+  Tak/Nie, informacji i wsparcia w MSAA. Pełny zakres i próby NVDA:
+  [audyt dostępności](ACCESSIBILITY.md).
+- 37 testów automatycznych: interfejsy ADLX w pamięci, walidacja/zapis/cofanie,
   JSON profili, WinForms/MSAA, preferencje, LNG, autostart w kluczu testowym,
   kanał aktualizacji, sumy, archiwa, kopie i wycofanie po nieudanym starcie.
 - Domyślne testy nie zapisują żadnych parametrów rzeczywistego GPU.
@@ -26,7 +31,12 @@ potwierdzenia działania funkcji na każdej karcie.
 
 ## English
 
-34 automated tests cover in-memory ADLX interfaces, validation/readback/rollback,
+The 1.02 audit passed five-tab navigation, numeric edit names, focus after
+field replacement, report selection, Ctrl+1…5 and system-theme checks. Actual
+TaskDialog windows expose release notes, Yes/No and information/support
+buttons through MSAA. See the [audit and NVDA checklist](ACCESSIBILITY.md).
+
+37 automated tests cover in-memory ADLX interfaces, validation/readback/rollback,
 JSON profiles, WinForms/MSAA, preferences/LNG, an isolated startup registry key,
 the update feed, checksums, archives, backups and failed-candidate rollback.
 Default tests never tune a physical GPU.

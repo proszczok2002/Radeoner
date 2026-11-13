@@ -34,7 +34,7 @@ or download a replacement copy.
 | Cooling | Fan curve, Zero RPM, minimum/target RPM when exposed |
 | Profiles | JSON export/import with GPU/subsystem, unit and range validation |
 | Tray | Alt+F4 hides the window; the icon shows the GPU and actual readings |
-| Personalization | Polish/English LNG files, system/light/dark theme, text size 100–200% |
+| Settings | Polish/English LNG files, system/light/dark theme, text size 100–200% |
 | Windows startup | Optional startup to the tray for the current user |
 | Updates | Manual and optional scheduled checks, download and executable replacement |
 
@@ -62,10 +62,12 @@ community testing. See [validation status](docs/VALIDATION.md).
 
 ## Updates
 
-The **Updates** tab offers checks at startup, an interval of **5–10080 minutes**
+The **Settings** tab offers checks at startup, an interval of **5–10080 minutes**
 (default 60), **Check now**, and **Download and install**. Automatic checks are
 initially enabled and can be switched off. Checking never installs an update
-automatically.
+automatically. A new version opens a native Windows dialog containing release
+notes. **Yes** downloads and installs; **No** postpones the update.
+**All changes** opens the full text for reading and copying.
 
 Updates come from this repository's latest stable [GitHub release](https://github.com/proszczok2002/Radeoner/releases).
 Radeoner verifies the ZIP and each file using SHA-256, exits, replaces the
@@ -85,6 +87,7 @@ The complete **1.0 → 1.01 update from public GitHub has been verified**:
 | --- | --- |
 | Tab / Shift+Tab | Fields and buttons |
 | Ctrl+Tab / Ctrl+Shift+Tab | Tabs |
+| Ctrl+1 … Ctrl+5 | Readings, Tuning, Fan, Report, Settings |
 | F5 | Read settings and sensors |
 | Ctrl+Enter | Apply edits |
 | Ctrl+E / Ctrl+I | Export / import a profile |
@@ -98,7 +101,7 @@ seconds continue in the tray and can keep a laptop GPU awake.
 
 Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
 `lang/pl.lng` and `lang/en.lng` (UTF-8, `key=value`, `\n` for a new line).
-Windows high contrast overrides the chosen theme. After moving the folder,
+The System theme follows the Windows app light/dark setting. Windows high contrast overrides the chosen theme. After moving the folder,
 turn Windows startup off and on again to register the new executable location.
 
 ## Build and contribute
@@ -123,3 +126,15 @@ pull requests. See [CHANGELOG.md](CHANGELOG.md) for releases.
 Application source: [MIT](LICENSE). The AMD SDK and driver binaries are not
 redistributed; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 Radeoner is an independent community project, not an AMD or Microsoft product.
+
+## Author, support and contact
+
+**Settings** contains **About** and **Support and contact**.
+Support is optional; link buttons open your browser.
+
+- [Author website](https://proszczok.pl/)
+- [PayPal](https://paypal.me/proszczok)
+- [Revolut](https://revolut.me/r_rosiejka)
+- [Contact on Telegram](https://t.me/proszczok)
+
+Audit scope and screen-reader checklist: [accessibility](docs/ACCESSIBILITY.md).

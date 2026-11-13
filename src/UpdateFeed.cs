@@ -42,6 +42,7 @@ namespace Radeoner
         [DataMember(Name = "draft")] internal bool Draft;
         [DataMember(Name = "prerelease")] internal bool Prerelease;
         [DataMember(Name = "html_url")] internal string Url;
+        [DataMember(Name = "body")] internal string Body;
         [DataMember(Name = "assets")] internal List<GithubAsset> Assets;
     }
     [DataContract]
@@ -54,7 +55,7 @@ namespace Radeoner
     public sealed class AvailableUpdate
     {
         public UpdateManifest Manifest;
-        public string DownloadUrl, ReleaseUrl, Tag;
+        public string DownloadUrl, ReleaseUrl, Tag, ReleaseNotes;
     }
     public interface IUpdateTransport : IDisposable
     {
@@ -115,6 +116,14 @@ namespace Radeoner
         internal static readonly string[] PackagePaths = { "Radeoner.exe", "Radeoner.exe.config", "Czytaj.txt", "Readme.en.txt", "LICENSE", "THIRD_PARTY_NOTICES.md", "lang/pl.lng", "lang/en.lng" };
         private readonly IUpdateTransport transport;
         public UpdateFeed(IUpdateTransport network) { transport = network; }
+        internal static string ReadableNotes(string notes)
+        {
+            if (string.IsNullOrWhiteSpace(notes)) return L.T("update.noNotes");
+            string text = Regex.Replace(notes, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)");
+            text = Regex.Replace(text, @"(?m)^\s*#{1,6}\s*", "").Replace("**", "").Replace("`", "");
+            text = Regex.Replace(text, @"[\x00-\x08\x0B\x0C\x0E-\x1F]", "").Trim();
+            return text;
+        }
         internal static T Parse<T>(byte[] bytes)
         {
             using (var reader = JsonReaderWriterFactory.CreateJsonReader(bytes, new XmlDictionaryReaderQuotas { MaxDepth = 24, MaxArrayLength = 1024, MaxStringContentLength = 65536 }))
@@ -156,7 +165,7 @@ namespace Radeoner
             var packages = release.Assets.Where(a => a.Name == manifest.Asset).ToList();
             if (packages.Count != 1 || packages[0].Size != manifest.Size || !IsReleaseAsset(packages[0].Url, release.Tag, manifest.Asset)) throw new InvalidOperationException(L.T("update.badRelease"));
             if (new Version(manifest.Version) <= current) return null;
-            return new AvailableUpdate { Manifest = manifest, Tag = release.Tag, DownloadUrl = packages[0].Url, ReleaseUrl = "https://github.com/" + Repository + "/releases/tag/" + release.Tag };
+            return new AvailableUpdate { Manifest = manifest, Tag = release.Tag, DownloadUrl = packages[0].Url, ReleaseNotes = release.Body, ReleaseUrl = "https://github.com/" + Repository + "/releases/tag/" + release.Tag };
         }
         internal async Task<byte[]> DownloadAsync(AvailableUpdate update, CancellationToken cancellation)
         {

@@ -45,11 +45,13 @@ namespace Radeoner
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += (sender, e) => MessageBox.Show(e.Exception.Message, L.T("driver.123"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-            using (var mutex = new Mutex(false, @"Local\Radeoner-SingleInstance"))
+            string completePlan = null;
+            for (int i = 0; i + 1 < args.Length; i++) if (args[i] == "--complete-update") completePlan = Path.GetFullPath(args[i + 1]);
+            string mutexName = @"Local\Radeoner-SingleInstance";
+            if (completePlan != null && UpdateInstall.ReadPlan(completePlan).SmokeExit) mutexName += "-Smoke-" + UpdateFeed.Hash(System.Text.Encoding.UTF8.GetBytes(completePlan));
+            using (var mutex = new Mutex(false, mutexName))
             {
                 if (!mutex.WaitOne(0, false)) { TrayIcon.SignalShow(); return 0; }
-                string completePlan = null;
-                for (int i = 0; i + 1 < args.Length; i++) if (args[i] == "--complete-update") completePlan = Path.GetFullPath(args[i + 1]);
                 try { Application.Run(new MainForm(Array.IndexOf(args, "--tray") >= 0) { UpdateCompletionPlan = completePlan, UpdateWasRolledBack = Array.IndexOf(args, "--update-rolled-back") >= 0 }); } finally { mutex.ReleaseMutex(); }
             }
             return 0;

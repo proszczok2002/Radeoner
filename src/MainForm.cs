@@ -41,6 +41,9 @@ namespace Radeoner
         internal Action<Exception> TestFailure;
         internal bool SuppressAutomaticUpdateChecks;
         private bool initializedSuccessfully;
+        private Control savedFocus;
+        private string savedEditor;
+        private int savedSelectionStart, savedSelectionLength;
         [DllImport("user32.dll")] private static extern void NotifyWinEvent(uint evt, IntPtr hwnd, int objectId, int childId);
 
         public MainForm() : this(false) { }
@@ -62,14 +65,14 @@ namespace Radeoner
             gpu.DropDownStyle = ComboBoxStyle.DropDownList; gpu.Dock = DockStyle.Fill; top.Controls.Add(gpu, 1, 0); layout.Controls.Add(top, 0, 0);
             var tools = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, WrapContents = true };
             tools.Controls.AddRange(new Control[] { refresh, export, import, save, monitoring }); layout.Controls.Add(tools, 0, 1);
-            tabs.Dock = DockStyle.Fill; tabs.DrawItem += (s, e) => Appearance.DrawTab(tabs, e);
+            tabs.Dock = DockStyle.Fill; tabs.Multiline = true; tabs.DrawItem += (s, e) => Appearance.DrawTab(tabs, e);
             ConfigureFields(tuningFields); ConfigureFields(fanFields); ConfigureFields(personalFields);
             AddTab(overview); AddTab(tuningFields); AddTab(fanFields); AddTab(report); AddTab(personalFields); layout.Controls.Add(tabs, 0, 2);
             var actions = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, WrapContents = true };
             actions.Controls.AddRange(new Control[] { apply, undo, factory, help, exit }); layout.Controls.Add(actions, 0, 3);
             status.Dock = DockStyle.Fill; status.MinimumSize = new Size(0, 60); layout.Controls.Add(status, 0, 4);
-            BuildPersonalization(); BuildUpdates();
-            trayMenu.Items.AddRange(new ToolStripItem[] { trayShow, trayRead, trayPersonalize, trayUpdates, new ToolStripSeparator(), trayExit });
+            BuildPersonalization(); BuildUpdates(); BuildInformation();
+            trayMenu.Items.AddRange(new ToolStripItem[] { trayShow, trayRead, trayPersonalize, new ToolStripSeparator(), trayExit });
             trayShow.Click += (s, e) => ShowFromTray(); trayRead.Click += async (s, e) => await RefreshSensors(true);
             trayPersonalize.Click += (s, e) => { ShowFromTray(); tabs.SelectedIndex = 4; language.Focus(); }; trayExit.Click += async (s, e) => await RequestExit();
             refresh.Click += async (s, e) => await RefreshAll(true); apply.Click += async (s, e) => await ApplyChanges();
@@ -90,7 +93,7 @@ namespace Radeoner
                 StartUpdateChecks();
             };
             FormClosing += HandleClosing; SystemEvents.UserPreferenceChanged += SystemPreferencesChanged;
-            ApplyLanguage(); ApplyAppearance(); status.Text = L.T("ui.connecting"); UpdateActions();
+            ApplyLanguage(); ApplyAppearance(); Accessibility.Order(this); status.Text = L.T("ui.connecting"); UpdateActions();
         }
         private static TextBox ReadOnlyText() { return new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, WordWrap = true }; }
         private static Button Button() { return new ThemedButton { AutoSize = true, Padding = new Padding(8, 4, 8, 4), UseVisualStyleBackColor = true }; }
@@ -163,16 +166,16 @@ namespace Radeoner
             SetButton(factory, "ui.factory", "ui.factoryName"); SetButton(save, "ui.saveReport", "ui.saveReportName"); SetButton(export, "ui.export", "ui.exportName");
             SetButton(import, "ui.import", "ui.importName"); SetButton(help, "ui.help", "ui.helpName"); SetButton(exit, "ui.exit", "ui.exitName");
             monitoring.Text = L.T("ui.monitoring"); monitoring.AccessibleName = L.T("ui.monitoringName"); tabs.AccessibleName = L.T("ui.tabs");
-            string[] keys = { "ui.readingsTab", "ui.tuningTab", "ui.fanTab", "ui.reportTab", "ui.personalTab" };
+            string[] keys = { "ui.readingsTab", "ui.tuningTab", "ui.fanTab", "ui.reportTab", "settings.tab" };
             for (int i = 0; i < keys.Length; i++) { tabs.TabPages[i].Text = L.T(keys[i]); tabs.TabPages[i].AccessibleName = L.T(keys[i]); }
             languageLabel.Text = L.T("prefs.language"); language.AccessibleName = L.T("prefs.languageName"); themeLabel.Text = L.T("prefs.theme"); theme.AccessibleName = L.T("prefs.themeName");
             textLabel.Text = L.T("prefs.text"); textScale.AccessibleName = L.T("prefs.textName");
             changingPreferences = true; int themeIndex = theme.SelectedIndex;
             theme.Items[0] = L.T("prefs.system"); theme.Items[1] = L.T("prefs.light"); theme.Items[2] = L.T("prefs.dark"); theme.SelectedIndex = themeIndex; changingPreferences = false;
             autoStart.Text = L.T("prefs.autostart"); autoStart.AccessibleName = L.T("prefs.autostartName"); preferencesNote.Text = L.T("prefs.note");
-            trayShow.Text = L.T("tray.show"); trayRead.Text = L.T("tray.refresh"); trayPersonalize.Text = L.T("ui.personalTab"); trayExit.Text = L.T("ui.exit");
+            trayShow.Text = L.T("tray.show"); trayRead.Text = L.T("tray.refresh"); trayPersonalize.Text = L.T("settings.tab"); trayExit.Text = L.T("ui.exit");
             foreach (ToolStripItem item in trayMenu.Items) item.AccessibleName = item.Text.Replace("&", ""); gpu.Refresh(); UpdateTray(false);
-            LocalizeUpdates();
+            LocalizeUpdates(); LocalizeInformation();
         }
         private static void SetButton(Button button, string textKey, string nameKey) { button.Text = L.T(textKey); button.AccessibleName = L.T(nameKey); }
         private void SystemPreferencesChanged(object sender, UserPreferenceChangedEventArgs e)
@@ -197,7 +200,38 @@ namespace Radeoner
             export.Enabled = import.Enabled = !busy && selected; trayRead.Enabled = !busy && selected; exit.Enabled = trayExit.Enabled = !busy;
             UpdateUpdateActions();
         }
-        private void SetBusy(bool value) { if (disposed) return; busy = value; UseWaitCursor = value; UpdateActions(); }
+        private void SetBusy(bool value)
+        {
+            if (disposed) return;
+            if (value && !busy)
+            {
+                savedFocus = Accessibility.Focused(this); savedEditor = null;
+                var text = savedFocus as TextBoxBase; savedSelectionStart = text == null ? 0 : text.SelectionStart; savedSelectionLength = text == null ? 0 : text.SelectionLength;
+                foreach (var pair in editors) if (pair.Value.ContainsFocus) savedEditor = pair.Key;
+                for (int i = 0; i < temperatures.Count; i++) { if (temperatures[i].ContainsFocus) savedEditor = "fan.t." + i; if (speeds[i].ContainsFocus) savedEditor = "fan.s." + i; }
+                if (zeroRpm != null && zeroRpm.ContainsFocus) savedEditor = "fan.zero";
+            }
+            bool wasBusy = busy; busy = value; UseWaitCursor = value; UpdateActions();
+            if (wasBusy && !value && Visible)
+            {
+                Control target = savedFocus;
+                if (savedEditor != null)
+                {
+                    if (editors.ContainsKey(savedEditor)) target = editors[savedEditor];
+                    else if (savedEditor == "fan.zero") target = zeroRpm;
+                    else if (savedEditor.StartsWith("fan.t.")) { int i; if (int.TryParse(savedEditor.Substring(6), out i) && i < temperatures.Count) target = temperatures[i]; }
+                    else if (savedEditor.StartsWith("fan.s.")) { int i; if (int.TryParse(savedEditor.Substring(6), out i) && i < speeds.Count) target = speeds[i]; }
+                }
+                if (target != null && !target.IsDisposed && target.CanFocus)
+                {
+                    target.Focus(); var text = target as TextBoxBase;
+                    if (text == null && target is NumericUpDown) text = target.Controls.OfType<TextBoxBase>().FirstOrDefault();
+                    if (text != null) text.Select(Math.Min(savedSelectionStart, text.TextLength), Math.Min(savedSelectionLength, Math.Max(0, text.TextLength - savedSelectionStart)));
+                }
+                else if (savedFocus != null) tabs.Focus();
+            }
+            if (!value) QueueUpdateOffer();
+        }
         private async Task FinishSensorRead() { if (sensorTask != null) try { await sensorTask; } catch { } }
         private void Failed(Exception ex) { if (disposed) return; if (TestFailure != null) { TestFailure(ex); return; } ShowFromTray(); Announce(ex.Message); MessageBox.Show(this, ex.Message, L.T("ui.messageTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information); }
         private async Task Initialize()
@@ -252,6 +286,7 @@ namespace Radeoner
         private NumericUpDown Number(string name, IntRange range, int value)
         {
             var number = new NumericUpDown { AccessibleName = name, AccessibleDescription = L.T("ui.range", range), Minimum = range.Min, Maximum = range.Max, Increment = range.Step, Value = value, Width = 160, DecimalPlaces = 0, ThousandsSeparator = false };
+            Accessibility.Number(number);
             number.TextChanged += (s, e) => { dirty = true; UpdateActions(); }; number.ValueChanged += (s, e) => { dirty = true; UpdateActions(); }; return number;
         }
         private void Render()
@@ -281,7 +316,7 @@ namespace Radeoner
                 zeroRpm = new ThemedCheckBox { Text = L.T("ui.zeroRpm"), AccessibleName = L.T("ui.zeroRpmName"), Checked = snapshot.ZeroRpm.Value, AutoSize = true };
                 zeroRpm.CheckedChanged += (s, e) => { dirty = true; UpdateActions(); }; fanFields.Controls.Add(zeroRpm);
             }
-            dirty = false; Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); UpdateActions(); UpdateTray(false);
+            dirty = false; Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); Accessibility.Order(this); UpdateActions(); UpdateTray(false);
         }
         private Dictionary<string, string> CaptureDraft()
         {
@@ -395,9 +430,11 @@ namespace Radeoner
             // Never race a native read/write during Windows shutdown.
             if (!busy && !sensorReading && backend != null) { backend.Dispose(); backend = null; }
         }
-        private void ShowHelp() { MessageBox.Show(this, L.T("ui.helpText", L.Version), L.T("ui.helpTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information); }
+        private void ShowHelp() { SystemDialogs.Details(this, L.T("ui.helpTitle"), L.T("ui.helpText", L.Version)); }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            if ((keyData & Keys.Modifiers) == Keys.Control && (keyData & Keys.KeyCode) >= Keys.D1 && (keyData & Keys.KeyCode) <= Keys.D5)
+            { tabs.SelectedIndex = (int)(keyData & Keys.KeyCode) - (int)Keys.D1; tabs.Focus(); return true; }
             if (keyData == Keys.F5) { refresh.PerformClick(); return true; }
             if (keyData == (Keys.Control | Keys.Enter)) { apply.PerformClick(); return true; }
             if (keyData == (Keys.Control | Keys.E)) { export.PerformClick(); return true; }

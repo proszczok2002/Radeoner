@@ -35,7 +35,7 @@ nie jest dołączana ani pobierana oddzielnie przez aplikację.
 | Chłodzenie | Krzywa wentylatora, Zero RPM, minimalne/docelowe RPM, jeśli dostępne |
 | Profile | Eksport/import JSON z kontrolą modelu GPU, podsystemu, jednostek i zakresów |
 | Tray | Alt+F4 chowa okno; ikona pokazuje nazwę GPU i rzeczywiste odczyty |
-| Personalizacja | Polski/English z LNG, motyw systemowy/jasny/ciemny, tekst 100–200% |
+| Ustawienia | Polski/English z LNG, motyw systemowy/jasny/ciemny, tekst 100–200% |
 | Start systemu | Opcjonalny autostart do traya dla bieżącego użytkownika |
 | Aktualizacje | Ręczne i opcjonalne okresowe sprawdzanie, pobieranie i podmiana plików |
 
@@ -64,10 +64,12 @@ funkcjami wymaga dalszych testów społeczności. Pełny zakres: [stan weryfikac
 
 ## Aktualizacje
 
-Zakładka **Aktualizacje** udostępnia sprawdzanie przy starcie, odstęp **5–10080
+Zakładka **Ustawienia** udostępnia sprawdzanie przy starcie, odstęp **5–10080
 minut** (domyślnie 60), **Sprawdź teraz** oraz **Pobierz i zainstaluj**.
 Sprawdzanie jest początkowo włączone i można je wyłączyć. Samo sprawdzanie
-nie instaluje aktualizacji automatycznie.
+nie instaluje aktualizacji automatycznie. Nowa wersja otwiera systemowe okno
+z opisem zmian. **Tak** pobiera i instaluje; **Nie** odkłada aktualizację.
+Przycisk **Wszystkie zmiany** otwiera pełny tekst do odczytu i kopiowania.
 
 Źródłem są najnowsze stabilne [wydania tego repozytorium](https://github.com/proszczok2002/Radeoner/releases).
 Program sprawdza SHA-256 ZIP-u i wszystkich plików, zamyka się, podmienia
@@ -87,6 +89,7 @@ Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
 | --- | --- |
 | Tab / Shift+Tab | Pola i przyciski |
 | Ctrl+Tab / Ctrl+Shift+Tab | Zakładki |
+| Ctrl+1 … Ctrl+5 | Odczyty, Regulacja, Wentylator, Raport, Ustawienia |
 | F5 | Odczyt ustawień i czujników |
 | Ctrl+Enter | Zastosowanie zmian |
 | Ctrl+E / Ctrl+I | Eksport / import profilu |
@@ -100,6 +103,7 @@ i działa także w trayu; może podtrzymywać aktywność GPU na baterii.
 
 Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Języki:
 `lang/pl.lng` i `lang/en.lng` (UTF-8, `klucz=tekst`, `\n` oznacza nową linię).
+Motyw Systemowy odczytuje jasny/ciemny wygląd aplikacji Windows.
 Wysoki kontrast Windows ma pierwszeństwo przed motywem. Po przeniesieniu
 folderu wyłącz i włącz autostart ponownie, aby zaktualizować ścieżkę.
 
@@ -133,3 +137,15 @@ for keyboard and NVDA accessibility. It offers driver-exposed monitoring and
 tuning, JSON profiles, tray readings, personalization and optional GitHub
 updates. GPU/firmware support varies. The source is MIT licensed and
 contributions are welcome. See the [full English README](README.en.md).
+
+## Autor, wsparcie i kontakt
+
+W **Ustawieniach** dostępne są **O programie** oraz **Wsparcie i kontakt**.
+Wsparcie jest dobrowolne; przyciski otwierają przeglądarkę.
+
+- [Strona autora](https://proszczok.pl/)
+- [PayPal](https://paypal.me/proszczok)
+- [Revolut](https://revolut.me/r_rosiejka)
+- [Kontakt na Telegramie](https://t.me/proszczok)
+
+Zakres audytu i lista prób z czytnikiem: [dostępność](docs/ACCESSIBILITY.md).

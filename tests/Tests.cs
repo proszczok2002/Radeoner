@@ -42,6 +42,7 @@ internal static partial class Tests
     private static int Main(string[] args)
     {
         if (args.Length == 2 && (args[0] == "--live-ui" || args[0] == "--live-tray")) return LiveUi(args[1], args[0] == "--live-tray");
+        if (args.Length == 2 && args[0] == "--live-dialogs") return LiveDialogs(args[1]);
         try
         {
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
@@ -187,6 +188,7 @@ internal static partial class Tests
             }));
             RunFeatureTests();
             RunUpdateTests();
+            RunAccessibilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;
         }
@@ -226,6 +228,16 @@ internal static partial class Tests
                     await Task.Delay(3600);
                     var sensors = Field<Snapshot>(form, "sensors"); Check(sensors.CapturedAt > snapshot.CapturedAt, "Background tray readings did not update");
                     Call(form, "ShowFromTray"); Check(form.Visible && form.ShowInTaskbar && !form.IsDisposed, "Tray restore failed"); form.Opacity = 0;
+                    var tabControl = Field<TabControl>(form, "tabs"); tabControl.SelectedIndex = 3;
+                    var reportBox = Field<TextBox>(form, "report"); reportBox.Focus(); reportBox.Select(4, 8);
+                    Call(form, "SetBusy", true); Call(form, "Render"); Call(form, "SetBusy", false);
+                    Check(reportBox.Focused && reportBox.SelectionStart == 4 && reportBox.SelectionLength == 8, "Read/rebuild lost report focus or selection");
+                    for (int i = 0; i < 5; i++)
+                    {
+                        var message = Message.Create(form.Handle, 0, IntPtr.Zero, IntPtr.Zero);
+                        typeof(MainForm).GetMethod("ProcessCmdKey", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(form, new object[] { message, Keys.Control | (Keys)((int)Keys.D1 + i) });
+                        Check(tabControl.SelectedIndex == i && tabControl.Focused, "Direct tab shortcut failed");
+                    }
                     result = "PASS live WinForms/MSAA, native tray icon, close-to-tray, background sensor updates, restore and explicit exit" + (startInTray ? ", startup hidden" : "") + ".\r\n" + sensors.Report();
                 }
                 catch (Exception ex) { result = "FAIL " + ex; }

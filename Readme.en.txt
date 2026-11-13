@@ -1,4 +1,4 @@
-Radeoner 1.01 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.02 - lightweight, portable AMD GPU control for Windows
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner
@@ -21,9 +21,11 @@ Alt+F4 and the close button hide to the tray. Use Exit in the window or tray
 menu to stop the app. Sensor updates every three seconds are optional and can
 keep a laptop GPU awake. Missing readings are marked rather than estimated.
 
-Updates tab: optional checks at startup and every 5-10080 minutes (default 60).
+Settings tab: optional checks at startup and every 5-10080 minutes (default 60).
 Check now also works when automatic checks are off. Download and install uses
 the latest stable GitHub release, verifies SHA-256 and restarts Radeoner.
+A new version opens a native Windows prompt containing release notes.
+Yes installs; No postpones. All changes opens the full, copyable text.
 The old executable remains in a temporary backup until the new window has
 initialized successfully, then the backup and temporary helper are removed.
 If startup fails, the updater attempts to restore the previous files.
@@ -37,7 +39,7 @@ Text readings can be selected and copied using Ctrl+A, Ctrl+C.
 
 Preferences are saved next to the EXE in Radeoner.settings.json. Translations
 are in lang/pl.lng and lang/en.lng (UTF-8, key=value, \n for a new line).
-High contrast overrides the selected theme. Moving the portable folder requires
+System theme follows the Windows light/dark app setting. High contrast overrides the selected theme. Moving the portable folder requires
 turning Windows startup off and on again to register the new EXE location.
 
 Validation limitations: automated WinForms/MSAA checks do not replace an NVDA
@@ -48,3 +50,10 @@ the maximum clock and voltage can be offsets from the base values.
 
 Source and collaboration: https://github.com/proszczok2002/Radeoner
 License: MIT for the application source. See THIRD_PARTY_NOTICES.md.
+
+Ctrl+1 to Ctrl+5: Readings, Tuning, Fan, Report, Settings.
+About and Support and contact are in Settings. Support is optional.
+Author: https://proszczok.pl/
+PayPal: https://paypal.me/proszczok
+Revolut: https://revolut.me/r_rosiejka
+Telegram: https://t.me/proszczok

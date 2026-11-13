@@ -30,11 +30,11 @@ Nie zmieniają parametrów GPU. CI wykonuje ten zestaw na Windows.
 Testy rzeczywistego sprzętu są opcjonalne i wyłącznie odczytowe:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Smoke.ps1 -LiveRead -LiveTray
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Smoke.ps1 -LiveRead -LiveTray -LiveDialogs
 ```
 
 Przejście z NVDA: nazwa karty, Tab/Shift+Tab, Ctrl+Tab, nazwy/jednostki pól,
-F5, F6, kopiowanie raportu, Alt+F4, menu traya, Personalizacja i Aktualizacje.
+F5, F6, kopiowanie raportu, Alt+F4, menu traya, Ustawienia, O programie, Wsparcie i kontakt.
 Zapisz wersję NVDA oraz konkretne zachowanie. Sam odczyt etykiet w MSAA nie
 jest potwierdzeniem odsłuchu czytnika ekranu.
 
@@ -74,7 +74,7 @@ downloaded SDK contents or driver binaries.
 Default tests use in-memory native ADLX interfaces. They cover tuning validation,
 readback/rollback, JSON profiles, accessible controls, languages, an isolated
 startup registry key, and updater file/process handling. They never tune a real
-GPU. The optional `-LiveRead -LiveTray` checks only read hardware.
+GPU. The optional `-LiveRead -LiveTray -LiveDialogs` checks only read hardware.
 
 For NVDA testing, record its version and actual speech/navigation behavior for
 GPU selection, fields/units, tabs, reports, tray restoration, personalization

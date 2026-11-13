@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Radeoner
 {
@@ -33,10 +34,17 @@ namespace Radeoner
     }
     internal static class Appearance
     {
-        internal static bool Dark(string theme) { return theme == "dark" && !SystemInformation.HighContrast; }
+        internal static Func<bool> TestSystemDark;
+        internal static bool SystemDark()
+        {
+            if (TestSystemDark != null) return TestSystemDark();
+            try { using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")) return key != null && Convert.ToInt32(key.GetValue("AppsUseLightTheme", 1)) == 0; }
+            catch { return false; }
+        }
+        internal static bool Dark(string theme) { return !SystemInformation.HighContrast && (theme == "dark" || theme == "system" && SystemDark()); }
         internal static void Apply(Control root, string theme)
         {
-            bool dark = Dark(theme), system = theme == "system" || SystemInformation.HighContrast;
+            bool dark = Dark(theme), system = theme == "system" && !dark || SystemInformation.HighContrast;
             Color background = system ? SystemColors.Control : dark ? Color.FromArgb(30, 30, 32) : Color.FromArgb(248, 248, 248);
             Color field = system ? SystemColors.Window : dark ? Color.FromArgb(43, 43, 46) : Color.White;
             Color foreground = system ? SystemColors.ControlText : dark ? Color.FromArgb(242, 242, 242) : Color.FromArgb(24, 24, 24);

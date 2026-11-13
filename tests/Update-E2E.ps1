@@ -17,7 +17,7 @@ $beforeHash = (Get-FileHash -LiteralPath $exe).Hash.ToLowerInvariant()
 $expected = Get-Content -LiteralPath $ExpectedManifest -Encoding UTF8 -Raw | ConvertFrom-Json
 $expectedExe = $expected.Files | Where-Object { $_.Path -eq 'Radeoner.exe' }
 if ([version]$expected.Version -le [version]$beforeVersion) { throw 'Expected version must be newer.' }
-if (@(Get-Process -Name Radeoner -ErrorAction SilentlyContinue).Count) { throw 'Close Radeoner before the isolated integration test.' }
+if (@(Get-Process -Name Radeoner -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $exe }).Count) { throw 'The isolated test folder is already in use.' }
 $settingsFile = Join-Path $app 'Radeoner.settings.json'
 $profileFile = Join-Path $app 'my-profile.json'
 [IO.File]::WriteAllText($settingsFile,'{"Version":1,"Language":"en","Theme":"dark","TextScale":125,"RefreshSensors":false,"CheckUpdates":false,"CheckUpdatesOnStartup":false,"UpdateIntervalMinutes":120}')

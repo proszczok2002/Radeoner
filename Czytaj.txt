@@ -1,4 +1,4 @@
-Radeoner 1.01 — panel sterownika AMD
+Radeoner 1.02 — panel sterownika AMD
 
 Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
 4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu
@@ -46,7 +46,7 @@ Format jest niezależny od wybranego języka interfejsu.
 TRAY I AUTOSTART
 Alt+F4 i krzyżyk ukrywają okno, zachowując niezastosowane wartości pól.
 Kliknięcie lub aktywowanie ikony w zasobniku otwiera okno. Menu kontekstowe
-(prawy przycisk myszy lub klawisz menu) zawiera Otwórz, Odśwież, Personalizacja
+(prawy przycisk myszy lub klawisz menu) zawiera Otwórz, Odśwież, Ustawienia
 i Zakończ. Ten ostatni, tak jak przycisk Zakończ w oknie, kończy cały program.
 Ponowne uruchomienie EXE otwiera okno już uruchomionej instancji.
 Ikona zawiera prawdziwe odczyty dla wybranego GPU, np. temperaturę, obroty
@@ -57,15 +57,16 @@ Odświeżanie co 3 sekundy jest domyślnie włączone i działa także w trayu.
 Można je wyłączyć polem nad zakładkami; ustawienie zostanie zapamiętane.
 Taki odczyt może podtrzymywać aktywność GPU, co ma znaczenie na baterii.
 
-W Personalizacji zaznacz Uruchamiaj Radeonera ze startem systemu. Program
+W Ustawieniach zaznacz Uruchamiaj Radeonera ze startem systemu. Program
 zarejestruje swój EXE dla bieżącego użytkownika i uruchomi się do traya po
 zalogowaniu. Nie stosuje wtedy profilu GPU. Odznaczenie usuwa wpis autostartu.
 Autostart jest domyślnie wyłączony; sama instalacja ani uruchomienie go nie włącza.
 Zachowaj folder programu w stałym miejscu. Po przeniesieniu wyłącz i włącz
 autostart ponownie, aby zaktualizować ścieżkę. Argument --tray uruchamia do traya.
 
-PERSONALIZACJA I PLIKI LNG
+USTAWIENIA I PLIKI LNG
 Wybierz motyw Systemowy, Jasny lub Ciemny oraz tekst od 100% do 200%.
+Systemowy odczytuje jasny/ciemny wygląd aplikacji Windows.
 Wysoki kontrast Windows ma pierwszeństwo. Język Polski/English zmienia się
 od razu, także w nazwach dla NVDA. Zmiana wyglądu lub języka zachowuje pola.
 Tłumaczenia UTF-8: lang/pl.lng i lang/en.lng, wpisy klucz=tekst.
@@ -76,11 +77,13 @@ Preferencje wyglądu, języka i odświeżania zapisują się w Radeoner.settings
 obok EXE. Plik tworzy się po zmianie preferencji; nie zawiera profilu GPU.
 
 AKTUALIZACJE PROGRAMU
-Zakładka Aktualizacje zawiera pole Sprawdzaj aktualizacje automatycznie,
+Zakładka Ustawienia zawiera pole Sprawdzaj aktualizacje automatycznie,
 sprawdzanie przy uruchomieniu i odstęp w minutach (5–10080, domyślnie 60).
 Oba pola są początkowo włączone. Możesz je wyłączyć; Sprawdź teraz działa
 niezależnie od ustawień automatycznych. Sprawdzanie nie pobiera i nie instaluje
-nowego programu bez użycia przycisku Pobierz i zainstaluj.
+nowego programu bez zgody. Nowa wersja od razu pokazuje systemowe okno
+z opisem zmian i przyciskami Tak/Nie. Tak rozpoczyna aktualizację.
+Wszystkie zmiany otwiera pełny tekst do odczytu i kopiowania.
 Źródło: https://github.com/proszczok2002/Radeoner/releases
 Pobierana jest najnowsza stabilna wersja. Program weryfikuje SHA-256 archiwum
 i każdego pliku. Po pobraniu zamyka się, podmienia pliki i uruchamia nową wersję.
@@ -149,3 +152,11 @@ Program nie jest produktem AMD ani Microsoft i nie zawiera sterownika AMD.
 Źródła interfejsu:
 https://gpuopen.com/adlx/
 https://github.com/GPUOpen-LibrariesAndSDKs/ADLX
+
+Ctrl+1 do Ctrl+5: Odczyty, Regulacja, Wentylator, Raport, Ustawienia.
+O programie oraz Wsparcie i kontakt znajdują się w Ustawieniach.
+Strona autora: https://proszczok.pl/
+PayPal: https://paypal.me/proszczok
+Revolut: https://revolut.me/r_rosiejka
+Telegram: https://t.me/proszczok
+Wsparcie jest dobrowolne; linki otwierają domyślną przeglądarkę.
