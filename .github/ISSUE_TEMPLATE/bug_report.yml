@@ -1,0 +1,35 @@
+name: Błąd / Bug report
+description: Zgłoś problem z programem lub dostępnością / Report an application or accessibility issue
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Wersja Radeonera / Radeoner version
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: GPU, sterownik i Windows / GPU, driver and Windows
+      placeholder: Radeon model, driver version, Windows version
+    validations:
+      required: true
+  - type: input
+    id: screen_reader
+    attributes:
+      label: NVDA lub inny czytnik / NVDA or another screen reader
+      description: Podaj wersję, jeśli problem dotyczy dostępności / Include its version for accessibility issues
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki i rzeczywisty wynik / Steps and actual result
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwany wynik / Expected result
+  - type: textarea
+    id: report
+    attributes:
+      label: Istotny fragment raportu / Relevant report excerpt

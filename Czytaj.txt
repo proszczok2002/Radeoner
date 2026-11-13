@@ -1,0 +1,151 @@
+Radeoner 1.0 — panel sterownika AMD
+
+Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
+4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu
+Adrenalin, usług Radeonera ani dodatkowego środowiska internetowego.
+
+KOMUNIKACJA ZE STEROWNIKIEM
+Program wczytuje amdadlx64.dll wyłącznie z katalogu systemowego Windows.
+Biblioteka musi być dostarczona przez zainstalowany sterownik AMD.
+Niektóre starsze karty i sterowniki nie obsługują ADLX. Jeśli połączenie się
+nie powiedzie, pozostaje informacja o karcie wykrytej przez Windows.
+Nie kopiuj bibliotek sterownika z innego komputera do folderu programu.
+
+FUNKCJE
+- wybór karty AMD; rozpoznawanie integry i karty dedykowanej przez ADLX;
+- tekstowe odczyty czujników, jednostki, informacja o braku obsługi;
+- limit mocy w procentach, zegary GPU i VRAM, napięcie;
+- także tabele stanów wydajności starszych GPU obsługiwanych przez ADLX;
+- krzywa wentylatora: temperatura w stopniach C i prędkość w procentach;
+- Zero RPM, minimalna i docelowa prędkość w RPM, jeśli dostępne;
+- zastosowanie tylko zmienionych wartości z potwierdzeniem odczytem;
+- próba odtworzenia poprzednich wartości po nieudanym zapisie;
+- cofnięcie ostatniej udanej zmiany w bieżącej sesji;
+- osobny reset wszystkich ustawień regulacji wybranej karty do fabrycznych;
+- zapis raportu tekstowego.
+- eksport i import profili JSON z wartościami ustawień i krzywą wentylatora;
+- Alt+F4 i krzyżyk chowają do traya; osobne Zakończ zamyka cały program;
+- ikona pokazuje nazwę GPU, temperaturę, obroty i moc, jeśli sterownik je podaje;
+- Personalizacja: język polski/angielski, motyw i rozmiar tekstu 100–200%;
+- opcjonalny autostart dla bieżącego użytkownika, bez uprawnień administratora.
+
+PROFILE JSON
+Eksportuj profil (Ctrl+E) zapisuje wszystkie dostępne wartości z pól, także
+niezastosowane zmiany, krzywą wentylatora i Zero RPM. Gdy pola są niezmienione,
+jest to kopia ustawień z ostatniego odczytu; F5 pozwala najpierw odczytać je ponownie.
+Eksport nie zapisuje żadnych parametrów do GPU.
+Importuj profil (Ctrl+I) odczytuje aktualne możliwości karty i sprawdza model,
+podsystem, typ GPU, jednostki, zakresy, kroki i punkty krzywej. Profil innej karty
+lub z niezgodnymi ustawieniami jest odrzucany z komunikatem. Identyfikator
+instancji komputera nie jest częścią dopasowania; model i podsystem muszą pasować.
+Import wypełnia pola. Sprawdź je i wybierz Zastosuj, aby przywrócić parametry.
+Nie ma automatycznego stosowania profilu po uruchomieniu ani po imporcie.
+Plik JSON zawiera format i wersję, datę UTC, nazwę i model GPU oraz ustawienia.
+Format jest niezależny od wybranego języka interfejsu.
+
+TRAY I AUTOSTART
+Alt+F4 i krzyżyk ukrywają okno, zachowując niezastosowane wartości pól.
+Kliknięcie lub aktywowanie ikony w zasobniku otwiera okno. Menu kontekstowe
+(prawy przycisk myszy lub klawisz menu) zawiera Otwórz, Odśwież, Personalizacja
+i Zakończ. Ten ostatni, tak jak przycisk Zakończ w oknie, kończy cały program.
+Ponowne uruchomienie EXE otwiera okno już uruchomionej instancji.
+Ikona zawiera prawdziwe odczyty dla wybranego GPU, np. temperaturę, obroty
+w RPM i moc całej karty, a jeśli tego czujnika nie ma — moc GPU. Brak odczytu
+jest oznaczony tekstowo. Długość nazwy jest dopasowana do limitu ikony Windows.
+Po wyłączeniu odświeżania lub błędzie ikona pokazuje czas ostatniego odczytu.
+Odświeżanie co 3 sekundy jest domyślnie włączone i działa także w trayu.
+Można je wyłączyć polem nad zakładkami; ustawienie zostanie zapamiętane.
+Taki odczyt może podtrzymywać aktywność GPU, co ma znaczenie na baterii.
+
+W Personalizacji zaznacz Uruchamiaj Radeonera ze startem systemu. Program
+zarejestruje swój EXE dla bieżącego użytkownika i uruchomi się do traya po
+zalogowaniu. Nie stosuje wtedy profilu GPU. Odznaczenie usuwa wpis autostartu.
+Autostart jest domyślnie wyłączony; sama instalacja ani uruchomienie go nie włącza.
+Zachowaj folder programu w stałym miejscu. Po przeniesieniu wyłącz i włącz
+autostart ponownie, aby zaktualizować ścieżkę. Argument --tray uruchamia do traya.
+
+PERSONALIZACJA I PLIKI LNG
+Wybierz motyw Systemowy, Jasny lub Ciemny oraz tekst od 100% do 200%.
+Wysoki kontrast Windows ma pierwszeństwo. Język Polski/English zmienia się
+od razu, także w nazwach dla NVDA. Zmiana wyglądu lub języka zachowuje pola.
+Tłumaczenia UTF-8: lang/pl.lng i lang/en.lng, wpisy klucz=tekst.
+Komentarz zaczyna się od #, a zapis \n oznacza nową linię. Nazw kluczy nie zmieniaj.
+Brakujące wpisy korzystają z tłumaczeń zapasowych wbudowanych z tych samych LNG.
+Po edycji pliku przełącz język lub uruchom aplikację ponownie.
+Preferencje wyglądu, języka i odświeżania zapisują się w Radeoner.settings.json
+obok EXE. Plik tworzy się po zmianie preferencji; nie zawiera profilu GPU.
+
+AKTUALIZACJE PROGRAMU
+Zakładka Aktualizacje zawiera pole Sprawdzaj aktualizacje automatycznie,
+sprawdzanie przy uruchomieniu i odstęp w minutach (5–10080, domyślnie 60).
+Oba pola są początkowo włączone. Możesz je wyłączyć; Sprawdź teraz działa
+niezależnie od ustawień automatycznych. Sprawdzanie nie pobiera i nie instaluje
+nowego programu bez użycia przycisku Pobierz i zainstaluj.
+Źródło: https://github.com/proszczok2002/Radeoner/releases
+Pobierana jest najnowsza stabilna wersja. Program weryfikuje SHA-256 archiwum
+i każdego pliku. Po pobraniu zamyka się, podmienia pliki i uruchamia nową wersję.
+Poprzedni EXE pozostaje w kopii do chwili, gdy nowe okno potwierdzi poprawny
+start. Wtedy stary EXE i tymczasowy pomocnik są usuwane. Jeśli nowa wersja
+nie wystartuje, updater podejmie próbę przywrócenia poprzednich plików.
+Ustawienia Radeoner.settings.json i profile użytkownika nie są podmieniane.
+Niezastosowane pola należy przed aktualizacją wyeksportować do profilu.
+Aktualizacja nie zmienia sterownika ani parametrów GPU. Połączenie z GitHubem
+nie wymaga konta i nie wysyła odczytów czujników ani profili.
+W rzadkim przypadku blokady plików przez system pozostaje ukryty folder
+.radeoner-update-... z kopią i informacją o błędzie. Szczegóły odzyskiwania
+opisano w dokumentacji repozytorium.
+
+OGRANICZENIA SPRZĘTU
+Lista funkcji wynika z zapytań do sterownika, nie z nazwy karty.
+Nie każda integra, karta dedykowana ani laptop pozwala zmieniać parametry.
+Firmware producenta może blokować zegary, napięcia, moc i wentylatory.
+Program nie odblokowuje BIOS-u ani kontrolera wentylatorów laptopa.
+ADLX podaje limit mocy względem fabrycznego w procentach. To nie jest TDP
+w watach ani wspólny limit procesora i integry. Moc GPU w watach w odczytach
+jest pomiarem czujnika i nie oznacza regulowanego TDP.
+Na Navi4 i nowszych maksymalny zegar i napięcie to przesunięcia względem
+wartości bazowych, na pozostałych obsługiwanych kartach — wartości bezwzględne.
+Dlatego te pola są opisane jako wartość / przesunięcie.
+Zakresy i kroki pochodzą z aktualnego sterownika.
+Program nie instaluje, nie usuwa ani nie aktualizuje sterowników.
+
+OBSŁUGA
+Wybierz kartę i zakładkę Regulacja lub Wentylator. Wpisz wartości, wybierz
+Zastosuj, przeczytaj listę zmian i zatwierdź. Zmiany mogą wpłynąć na stabilność.
+Program ponownie sprawdza aktualne wartości przed zapisem, aby wykryć zmiany
+w innym narzędziu, i sprawdza wartości po zapisie. Nie wykonuje testu stabilności.
+Nie uruchamiaj równocześnie kilku narzędzi zmieniających te same parametry.
+Po błędzie sprawdź komunikat o przywróceniu i odśwież odczyt.
+Reset fabryczny obejmuje także zmiany z innych programów.
+Uruchomienie programu niczego nie zmienia. Zamknięcie nie cofa ustawień
+zapisanych do sterownika. Autostart jest opcjonalny; profili nie stosuje automatycznie.
+
+KLAWIATURA I NVDA
+Tab i Shift+Tab: pola i przyciski.
+Ctrl+Tab / Ctrl+Shift+Tab: zakładki.
+Strzałki góra/dół: zmiana wartości pola liczbowego o krok sterownika.
+F5: odświeżenie ustawień i czujników.
+Ctrl+Enter: zastosowanie zmian.
+Ctrl+E: eksport profilu JSON. Ctrl+I: import profilu do pól.
+Ctrl+Shift+S: zapis raportu.
+Alt+F4: ukrycie do traya. Zakończ w oknie lub w menu traya: pełne zamknięcie.
+F6: przejście do tekstu ostatniego komunikatu.
+F1: pomoc.
+Tekst odczytów i raportu można zaznaczyć Ctrl+A i skopiować Ctrl+C.
+Standardowe kontrolki Windows mają jawne nazwy, jednostki i zakresy dostępności.
+Program ma systemowe kontrolki i obsługuje wysoki kontrast.
+Testy automatyczne dostępności nie zastępują odsłuchu w prawdziwej sesji NVDA.
+
+DIAGNOSTYKA BEZ ZMIANY USTAWIEŃ
+Radeoner.exe --report "C:\ścieżka\raport.txt"
+Ta opcja odczytuje karty, możliwości i czujniki oraz zapisuje wskazany plik.
+
+PROJEKT
+Kod w src, kompilacja: powershell -NoProfile -ExecutionPolicy Bypass -File
+build.ps1 -Test. Kompilator dostarczany z .NET Framework, bez NuGet.
+SDK AMD nie jest dołączane do publicznych źródeł ani paczek i nie jest potrzebne
+do kompilacji. Licencja projektu: MIT, z informacjami w THIRD_PARTY_NOTICES.md.
+Program nie jest produktem AMD ani Microsoft i nie zawiera sterownika AMD.
+Źródła interfejsu:
+https://gpuopen.com/adlx/
+https://github.com/GPUOpen-LibrariesAndSDKs/ADLX

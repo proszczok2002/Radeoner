@@ -1,0 +1,19 @@
+name: Propozycja / Feature request
+description: Zaproponuj ulepszenie / Suggest an improvement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Co chcesz zrobić i co przeszkadza? / What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propozycja rozwiązania / Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Klawiatura i czytnik ekranu / Keyboard and screen reader considerations

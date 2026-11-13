@@ -1,0 +1,133 @@
+# Radeoner
+
+**Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
+
+[English documentation](README.en.md) · [Pobierz / Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Zgłoś problem / Issues](https://github.com/proszczok2002/Radeoner/issues) · [Współpraca / Contributing](CONTRIBUTING.md)
+
+Radeoner komunikuje się ze sterownikiem AMD przez publiczne API ADLX. Pozwala
+korzystać z odczytów i regulacji udostępnianych przez kartę bez instalowania
+panelu Adrenalin. Interfejs to Microsoft Windows Forms i .NET Framework 4.8:
+standardowe kontrolki, obsługa klawiatury, jawne nazwy dla czytników ekranu
+i tekstowe wyniki. Bez przeglądarki, usługi działającej w tle i dodatkowego
+sterownika Radeonera.
+
+Kod aplikacji jest publiczny na licencji **MIT**. Możesz zgłaszać błędy,
+proponować funkcje, ulepszać tłumaczenia i przesyłać pull requesty.
+
+## Pobranie i uruchomienie
+
+1. Pobierz `Radeoner-<wersja>-portable.zip` ze strony [wydań](https://github.com/proszczok2002/Radeoner/releases).
+2. Rozpakuj cały ZIP do folderu z prawem zapisu.
+3. Uruchom **Radeoner.exe**. Instalator i uprawnienia administratora nie są wymagane.
+
+Wymagania: **Windows 10/11 x64, .NET Framework 4.8** oraz sterownik AMD
+udostępniający ADLX. Tryb instalacji sterownika **Driver Only** jest obsługiwany,
+jeśli ten sterownik zawiera ADLX. Biblioteka jest wczytywana z System32;
+nie jest dołączana ani pobierana oddzielnie przez aplikację.
+
+## Co potrafi
+
+| Obszar | Funkcje |
+| --- | --- |
+| Karty | Wybór AMD GPU i rozpoznawanie integry/karty dedykowanej przez sterownik |
+| Odczyty | Obciążenie, temperatura, zegary, moc, pamięć, obroty i napięcie, jeśli dostępne |
+| Regulacja | Procentowy limit mocy, zegary GPU/VRAM, napięcie, stany starszych kart |
+| Chłodzenie | Krzywa wentylatora, Zero RPM, minimalne/docelowe RPM, jeśli dostępne |
+| Profile | Eksport/import JSON z kontrolą modelu GPU, podsystemu, jednostek i zakresów |
+| Tray | Alt+F4 chowa okno; ikona pokazuje nazwę GPU i rzeczywiste odczyty |
+| Personalizacja | Polski/English z LNG, motyw systemowy/jasny/ciemny, tekst 100–200% |
+| Start systemu | Opcjonalny autostart do traya dla bieżącego użytkownika |
+| Aktualizacje | Ręczne i opcjonalne okresowe sprawdzanie, pobieranie i podmiana plików |
+
+Uruchomienie aplikacji nie stosuje profilu GPU. Import jedynie wypełnia pola;
+**Zastosuj** wyświetla listę zmian, zapisuje je i sprawdza odczytem sterownika.
+Po błędzie zapisu program próbuje odtworzyć poprzednie wartości. Eksport
+obejmuje także niezastosowane pola; aby wykonać kopię bieżącego stanu
+sterownika, najpierw odśwież odczyt klawiszem F5.
+
+## Ograniczenia sprzętu i weryfikacji
+
+**Nie każda karta, integra ani laptop udostępnia regulację.** Radeoner pyta
+sterownik o możliwości i opisuje brak obsługi. Nie odblokowuje BIOS-u ani
+kontrolera wentylatorów laptopa. Na lokalnie sprawdzonym Radeon 880M działały
+odczyty, lecz sterownik nie udostępniał ręcznej regulacji.
+
+Limit mocy jest procentem względem fabrycznego limitu, **nie TDP w watach**
+ani wspólnym limitem CPU/iGPU. Na Navi4+ maksymalny zegar i napięcie mogą
+oznaczać przesunięcie względem wartości bazowej. Zmiany parametrów mogą wpływać
+na stabilność; aplikacja nie wykonuje testu stabilności.
+
+Automatyczne testy dostępności obejmują kontrolki WinForms/MSAA, ale **odsłuch
+w prawdziwej sesji NVDA pozostaje do sprawdzenia**. Zapisy sprawdzono na
+symulowanych interfejsach ADLX; fizyczna regulacja na kartach z odblokowanymi
+funkcjami wymaga dalszych testów społeczności. Pełny zakres: [stan weryfikacji](docs/VALIDATION.md).
+
+## Aktualizacje
+
+Zakładka **Aktualizacje** udostępnia sprawdzanie przy starcie, odstęp **5–10080
+minut** (domyślnie 60), **Sprawdź teraz** oraz **Pobierz i zainstaluj**.
+Sprawdzanie jest początkowo włączone i można je wyłączyć. Samo sprawdzanie
+nie instaluje aktualizacji automatycznie.
+
+Źródłem są najnowsze stabilne [wydania tego repozytorium](https://github.com/proszczok2002/Radeoner/releases).
+Program sprawdza SHA-256 ZIP-u i wszystkich plików, zamyka się, podmienia
+pliki i uruchamia nową wersję. Poprzedni EXE pozostaje w kopii do potwierdzenia
+startu nowego okna. Następnie stary EXE i tymczasowy pomocnik są usuwane.
+Jeżeli kandydat nie wystartuje, updater próbuje przywrócić poprzednie pliki.
+Profile i `Radeoner.settings.json` są zachowywane. Sterowniki i ustawienia
+GPU nie są aktualizowane ani stosowane.
+
+Szczegóły formatu, odzyskiwania i testowania: [aktualizacje / updates](docs/UPDATING.md).
+
+## Klawiatura, tray i pliki
+
+| Skrót | Działanie |
+| --- | --- |
+| Tab / Shift+Tab | Pola i przyciski |
+| Ctrl+Tab / Ctrl+Shift+Tab | Zakładki |
+| F5 | Odczyt ustawień i czujników |
+| Ctrl+Enter | Zastosowanie zmian |
+| Ctrl+E / Ctrl+I | Eksport / import profilu |
+| Ctrl+Shift+S | Zapis raportu |
+| F6 / F1 | Tekst ostatniego komunikatu / pomoc |
+| Alt+F4 | Ukrycie do traya |
+
+**Zakończ** w oknie lub menu traya kończy cały program. Ponowne uruchomienie
+EXE otwiera istniejące okno. Odświeżanie czujników co 3 sekundy jest opcjonalne
+i działa także w trayu; może podtrzymywać aktywność GPU na baterii.
+
+Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Języki:
+`lang/pl.lng` i `lang/en.lng` (UTF-8, `klucz=tekst`, `\n` oznacza nową linię).
+Wysoki kontrast Windows ma pierwszeństwo przed motywem. Po przeniesieniu
+folderu wyłącz i włącz autostart ponownie, aby zaktualizować ścieżkę.
+
+## Kompilacja i współpraca
+
+```powershell
+git clone https://github.com/proszczok2002/Radeoner.git
+cd Radeoner
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -Test
+powershell -NoProfile -ExecutionPolicy Bypass -File .\package.ps1
+```
+
+Gotowy EXE trafia do `portable/`, a ZIP, `update.json` i sumy SHA-256 do
+`artifacts/releases/<wersja>/`. Wykorzystywany jest kompilator dostarczany
+z .NET Framework; Visual Studio, `dotnet SDK`, NuGet i SDK AMD nie są potrzebne.
+Testy domyślne nie wymagają fizycznej karty AMD i nie zmieniają ustawień GPU.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) opisuje strukturę kodu, testy, tłumaczenia
+i zgłaszanie zmian. [CHANGELOG.md](CHANGELOG.md) zawiera historię wydań.
+
+## Licencja i powiązania
+
+Kod aplikacji: [MIT](LICENSE). SDK AMD i pliki sterownika nie są dołączane;
+szczegóły: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Radeoner jest niezależnym projektem społecznościowym, nie produktem AMD ani Microsoft.
+
+---
+
+**English:** Radeoner is a lightweight, portable Windows AMD GPU panel designed
+for keyboard and NVDA accessibility. It offers driver-exposed monitoring and
+tuning, JSON profiles, tray readings, personalization and optional GitHub
+updates. GPU/firmware support varies. The source is MIT licensed and
+contributions are welcome. See the [full English README](README.en.md).

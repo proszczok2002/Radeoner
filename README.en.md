@@ -1,0 +1,123 @@
+# Radeoner
+
+**A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
+
+[Polska dokumentacja](README.md) · [Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Report an issue](https://github.com/proszczok2002/Radeoner/issues) · [Contribute](CONTRIBUTING.md)
+
+Radeoner communicates with the installed AMD driver through the public ADLX API.
+Use the monitoring and tuning capabilities your GPU exposes without installing
+the Adrenalin control panel. Its Microsoft Windows Forms/.NET Framework 4.8 UI
+uses standard controls, keyboard navigation, explicit screen-reader names and
+text results. No browser runtime, Radeoner service or extra kernel driver.
+
+The application source is public under the **MIT license**. Bug reports,
+translations, accessibility improvements and pull requests are welcome.
+
+## Download and run
+
+1. Download `Radeoner-<version>-portable.zip` from [Releases](https://github.com/proszczok2002/Radeoner/releases).
+2. Extract the complete archive into a writable folder.
+3. Run **Radeoner.exe**. No installer or administrator privileges are required.
+
+Requirements: **Windows 10/11 x64, .NET Framework 4.8**, and an AMD driver that
+supplies ADLX. A **Driver Only** installation works when that driver includes
+ADLX. The driver library is loaded from System32; Radeoner does not bundle it
+or download a replacement copy.
+
+## Features
+
+| Area | Capabilities |
+| --- | --- |
+| GPUs | Select an AMD GPU; integrated/discrete identification from the driver |
+| Monitoring | Usage, temperatures, clocks, power, memory, RPM and voltage when exposed |
+| Tuning | Percentage power limit, GPU/VRAM clocks, voltage and legacy performance states |
+| Cooling | Fan curve, Zero RPM, minimum/target RPM when exposed |
+| Profiles | JSON export/import with GPU/subsystem, unit and range validation |
+| Tray | Alt+F4 hides the window; the icon shows the GPU and actual readings |
+| Personalization | Polish/English LNG files, system/light/dark theme, text size 100–200% |
+| Windows startup | Optional startup to the tray for the current user |
+| Updates | Manual and optional scheduled checks, download and executable replacement |
+
+Starting the app never applies a GPU profile. Import only fills the editor.
+**Apply** shows the changes, writes them and verifies driver readback. A failed
+write triggers an attempt to restore previous values. Export includes unapplied
+editor values; press F5 first when backing up the current driver settings.
+
+## Hardware support and validation limits
+
+**Not every GPU, integrated GPU or laptop exposes tuning.** Radeoner queries
+capabilities and explains unavailable features. It does not unlock firmware or
+control a laptop's embedded fan controller. The tested Radeon 880M exposed
+sensors but no manual tuning through its installed driver.
+
+The power limit is a percentage relative to the factory setting, **not TDP in
+watts** or a shared CPU/iGPU power limit. On Navi4+, maximum clock and voltage
+may be offsets from base values. Tuning can affect stability; Radeoner does not
+run a stability test.
+
+Automated accessibility checks cover WinForms/MSAA controls, but **a real NVDA
+listening session remains outstanding**. Writes have been tested against
+in-memory ADLX interfaces; physical tuning on supported GPUs needs further
+community testing. See [validation status](docs/VALIDATION.md).
+
+## Updates
+
+The **Updates** tab offers checks at startup, an interval of **5–10080 minutes**
+(default 60), **Check now**, and **Download and install**. Automatic checks are
+initially enabled and can be switched off. Checking never installs an update
+automatically.
+
+Updates come from this repository's latest stable [GitHub release](https://github.com/proszczok2002/Radeoner/releases).
+Radeoner verifies the ZIP and each file using SHA-256, exits, replaces the
+files and starts the new version. The old EXE stays in a backup until the new
+window confirms successful initialization. It then removes the previous EXE
+and temporary helper. If the candidate fails to start, the updater attempts
+to restore the previous files. User profiles and `Radeoner.settings.json` are
+preserved. Driver packages and GPU tuning settings are not updated or applied.
+
+See [update format, recovery and tests](docs/UPDATING.md) for details.
+
+## Keyboard, tray and preferences
+
+| Shortcut | Action |
+| --- | --- |
+| Tab / Shift+Tab | Fields and buttons |
+| Ctrl+Tab / Ctrl+Shift+Tab | Tabs |
+| F5 | Read settings and sensors |
+| Ctrl+Enter | Apply edits |
+| Ctrl+E / Ctrl+I | Export / import a profile |
+| Ctrl+Shift+S | Save a report |
+| F6 / F1 | Latest status text / help |
+| Alt+F4 | Hide to the tray |
+
+**Exit** in the window or tray menu stops the app completely. Launching the
+EXE again shows the existing window. Optional sensor updates every three
+seconds continue in the tray and can keep a laptop GPU awake.
+
+Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
+`lang/pl.lng` and `lang/en.lng` (UTF-8, `key=value`, `\n` for a new line).
+Windows high contrast overrides the chosen theme. After moving the folder,
+turn Windows startup off and on again to register the new executable location.
+
+## Build and contribute
+
+```powershell
+git clone https://github.com/proszczok2002/Radeoner.git
+cd Radeoner
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -Test
+powershell -NoProfile -ExecutionPolicy Bypass -File .\package.ps1
+```
+
+The EXE is written to `portable/`. The ZIP, `update.json` and checksums are
+written to `artifacts/releases/<version>/`. The build uses the compiler supplied
+with .NET Framework; Visual Studio, `dotnet SDK`, NuGet and the AMD SDK are not
+required. Default tests do not need an AMD GPU and never change GPU settings.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) covers source layout, tests, translations and
+pull requests. See [CHANGELOG.md](CHANGELOG.md) for releases.
+
+## License and attribution
+
+Application source: [MIT](LICENSE). The AMD SDK and driver binaries are not
+redistributed; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Radeoner is an independent community project, not an AMD or Microsoft product.
