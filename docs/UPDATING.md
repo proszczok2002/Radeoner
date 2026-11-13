@@ -56,6 +56,10 @@ folder ze spacją w nazwie i kontrolne preferencje/profile. Potrzebuje paczki
 starej wersji i manifestu nowej. Test uruchamia rzeczywisty nowy interfejs,
 sprawdza potwierdzenie i sprzątanie; nie zapisuje ustawień GPU.
 
+Zmień `OldArchive` na rzeczywistą ścieżkę ZIP-u 1.01. Stare wydania po
+porządkach są w `niepotrzebne/` (indeks wskazuje ścieżkę); paczkę można też
+pobrać z [wydania 1.01](https://github.com/proszczok2002/Radeoner/releases/tag/v1.01).
+
 ```powershell
 # Pobranie przez prawdziwy publiczny kanał GitHub:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Update-E2E.ps1 `
@@ -116,6 +120,8 @@ with the commands above and attach ZIP, update.json and SHA256SUMS.txt to tag
 
 The integration script above creates an isolated portable copy, tests the real
 replacement/startup/cleanup path and checks preserved preference/profile hashes.
+Set OldArchive to the actual 1.01 ZIP path: old local releases are archived
+under niepotrzebne/ after housekeeping, or can be downloaded from Releases.
 `-FromGitHub` downloads through the same public production feed as the app.
 The explicit developer command `--test-update` is not used during ordinary startup.
 

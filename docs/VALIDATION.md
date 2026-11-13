@@ -7,6 +7,8 @@
   kontrolę. Rzeczywiste okna TaskDialog udostępniają treść zmian oraz przyciski
   Tak/Nie, informacji i wsparcia w MSAA. Pełny zakres i próby NVDA:
   [audyt dostępności](ACCESSIBILITY.md).
+- Publiczna aktualizacja **1.01 → 1.02** przeszła pełną podmianę, start nowego
+  okna i sprzątanie kopii, zachowując profil i preferencje. [Wynik](UPDATE_TEST_1.02.md).
 - 37 testów automatycznych: interfejsy ADLX w pamięci, walidacja/zapis/cofanie,
   JSON profili, WinForms/MSAA, preferencje, LNG, autostart w kluczu testowym,
   kanał aktualizacji, sumy, archiwa, kopie i wycofanie po nieudanym starcie.
@@ -35,6 +37,8 @@ The 1.02 audit passed five-tab navigation, numeric edit names, focus after
 field replacement, report selection, Ctrl+1…5 and system-theme checks. Actual
 TaskDialog windows expose release notes, Yes/No and information/support
 buttons through MSAA. See the [audit and NVDA checklist](ACCESSIBILITY.md).
+The public **1.01 → 1.02** update passed replacement, new startup and cleanup
+with preserved preferences/profile. [Evidence](UPDATE_TEST_1.02.md).
 
 37 automated tests cover in-memory ADLX interfaces, validation/readback/rollback,
 JSON profiles, WinForms/MSAA, preferences/LNG, an isolated startup registry key,

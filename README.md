@@ -82,6 +82,8 @@ GPU nie są aktualizowane ani stosowane.
 Szczegóły formatu, odzyskiwania i testowania: [aktualizacje / updates](docs/UPDATING.md).
 Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
 [wynik testu i sumy plików](docs/UPDATE_TEST.md).
+Najnowsze **1.01 → 1.02** również przeszło pełny test publicznego kanału:
+[wynik testu 1.02](docs/UPDATE_TEST_1.02.md).
 
 ## Klawiatura, tray i pliki
 

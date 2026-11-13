@@ -80,6 +80,8 @@ preserved. Driver packages and GPU tuning settings are not updated or applied.
 See [update format, recovery and tests](docs/UPDATING.md) for details.
 The complete **1.0 → 1.01 update from public GitHub has been verified**:
 [test result and file checksums](docs/UPDATE_TEST.md).
+The latest **1.01 → 1.02** public-feed integration test also passed:
+[1.02 test result](docs/UPDATE_TEST_1.02.md).
 
 ## Keyboard, tray and preferences
 

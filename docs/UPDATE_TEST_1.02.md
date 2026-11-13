@@ -13,7 +13,15 @@ osobnego mutexu tylko dla zweryfikowanego planu SmokeExit, dzięki czemu
 nie trzeba zamykać normalnie działającego Radeonera. Zwykłe uruchomienie
 nadal używa jednej instancji.
 
-Test publicznego kanału zostanie dopisany po publikacji wydania.
+Publiczny kanał GitHub: **PASS**, 2026-11-13, 21:24 UTC. Opublikowany EXE
+1.01 sam pobrał manifest i ZIP 1.02 przez anonimowy kanał latest. Potwierdzono
+identyczne sumy końcowego EXE, start nowego okna, usunięcie starego EXE/pomocnika
+oraz niezmienione sumy profilu i preferencji. Normalnie działająca kopia
+użytkownika i NVDA pozostały uruchomione. Test nie stosował ustawień GPU.
+
+Wydanie: [Radeoner 1.02](https://github.com/proszczok2002/Radeoner/releases/tag/v1.02).
+Kompilacja i 37 testów w GitHub Actions również przeszły dla commitu
+`4d3af2d4c1a48b1afa535429e04d4b452b8f96c0`.
 
 ## English
 
@@ -27,7 +35,12 @@ The test used an isolated folder containing spaces. A verified SmokeExit plan
 gets an isolated mutex in 1.02, allowing diagnostics alongside the user's
 running app. Ordinary startup retains single-instance behavior.
 
-Public-feed evidence will be added after publication.
+Public GitHub-feed test: **PASS**, 2026-11-13, 21:24 UTC. The published 1.01
+EXE downloaded the 1.02 manifest/ZIP through the anonymous latest-release feed.
+The final EXE matched its checksum; the new window confirmed startup, old
+EXE/helper were removed, and preferences/profile hashes were unchanged.
+The user's normal app and NVDA stayed running. No GPU settings were applied.
+GitHub Actions build and all 37 tests passed for commit `4d3af2d`.
 
 ## Sumy / Checksums
 
@@ -39,5 +52,7 @@ Public-feed evidence will be added after publication.
 
 Local raw evidence before housekeeping:
 `artifacts/update-e2e/local-20261113-222216/result.json`.
+Public-feed raw evidence:
+`artifacts/update-e2e/github-20261113-222441/result.json`.
 After housekeeping use the corresponding `niepotrzebne/*/INDEKS.csv`.
 Public 1.0 → 1.01 evidence remains in [UPDATE_TEST.md](UPDATE_TEST.md).
