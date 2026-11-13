@@ -2,7 +2,7 @@
 
 ## Polski
 
-Lokalny test pełnego mechanizmu: **PASS**, 2026-11-13, 22:58 UTC.
+Lokalny test pełnego mechanizmu: **PASS**, 2026-11-13, 23:08 UTC.
 Opublikowany EXE 1.02 zaktualizował się do paczki 1.03. Potwierdzono:
 
 - zmianę wersji pliku 1.0.2.0 → 1.0.3.0 i zgodność końcowej sumy;
@@ -16,7 +16,7 @@ użytkownika i NVDA pozostały uruchomione. Test publiczny zostanie dopisany po 
 
 ## English
 
-Local full-update test: **PASS**, 2026-11-13, 22:58 UTC. The published 1.02 EXE
+Local full-update test: **PASS**, 2026-11-13, 23:08 UTC. The published 1.02 EXE
 updated to 1.03 (1.0.2.0 → 1.0.3.0). The final EXE matched its checksum;
 the actual new window and ADLX child initialized; startup was acknowledged,
 old EXE/update helper were removed, and preference/profile hashes stayed equal.
@@ -29,9 +29,9 @@ Public-feed evidence will be added after publication.
 | Plik / File | SHA-256 |
 | --- | --- |
 | 1.02 EXE | `bc67d81630a187736d1479608685a1fcae0f6ecd071917c35afaa16a59c29cfe` |
-| 1.03 ZIP | `0c97c13d78600dbcf95a99c58ec86652687804836a9dbaee1de66d160cecafcb` |
-| 1.03 EXE | `643c2caf6af035b42993d1ec9318f8df62d69525577850cd745e2ce27f91d5a0` |
+| 1.03 ZIP | `721410567b146944e442506dd309055d3ce8f5ff250a3140d5d6bb8f42fbbd53` |
+| 1.03 EXE | `7aee2607ce981c7911e030b4222684e97e5a6d25ef6feed9ec36903049e3efee` |
 
 Raw local evidence before housekeeping:
-`artifacts/update-e2e/local-20261113-235842/result.json`.
+`artifacts/update-e2e/local-20261114-000850/result.json`.
 After housekeeping use the corresponding `niepotrzebne/*/INDEKS.csv`.

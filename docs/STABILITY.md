@@ -16,6 +16,8 @@ Zmiany poniżej ograniczają skutki awarii i poprawiają wykryty problem odświe
 - UI nie ładuje ADLX. Wszystkie operacje sterownika są szeregowane w własnym
   procesie `Radeoner.exe --driver-worker`, komunikującym się przez lokalne
   przekierowane strumienie. Nie ma nowej usługi, portu sieciowego ani sterownika.
+- Odczyt strumienia rozpoznaje również znacznik UTF-8 BOM z terminala.
+  Przypadek ten wykryło CI i obejmuje go test komunikacji.
 - Awaria natywnego pomocnika lub brak odpowiedzi kończy żądanie z błędem,
   pozostawiając UI. Limit zwykłego żądania to 6 sekund, inicjalizacji 20 sekund.
   Kolejne połączenie jest możliwe po krótkiej przerwie. Kończone są wyłącznie
@@ -49,7 +51,8 @@ reloaded every tick. UI and tray use the same samples.
 
 ADLX is isolated in an owned child of the same EXE, with serialized requests
 over redirected local streams. No service, network port or extra driver is
-installed. Child crashes/timeouts leave the UI open. Normal requests allow
+installed. The input reader also handles UTF-8 BOM from consoles, covered
+by the IPC regression test. Child crashes/timeouts leave the UI open. Normal requests allow
 6 seconds, startup 20 seconds; reconnects have a short backoff. Only owned
 helpers are terminated, and they monitor their parent. Writes remain blocked
 after connection loss until a full settings read; unconfirmed writes are not
