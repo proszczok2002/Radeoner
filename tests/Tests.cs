@@ -46,6 +46,7 @@ internal static partial class Tests
         if (args.Length == 2 && args[0] == "--live-nvda") return LiveNvda(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-numeric") return NvdaNumbers(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-dialogs") return NvdaNativeDialogs(args[1]);
+        if (args.Length == 3 && args[0] == "--nvda-dialogs" && L.Supported(args[2])) return NvdaNativeDialogs(args[1], args[2]);
         if (args.Length == 2 && args[0] == "--nvda-tray") return NvdaTray(args[1]);
         if (args.Length == 4 && args[0] == "--nvda-tray") return NvdaTray(args[1], args[2], args[3] == "integrated");
         if (args.Length == 2 && args[0] == "--driver-fixture") return DriverHost.Run(int.Parse(args[1]), () => new RpcFixture());

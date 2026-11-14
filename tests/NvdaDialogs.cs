@@ -77,7 +77,7 @@ internal static partial class Tests
         Check(SendInput(2, new[] { Key(9), Key(9, true) }, Marshal.SizeOf(typeof(KeyInput))) == 2, "Native dialog Tab refused");
         await Task.Delay(100);
     }
-    private static int NvdaNativeDialogs(string output)
+    private static int NvdaNativeDialogs(string output, string onlyLanguage = null)
     {
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         try
@@ -94,7 +94,7 @@ internal static partial class Tests
                         {
                             for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) { form.Activate(); await Task.Delay(100); }
                             Check(GetForegroundWindow() == form.Handle, "Native audit owner did not become foreground");
-                            foreach (string language in L.Languages)
+                            foreach (string language in onlyLanguage == null ? L.Languages : new[] { onlyLanguage })
                             {
                                 L.Load(language); Call(form, "ApplyLanguage"); Field<TabControl>(form, "tabs").SelectedIndex = 4;
                                 string[] changes = { "Zmiana testowa dostępności.", "Accessibility test change.", "Teständerung zur Barrierefreiheit.", "Тестовое изменение доступности.", "Cambio de accesibilidad de prueba.", "Changement de test d'accessibilité." };

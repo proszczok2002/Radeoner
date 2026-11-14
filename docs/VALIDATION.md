@@ -1,14 +1,20 @@
 # Stan weryfikacji / Validation status
 
-Kandydat 1.06: 61 testów lokalnych, sześć języków i lokalny updater PASS;
-900 punktów rzeczywistych wypowiedzi NVDA PASS; trwają testy natywnych dialogów i traya.
-[Audyt 1.06](AUDIT_1.06.md) · [lokalny update 1.05 → 1.06](UPDATE_TEST_1.06.md).
-Ukończone testy rzeczywistych wypowiedzi i publicznego updatera stabilnej 1.05:
-[NVDA 1.05](AUDIT_1.05.md) · [update 1.05](UPDATE_TEST_1.05.md).
+1.06: PASS — 900 punktów głównego UI NVDA, 180 natywnych dialogów i 72 traya,
+sześć języków. 62 testy Windows CI, 180 kombinacji layoutu, 48 możliwości GPU.
+[Audyt 1.06](AUDIT_1.06.md) · [update 1.05 → 1.06](UPDATE_TEST_1.06.md).
+Sprawdzono rzeczywisty tekst Podglądu mowy; nie deklarowano odsłuchu audio
+ani fizycznego strojenia dedykowanej karty lub testu jej podświetlenia.
 
-Candidate 1.06: 61 local tests and local update passed; 900 actual NVDA speech checkpoints passed; native-dialog/tray verification is in progress. The reports linked above distinguish these
-pending checks from completed stable-1.05 validation. Older notes follow.
+1.06 passed 900 main-UI, 180 native-dialog and 72 tray NVDA speech-text
+checkpoints across six languages, plus 62 clean Windows CI tests, 180 layout
+and 48 capability combinations. No synthesizer audio listening or physical
+GPU/RGB tuning is claimed. The linked reports provide scope and update evidence.
 
+Wcześniejsze wyniki / Historical results:
+[1.05 NVDA](AUDIT_1.05.md) · [1.05 update](UPDATE_TEST_1.05.md).
+Poniższe starsze uwagi o braku sesji NVDA dotyczą tamtych etapów, nie 1.06.
+Older notes below describe their historical stages, not the current 1.06 result.
 ## Polski
 
 - 1.03: jawne Ctrl+Tab/Ctrl+Shift+Tab, odczyty co sekundę i wersja w tytule/trayu.
