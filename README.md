@@ -97,8 +97,11 @@ Także **1.02 → 1.03** przeszło pełny test aktualizacji z GitHuba:
 [wynik testu 1.03](docs/UPDATE_TEST_1.03.md).
 Także **1.03 → 1.04** przeszło pełny test publicznego kanału:
 [wynik testu 1.04 / update test](docs/UPDATE_TEST_1.04.md).
-Najnowsze **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
+Także **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
 [wynik testu 1.05 / update test](docs/UPDATE_TEST_1.05.md).
+Najnowsze **1.05 → 1.06** przeszło lokalny i publiczny test GitHub latest,
+z zachowaniem profili i preferencji: [wynik 1.06](docs/UPDATE_TEST_1.06.md).
+[Audyt NVDA 1.06](docs/AUDIT_1.06.md): 900 punktów UI, 180 dialogów i 72 traya.
 
 ## Klawiatura, tray i pliki
 

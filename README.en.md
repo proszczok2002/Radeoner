@@ -91,8 +91,13 @@ The complete **1.0 → 1.01 update from public GitHub has been verified**:
 [test result and file checksums](docs/UPDATE_TEST.md).
 The **1.01 → 1.02** public-feed integration test also passed:
 [1.02 test result](docs/UPDATE_TEST_1.02.md).
-The latest **1.02 → 1.03** public GitHub update also passed:
+The **1.02 → 1.03** public GitHub update also passed:
 [1.03 test result](docs/UPDATE_TEST_1.03.md).
+The **1.03 → 1.04** and **1.04 → 1.05** public updates also passed:
+[1.04](docs/UPDATE_TEST_1.04.md), [1.05](docs/UPDATE_TEST_1.05.md).
+The latest **1.05 → 1.06** passed local and anonymous GitHub-latest E2E,
+preserving profiles/preferences: [1.06 result](docs/UPDATE_TEST_1.06.md).
+[NVDA 1.06 audit](docs/AUDIT_1.06.md): 900 UI, 180 dialog and 72 tray checkpoints.
 
 ## Keyboard, tray and preferences
 

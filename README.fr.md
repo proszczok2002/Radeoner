@@ -73,6 +73,9 @@ fichiers reste compatible avec l'actualisateur 1.05. Les préférences se trouve
 dans `Radeoner.settings.json`, près de l'EXE. Les profils GPU sont exportés
 séparément et ne sont pas appliqués automatiquement au démarrage.
 
+La mise à jour publique 1.05 → 1.06 a conservé les sommes des profils et
+préférences : [résultat du test](docs/UPDATE_TEST_1.06.md).
+
 [Guide complet](Readme.fr.txt) · [Changements 1.06](docs/releases/v1.06.md#français)
 
 Le code est public sous licence **MIT**. Compilation locale :
