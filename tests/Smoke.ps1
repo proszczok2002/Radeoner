@@ -37,7 +37,8 @@ if ($LiveUi -or $LiveTray -or $LiveKeyboard) {
     $mode = if($LiveKeyboard){'--live-keyboard'}elseif($LiveTray){'--live-tray'}else{'--live-ui'}
     $windowStyle = if($LiveKeyboard){'Normal'}else{'Hidden'}
     $process = Start-Process -FilePath $testExe -ArgumentList @($mode, ('"' + $report + '"')) -WindowStyle $windowStyle -PassThru
-    if (-not $process.WaitForExit(40000)) { throw "UI test is still running (PID $($process.Id))." }
+    $uiTimeout = if($LiveKeyboard){90000}else{40000}
+    if (-not $process.WaitForExit($uiTimeout)) { throw "UI test is still running (PID $($process.Id))." }
     if ($process.ExitCode -ne 0) { throw "UI startup failed: $report" }
     Write-Output (Get-Content -LiteralPath $report -Encoding UTF8 -TotalCount 1)
 }

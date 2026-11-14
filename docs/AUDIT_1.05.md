@@ -76,15 +76,18 @@ speech or a physical RGB GPU.
 ## Próby niewykonane / Incomplete checks
 
 Próba rzeczywistych klawiszy zatrzymała się, ponieważ Windows nie przyznał
-oknu testowemu pierwszego planu. Test przerwał działanie bez wysyłania klawiszy.
+oknu testowemu pierwszego planu. Nie wysłano Ctrl+Tab; wcześniejszy mechanizm
+próbował aktywacji pojedynczym Altem. Usunięto tę próbę: obecny test czeka
+do 30 sekund na aktywowanie własnego okna, zanim wyśle jakikolwiek skrót.
 Nie jest to zaliczona próba klawiatury z NVDA.
 
 Podgląd mowy nie był dostępny podczas preflight. `live-nvda.txt` zapisuje
 **NOT VERIFIED**; nie ma przechwyconej wypowiedzi potwierdzającej nowe kontrolki.
 Nie deklarujemy odsłuchu ani pełnego audytu NVDA.
 
-Foreground activation was refused during the actual keyboard-input tour.
-No keys were sent to another window. Speech Viewer was unavailable, so the
+Foreground activation was refused before Ctrl+Tab during the keyboard tour.
+The earlier single-Alt activation attempt was removed; the current test waits
+for its own foreground window before sending keys. Speech Viewer was unavailable, so the
 NVDA capture reported **NOT VERIFIED** rather than substituting control names.
 
 ## Jak dokończyć z NVDA / Completing reader verification
