@@ -27,7 +27,8 @@ $manifest.assembly.assemblyIdentity.version = $release.assembly
 $generatedManifest = Join-Path $generated 'app.manifest'
 $manifest.Save($generatedManifest)
 $exe = Join-Path $output 'Radeoner.exe'
-$resources = @('pl','en' | ForEach-Object { '/resource:' + (Join-Path $root "lang/$_.lng") + ",Radeoner.Languages.$_.lng" })
+$resources = @('pl','en','de','ru','es','fr' | ForEach-Object { '/resource:' + (Join-Path $root "lang/$_.lng") + ",Radeoner.Languages.$_.lng" })
+$resources += @('pl','en','de','ru','es','fr' | ForEach-Object { $guide=if($_ -eq 'pl'){'Czytaj.txt'}else{"Readme.$_.txt"}; '/resource:' + (Join-Path $root $guide) + ",Radeoner.Guides.$_" })
 & $compiler /nologo /utf8output /target:winexe /platform:x64 /optimize+ /warn:4 "/out:$exe" "/win32manifest:$generatedManifest" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Management.dll /reference:Accessibility.dll /reference:System.Runtime.Serialization.dll /reference:System.Net.Http.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll $resources $sources
 if ($LASTEXITCODE -ne 0) { throw 'Kompilacja Radeonera nie powiodła się.' }
 Copy-Item -LiteralPath (Join-Path $root 'app.config') -Destination "$exe.config" -Force

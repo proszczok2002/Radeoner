@@ -1,12 +1,13 @@
 # Radeoner
 
-**1.05:** poprawiony układ dużego tekstu, motywy dialogów i odczyt pól liczbowych
-bez powtarzania nazwy/zakresu przez NVDA. [Audyt z rzeczywistymi wypowiedziami
-NVDA / Actual NVDA speech validation](docs/AUDIT_1.05.md).
+**1.06:** funkcje i zakładki dopasowane do możliwości GPU, tray bez wentylatorów
+integry oraz sześć języków z instrukcjami offline w F1.
 
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 
 [English documentation](README.en.md) · [Pobierz / Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Zgłoś problem / Issues](https://github.com/proszczok2002/Radeoner/issues) · [Współpraca / Contributing](CONTRIBUTING.md)
+
+[Deutsch](Readme.de.txt) · [Русский](Readme.ru.txt) · [Español](Readme.es.txt) · [Français](Readme.fr.txt)
 
 Radeoner komunikuje się ze sterownikiem AMD przez publiczne API ADLX. Pozwala
 korzystać z odczytów i regulacji udostępnianych przez kartę bez instalowania
@@ -40,7 +41,7 @@ nie jest dołączana ani pobierana oddzielnie przez aplikację.
 | Chłodzenie | Krzywa wentylatora, Zero RPM, minimalne/docelowe RPM, jeśli dostępne |
 | Profile | Eksport/import JSON z kontrolą modelu GPU, podsystemu, jednostek i zakresów |
 | Tray | Alt+F4 chowa okno; ikona pokazuje nazwę GPU i rzeczywiste odczyty |
-| Ustawienia | Polski/English z LNG, motyw systemowy/jasny/ciemny, tekst 100–200% |
+| Ustawienia | Polski, English, Deutsch, Русский, Español, Français z LNG, motyw i tekst 100–200% |
 | Start systemu | Opcjonalny autostart do traya dla bieżącego użytkownika |
 | Aktualizacje | Ręczne i opcjonalne okresowe sprawdzanie, pobieranie i podmiana plików |
 
@@ -53,7 +54,9 @@ sterownika, najpierw odśwież odczyt klawiszem F5.
 ## Ograniczenia sprzętu i weryfikacji
 
 **Nie każda karta, integra ani laptop udostępnia regulację.** Radeoner pyta
-sterownik o możliwości i opisuje brak obsługi. Nie odblokowuje BIOS-u ani
+sterownik o możliwości i ukrywa nieobsługiwane pola oraz puste zakładki regulacji.
+Obsługiwane funkcje integry pozostają dostępne. Szczegóły braków są w Raporcie.
+Nie odblokowuje BIOS-u ani
 kontrolera wentylatorów laptopa. Na lokalnie sprawdzonym Radeon 880M działały
 odczyty, lecz sterownik nie udostępniał ręcznej regulacji.
 
@@ -62,8 +65,9 @@ ani wspólnym limitem CPU/iGPU. Na Navi4+ maksymalny zegar i napięcie mogą
 oznaczać przesunięcie względem wartości bazowej. Zmiany parametrów mogą wpływać
 na stabilność; aplikacja nie wykonuje testu stabilności.
 
-Automatyczne testy dostępności obejmują kontrolki WinForms/MSAA, ale **odsłuch
-w prawdziwej sesji NVDA pozostaje do sprawdzenia**. Zapisy sprawdzono na
+Testy dostępności obejmują kontrolki WinForms/MSAA i przechwytywanie tekstu
+rzeczywistych wypowiedzi NVDA z Podglądu mowy. Nie jest to deklaracja odsłuchu
+audio ani weryfikacji każdej konfiguracji czytnika. Zapisy sprawdzono na
 symulowanych interfejsach ADLX; fizyczna regulacja na kartach z odblokowanymi
 funkcjami wymaga dalszych testów społeczności. Pełny zakres: [stan weryfikacji](docs/VALIDATION.md).
 
@@ -102,7 +106,7 @@ Najnowsze **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
 | --- | --- |
 | Tab / Shift+Tab | Pola i przyciski |
 | Strzałki góra/dół | Wiersze listy odczytów |
-| Ctrl+Tab / Ctrl+Shift+Tab | Zakładki |
+| Ctrl+Tab / Ctrl+Shift+Tab | Dostępne zakładki, z pominięciem nieobsługiwanych |
 | Ctrl+1 … Ctrl+5 | Odczyty, Regulacja, Wentylator, Raport, Ustawienia |
 | F5 | Odczyt ustawień i czujników |
 | Ctrl+Enter | Zastosowanie zmian |
@@ -115,8 +119,15 @@ Najnowsze **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
 EXE otwiera istniejące okno. Odświeżanie czujników co sekundę jest domyślnie włączone
 i działa także w trayu; może podtrzymywać aktywność GPU na baterii.
 
-Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Języki:
-`lang/pl.lng` i `lang/en.lng` (UTF-8, `klucz=tekst`, `\n` oznacza nową linię).
+Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Sześć języków
+i instrukcji jest wbudowanych w EXE. Źródła tłumaczeń: `lang/*.lng` (UTF-8,
+`klucz=tekst`, `\n` oznacza nową linię). Własny `lang/<kod>.lng` zastępuje
+wbudowane teksty. Nowe języki nie wymagają dodatkowych plików w paczce portable,
+dzięki czemu aktualizacja ze starszych wersji zachowuje zgodność.
+Instrukcja F1 działa offline. Ctrl+1…5 zachowują stałe znaczenie; skrót do
+nieobsługiwanej zakładki wybiera Odczyty. Integra nie ma wzmianki o wentylatorze
+w trayu; dla pozostałych GPU obroty pojawiają się tylko z poprawnego odczytu,
+w tym 0 RPM. RGB nadal wymaga OpenRGB: [stan i dalsze prace](docs/NATIVE_RGB.md).
 Motyw Systemowy odczytuje jasny/ciemny wygląd aplikacji Windows.
 Wysoki kontrast Windows ma pierwszeństwo przed motywem. Po przeniesieniu
 folderu wyłącz i włącz autostart ponownie, aby zaktualizować ścieżkę.

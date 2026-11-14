@@ -1,5 +1,15 @@
 # Stan weryfikacji / Validation status
 
+Kandydat 1.06: 61 testów lokalnych, sześć języków i lokalny updater PASS;
+rzeczywiste wypowiedzi NVDA oczekują na otwarcie Podglądu mowy.
+[Audyt 1.06](AUDIT_1.06.md) · [lokalny update 1.05 → 1.06](UPDATE_TEST_1.06.md).
+Ukończone testy rzeczywistych wypowiedzi i publicznego updatera stabilnej 1.05:
+[NVDA 1.05](AUDIT_1.05.md) · [update 1.05](UPDATE_TEST_1.05.md).
+
+Candidate 1.06: 61 local tests and local update passed; actual NVDA speech
+verification awaits Speech Viewer. The reports linked above distinguish these
+pending checks from completed stable-1.05 validation. Older notes follow.
+
 ## Polski
 
 - 1.03: jawne Ctrl+Tab/Ctrl+Shift+Tab, odczyty co sekundę i wersja w tytule/trayu.

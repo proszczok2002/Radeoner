@@ -23,7 +23,7 @@ internal sealed class FakeDriver : IDisposable
     }
     internal Obj System;
     internal int Writes;
-    internal bool Unsupported, Legacy, RejectWrites, Factory = true;
+    internal bool Unsupported, Legacy, RejectWrites, NoSensors, Factory = true;
     internal string RejectOnceId, PartialFailOnceId, IgnoreOnceId;
     internal Dictionary<string, int> Values = new Dictionary<string, int> { { "gfx.min", 1000 }, { "gfx.max", 2000 }, { "gfx.voltage", 1000 }, { "vram.max", 1500 }, { "power", 0 }, { "fan.min", 1000 }, { "fan.target", 2000 } };
     internal List<FanPoint> Fan = new List<FanPoint> { new FanPoint(50, 20), new FanPoint(80, 80) };
@@ -127,7 +127,7 @@ internal sealed class FakeDriver : IDisposable
         int[] integers = { 0, 800, 900, 0, 0, 0, 0, 1200, 256, 900 };
         for (int i = 0; i < 10; i++)
         {
-            int index = i; Bool(support, 3 + i, () => index != 4);
+            int index = i; Bool(support, 3 + i, () => !NoSensors && index != 4);
             if (new[] { 0, 3, 4, 5, 6 }.Contains(i)) metrics.Set(4 + i, new Native.GetDouble((IntPtr p, out double v) => { v = doubles[index]; return 0; }));
             else Integer(metrics, 4 + i, () => integers[index]);
         }

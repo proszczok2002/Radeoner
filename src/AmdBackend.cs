@@ -240,7 +240,7 @@ namespace Radeoner
             if (gpuIndex < 0 || gpuIndex >= contexts.Count) throw new InvalidOperationException(L.T("driver.018"));
             var c = contexts[gpuIndex]; var data = new Snapshot { Gpu = c.Info };
             ReadMetrics(c, data);
-            if (monitoring != null && data.MetricValues.Count == 0) throw new InvalidOperationException(string.Join("; ", data.Metrics));
+            if (monitoring != null && data.MetricValues.Count == 0) throw new InvalidOperationException(string.Join("; ", data.Metrics.Concat(data.Notes)));
             return data;
         }
         private void ReadMetrics(GpuContext c, Snapshot snapshot)
@@ -259,7 +259,7 @@ namespace Radeoner
                     {
                         try
                         {
-                            if (!support.Bool(3 + i)) { snapshot.Metrics.Add(names[i] + L.T("driver.062")); continue; }
+                            if (!support.Bool(3 + i)) { snapshot.Notes.Add(names[i] + L.T("driver.062")); continue; }
                             double value;
                             if (doubles[i]) Native.Check(metrics.Method<Native.GetDouble>(4 + i)(metrics.Pointer, out value), names[i]);
                             else value = metrics.Int(4 + i);

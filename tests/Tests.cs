@@ -47,11 +47,13 @@ internal static partial class Tests
         if (args.Length == 2 && args[0] == "--nvda-numeric") return NvdaNumbers(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-dialogs") return NvdaNativeDialogs(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-tray") return NvdaTray(args[1]);
+        if (args.Length == 4 && args[0] == "--nvda-tray") return NvdaTray(args[1], args[2], args[3] == "integrated");
         if (args.Length == 2 && args[0] == "--driver-fixture") return DriverHost.Run(int.Parse(args[1]), () => new RpcFixture());
         try
         {
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length == 1 && args[0] == "--audit-ui") { RunFullAccessibilityTests(); Console.WriteLine("PASS full UI matrix"); return 0; }
+            if (args.Length == 1 && args[0] == "--capabilities") { RunCapabilityTests(); return 0; }
             if (args.Length == 2 && args[0] == "--download-openrgb")
             {
                 OpenRgbDownload.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
@@ -72,7 +74,7 @@ internal static partial class Tests
                 var s = backend.Read(0);
                 Check(s.Settings.Count == 7 && s.Fan.Count == 2 && s.ZeroRpm == true && s.AtFactory == true, "Capabilities failed");
                 Check(s.Metrics.Any(x => x.StartsWith("Temperatura GPU: 42")), "double sensor marshaling failed");
-                Check(s.Metrics.Contains("Zegar GPU: 800 MHz") && s.Metrics.Contains("Temperatura hotspot: niedostępne"), "int or support marshaling failed");
+                Check(s.Metrics.Contains("Zegar GPU: 800 MHz") && !s.Metrics.Any(x => x.StartsWith("Temperatura hotspot")) && s.Notes.Contains("Temperatura hotspot: niedostępne"), "Unsupported sensor leaked into readings or its diagnostic was lost");
                 Check(driver.Writes == 0, "Discovery/read must never change tuning");
             }));
             Test("Unsupported integrated GPU remains read-only", () => WithDriver((driver, backend) =>
@@ -205,6 +207,8 @@ internal static partial class Tests
             RunRgbTests();
             RunRgbDownloadTests();
             RunFullAccessibilityTests();
+            RunLanguageTests();
+            RunCapabilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;
         }
@@ -244,7 +248,7 @@ internal static partial class Tests
                     await Task.Delay(3600);
                     var sensors = Field<Snapshot>(form, "sensors"); Check(sensors.CapturedAt > snapshot.CapturedAt, "Background tray readings did not update");
                     Call(form, "ShowFromTray"); Check(form.Visible && form.ShowInTaskbar && !form.IsDisposed, "Tray restore failed"); form.Opacity = 0;
-                    var tabControl = Field<TabControl>(form, "tabs"); tabControl.SelectedIndex = 3;
+                    var tabControl = Field<TabControl>(form, "tabs"); Call(form, "SelectPage", 3);
                     var reportBox = Field<TextBox>(form, "report"); reportBox.Focus(); reportBox.Select(4, 8);
                     Call(form, "SetBusy", true); Call(form, "Render"); Call(form, "SetBusy", false);
                     Check(reportBox.Focused && reportBox.SelectionStart == 4 && reportBox.SelectionLength == 8, "Read/rebuild lost report focus or selection");
@@ -252,7 +256,8 @@ internal static partial class Tests
                     {
                         var message = Message.Create(form.Handle, 0, IntPtr.Zero, IntPtr.Zero);
                         typeof(MainForm).GetMethod("ProcessCmdKey", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(form, new object[] { message, Keys.Control | (Keys)((int)Keys.D1 + i) });
-                        Check(tabControl.SelectedIndex == i && tabControl.Focused, "Direct tab shortcut failed");
+                        int expected = tabControl.TabPages.Cast<TabPage>().Any(p => (int)p.Tag == i) ? i : 0;
+                        Check((int)tabControl.SelectedTab.Tag == expected && tabControl.Focused, "Direct tab shortcut failed");
                     }
                     string tour = keyboard ? await VisibleKeyboardTour(form) : "";
                     result = "PASS live WinForms/MSAA, native tray icon, close-to-tray, background sensor updates, restore and explicit exit" + (startInTray ? ", startup hidden" : "") + ". " + tour + "\r\n" + sensors.Report();

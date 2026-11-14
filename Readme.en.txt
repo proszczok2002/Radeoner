@@ -1,8 +1,9 @@
-Radeoner 1.05 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.06 - lightweight, portable AMD GPU control for Windows
 
-1.05 improves large-text layout, focus scrolling, dialog themes and NVDA
-numeric-field speech without repeating the label and range. Actual Speech
-Viewer output, native Windows dialogs and keyboard shortcuts were checked.
+1.06 adds German, Russian, Spanish and French with translated offline guides.
+Unavailable tuning and fan pages are omitted according to driver capabilities.
+Ctrl+Tab skips these pages. Integrated GPUs never announce fans in the tray;
+other GPUs announce RPM only when a valid reading exists, including 0 RPM.
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner
@@ -14,7 +15,8 @@ GPUs can expose monitoring without any tuning controls.
 
 Features: GPU selection; text sensors; driver-exposed power limits, clocks,
 voltage and fans; JSON profiles; tray readings; optional Windows startup;
-Polish/English LNG files; light/dark/system theme; text size 100-200%; updates.
+Polish/English/German/Russian/Spanish/French LNG files; light/dark/system theme;
+text size 100-200%; updates.
 
 Profiles save all available editor values, including unapplied edits. Import
 checks GPU/subsystem identity, ranges, units and fan points, then fills the
@@ -41,8 +43,12 @@ Ctrl+Enter - Apply; Ctrl+E - export profile; Ctrl+I - import profile;
 Ctrl+Shift+S - save report; F6 - latest status text; F1 - help.
 Text readings can be selected and copied using Ctrl+A, Ctrl+C.
 
-Preferences are saved next to the EXE in Radeoner.settings.json. Translations
-are in lang/pl.lng and lang/en.lng (UTF-8, key=value, \n for a new line).
+Preferences are saved next to the EXE in Radeoner.settings.json. Six translations
+are embedded in the EXE and their UTF-8 sources are in lang/*.lng on GitHub
+(key=value, \n for a new line). A local lang/<code>.lng can override a language.
+The portable ZIP retains its existing eight files for compatibility with older
+updaters. The four new languages need no separate files. Full translated guides
+are embedded in the EXE and available offline through F1.
 System theme follows the Windows light/dark app setting. High contrast overrides the selected theme. Moving the portable folder requires
 turning Windows startup off and on again to register the new EXE location.
 
@@ -56,6 +62,12 @@ Source and collaboration: https://github.com/proszczok2002/Radeoner
 License: MIT for the application source. See THIRD_PARTY_NOTICES.md.
 
 Ctrl+1 to Ctrl+5: Readings, Tuning, Fan, Report, Settings.
+Ctrl+Tab/Ctrl+Shift+Tab cycle through available pages. If the selected GPU does
+not expose tuning or fan controls, the corresponding empty pages are omitted.
+Ctrl+1...5 keep their logical meaning; an unavailable page returns to Readings.
+Integrated GPUs retain every tuning feature the driver actually exposes.
+Dedicated GPUs also retain access to the optional OpenRGB dialog. RGB still
+requires OpenRGB in this version; direct controller support is not implemented.
 About and Support and contact are in Settings. Support is optional.
 Author: https://proszczok.pl/
 PayPal: https://paypal.me/proszczok

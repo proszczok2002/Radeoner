@@ -60,7 +60,7 @@ namespace Radeoner
                 if (!File.Exists(path)) return new AppSettings();
                 var s = JsonFile.Read<AppSettings>(path, 65536);
                 if (s == null || s.Version != 1) return new AppSettings();
-                if (s.Language != "pl" && s.Language != "en") s.Language = "pl";
+                if (!L.Supported(s.Language)) s.Language = "pl";
                 if (s.Theme != "light" && s.Theme != "dark" && s.Theme != "system") s.Theme = "system";
                 if (s.TextScale < 100 || s.TextScale > 200 || s.TextScale % 25 != 0) s.TextScale = 100;
                 if (s.UpdateIntervalMinutes < 5 || s.UpdateIntervalMinutes > 10080) s.UpdateIntervalMinutes = 60;

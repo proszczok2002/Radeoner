@@ -1,8 +1,13 @@
 # Radeoner
 
+**1.06:** capability-based GPU controls and tabs, integrated-GPU tray without fan
+announcements, and six languages with offline F1 guides.
+
 **A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 
 [Polska dokumentacja](README.md) · [Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Report an issue](https://github.com/proszczok2002/Radeoner/issues) · [Contribute](CONTRIBUTING.md)
+
+[Deutsch](Readme.de.txt) · [Русский](Readme.ru.txt) · [Español](Readme.es.txt) · [Français](Readme.fr.txt)
 
 Radeoner communicates with the installed AMD driver through the public ADLX API.
 Use the monitoring and tuning capabilities your GPU exposes without installing
@@ -35,7 +40,7 @@ or download a replacement copy.
 | Cooling | Fan curve, Zero RPM, minimum/target RPM when exposed |
 | Profiles | JSON export/import with GPU/subsystem, unit and range validation |
 | Tray | Alt+F4 hides the window; the icon shows the GPU and actual readings |
-| Settings | Polish/English LNG files, system/light/dark theme, text size 100–200% |
+| Settings | Polish, English, German, Russian, Spanish, French LNG sources, themes, text 100–200% |
 | Windows startup | Optional startup to the tray for the current user |
 | Updates | Manual and optional scheduled checks, download and executable replacement |
 
@@ -47,7 +52,9 @@ editor values; press F5 first when backing up the current driver settings.
 ## Hardware support and validation limits
 
 **Not every GPU, integrated GPU or laptop exposes tuning.** Radeoner queries
-capabilities and explains unavailable features. It does not unlock firmware or
+capabilities and hides unavailable fields and empty tuning/fan pages. Supported
+integrated-GPU features remain available; diagnostic reasons stay in Report.
+It does not unlock firmware or
 control a laptop's embedded fan controller. The tested Radeon 880M exposed
 sensors but no manual tuning through its installed driver.
 
@@ -56,8 +63,9 @@ watts** or a shared CPU/iGPU power limit. On Navi4+, maximum clock and voltage
 may be offsets from base values. Tuning can affect stability; Radeoner does not
 run a stability test.
 
-Automated accessibility checks cover WinForms/MSAA controls, but **a real NVDA
-listening session remains outstanding**. Writes have been tested against
+Accessibility checks cover WinForms/MSAA and actual NVDA speech text captured
+from Speech Viewer. This does not claim an audio listening session or coverage
+of every screen-reader configuration. Writes have been tested against
 in-memory ADLX interfaces; physical tuning on supported GPUs needs further
 community testing. See [validation status](docs/VALIDATION.md).
 
@@ -105,7 +113,14 @@ The latest **1.02 → 1.03** public GitHub update also passed:
 EXE again shows the existing window. Sensor updates every second are enabled by default and continue in the tray and can keep a laptop GPU awake.
 
 Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
-`lang/pl.lng` and `lang/en.lng` (UTF-8, `key=value`, `\n` for a new line).
+`lang/*.lng` sources (UTF-8, `key=value`, `\n` for a new line). All six languages
+and guides are embedded in the EXE. A local `lang/<code>.lng` overrides embedded
+text. New languages require no extra portable files, preserving compatibility
+with older updaters. F1 opens the full translated offline guide.
+Ctrl+Tab skips unavailable pages. Ctrl+1…5 keep their logical meaning; an
+unavailable page returns to Readings. Integrated GPUs never announce fans in
+the tray; other GPUs announce only valid RPM readings, including 0 RPM.
+RGB still requires OpenRGB: [native RGB status](docs/NATIVE_RGB.md).
 The System theme follows the Windows app light/dark setting. Windows high contrast overrides the chosen theme. After moving the folder,
 turn Windows startup off and on again to register the new executable location.
 

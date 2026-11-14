@@ -41,7 +41,8 @@ jest potwierdzeniem odsłuchu czytnika ekranu.
 ### Zmiany w kodzie
 
 - Zachowuj standardowe kontrolki i pełną obsługę klawiatury.
-- Dodawaj teksty do obu LNG i zachowuj zgodne klucze oraz argumenty `{0}`.
+- Dodawaj teksty do sześciu LNG (pl/en/de/ru/es/fr), zachowując klucze i argumenty `{0}`.
+- Aktualizuj instrukcje `Czytaj.txt` / `Readme.<kod>.txt`; build zaszywa je w EXE dla F1.
 - Nie zgaduj możliwości po nazwie GPU. Korzystaj z zapytań sterownika.
 - Nie stosuj profili ani zmian GPU przy starcie aplikacji lub imporcie.
 - Nie zmieniaj jednostek ani interpretacji napięcia/przesunięć bez testów.
@@ -59,7 +60,7 @@ jest potwierdzeniem odsłuchu czytnika ekranu.
 | `Navigation.cs`, `Accessibility.cs` | Klawiatura, lista odczytów i dostępność |
 | `DriverHost.cs`, `Diagnostics.cs` | Izolacja ADLX, komunikacja i log lokalny |
 | `OpenRgb.cs`, `RgbDialog.cs` | Opcjonalny klient RGB i natywne kontrolki |
-| `Localization.cs`, `lang/` | Polski/English, teksty i zapasowe zasoby |
+| `Localization.cs`, `lang/` | Sześć języków, pliki LNG i zasoby wbudowane |
 | `UpdateFeed.cs`, `UpdateInstall.cs`, `UpdateUI.cs` | Pobieranie, podmiana i obsługa aktualizacji |
 | `version.json`, `build.ps1`, `package.ps1` | Wersja, kompilacja i paczka z manifestem |
 | `tests/` | Testy bez sprzętu i opcjonalne testy integracyjne |
@@ -84,8 +85,10 @@ GPU selection, fields/units, tabs, reports, tray restoration, personalization
 and updates. A passing MSAA label test does not establish real screen-reader
 listening results.
 
-Preserve keyboard access and standard controls. Update both LNG files and
-their format placeholders. Query driver capabilities rather than matching GPU
+Preserve keyboard access and standard controls. Update all six LNG files
+(pl/en/de/ru/es/fr), their format placeholders and the translated guides
+(`Czytaj.txt`, `Readme.<code>.txt`), embedded by the build for offline F1 help.
+Query driver capabilities rather than matching GPU
 names. Never apply tuning on startup or profile import. Preserve update
 checksums, rollback, preferences and profiles. PRs should explain the problem,
 resulting behavior and validation performed.

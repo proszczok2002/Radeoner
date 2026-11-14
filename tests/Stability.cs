@@ -70,8 +70,9 @@ internal static partial class Tests
     private static bool ProcessTab(Control control, bool backwards)
     {
         var original = new byte[256]; Check(GetKeyboardState(original), "Cannot read test-thread keyboard state"); var state = (byte[])original.Clone();
+        foreach (int key in new[] { 0x10, 0x11, 0x12, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5 }) state[key] = 0;
         state[0x11] = state[0xA2] = 0x80; state[0x10] = state[0xA0] = backwards ? (byte)0x80 : (byte)0;
-        try { Check(SetKeyboardState(state), "Cannot set test-thread modifiers"); var message = Message.Create(control.Handle, 0x100, new IntPtr(9), new IntPtr(1)); return control.PreProcessMessage(ref message); }
+        try { Check(SetKeyboardState(state), "Cannot set test-thread modifiers"); Check(Control.ModifierKeys == (backwards ? Keys.Control | Keys.Shift : Keys.Control), "Unexpected synthetic test modifiers: " + Control.ModifierKeys); var message = Message.Create(control.Handle, 0x100, new IntPtr(9), new IntPtr(1)); return control.PreProcessMessage(ref message); }
         finally { SetKeyboardState(original); }
     }
     private static void RunStabilityTests()
@@ -192,12 +193,12 @@ internal static partial class Tests
                 SetField(form, "exitRequested", true); form.Close();
             }
         });
-        Test("Visible keyboard mnemonics are unique on each tab in Polish and English", () => WithDriver((driver, backend) =>
+        Test("Visible keyboard mnemonics are unique on each tab in all six languages", () => WithDriver((driver, backend) =>
         {
             using (var form = TestForm("mnemonics"))
             {
                 SetField(form, "started", true); SetField(form, "snapshot", backend.Read(0)); Call(form, "Render"); form.Opacity = 0; form.ShowInTaskbar = false; form.Show();
-                foreach (int language in new[] { 0, 1 })
+                foreach (int language in Enumerable.Range(0, L.Languages.Length))
                 {
                     Field<ComboBox>(form, "language").SelectedIndex = language;
                     for (int page = 0; page < 5; page++)

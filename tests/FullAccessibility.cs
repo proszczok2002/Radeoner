@@ -69,9 +69,9 @@ internal static partial class Tests
                 SetField(form, "exitRequested", true); form.Close();
             }
         }));
-        Test("All tabs retain named focusable controls and visible editors at 100/200 percent in PL/EN and all themes", () => WithDriver((driver, backend) =>
+        Test("All tabs retain named focusable controls and visible editors at 100/200 percent in six languages and all themes", () => WithDriver((driver, backend) =>
         {
-            foreach (string language in new[] { "pl", "en" }) foreach (string theme in new[] { "light", "dark", "system" }) foreach (int scale in new[] { 100, 200 })
+            foreach (string language in L.Languages) foreach (string theme in new[] { "light", "dark", "system" }) foreach (int scale in new[] { 100, 200 })
             {
                 string path = TestFile("full-audit.settings.json"); new AppSettings { Language = language, Theme = theme, TextScale = scale, CheckUpdates = false }.Save(path);
                 using (var form = new MainForm(false, path, new StartupRegistration(Application.ExecutablePath, @"Software\Radeoner\Tests", "Unused")) { SuppressAutomaticUpdateChecks = true })
@@ -94,13 +94,14 @@ internal static partial class Tests
             }
             L.Load("pl"); Check(driver.Writes == 0, "Audit changed GPU tuning");
         }));
-        Test("Unsupported tuning and fan explanations are reachable by Tab and readable as native text", () => WithDriver((driver, backend) =>
+        Test("Unsupported integrated GPU omits unavailable tuning/fan pages", () => WithDriver((driver, backend) =>
         {
             using (var form = TestForm("unsupported-audit"))
             {
-                SetField(form, "snapshot", backend.Read(0)); Call(form, "Render");
-                Check(Descendants(form).OfType<TextBox>().Any(c => c.AccessibleName == L.T("ui.tuningAvailability") && c.ReadOnly && c.TabStop && c.Text == L.T("ui.noTuning")), "Tuning reason is skipped by Tab");
-                Check(Descendants(form).OfType<TextBox>().Any(c => c.AccessibleName == L.T("ui.fanAvailability") && c.ReadOnly && c.TabStop && c.Text == L.T("ui.noFan")), "Fan reason is skipped by Tab");
+                SetAuditSnapshot(form, backend.Read(0));
+                var tabs = Field<TabControl>(form, "tabs");
+                Check(tabs.TabCount == 3 && tabs.TabPages.Cast<TabPage>().Select(p => (int)p.Tag).SequenceEqual(new[] {0, 3, 4}), "Unsupported tabs are exposed");
+                Check(!Field<Button>(form, "export").Enabled && !Field<Button>(form, "rgb").Visible, "Unavailable controls are exposed");
             }
         }, true));
         Test("High contrast overrides every app theme and restores native tab/button rendering", () =>
@@ -120,7 +121,7 @@ internal static partial class Tests
         });
         Test("Details and RGB dialogs preserve names, native roles, focus visibility and text at 200 percent", () =>
         {
-            foreach (string language in new[] { "pl", "en" }) foreach (string theme in new[] { "light", "dark", "system" })
+            foreach (string language in L.Languages) foreach (string theme in new[] { "light", "dark", "system" })
             using (var font = new Font(SystemFonts.MessageBoxFont.FontFamily, SystemFonts.MessageBoxFont.Size * 2))
             {
                 L.Load(language);

@@ -45,18 +45,19 @@ internal static partial class Tests
         for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) await Task.Delay(100);
         Check(GetForegroundWindow() == form.Handle, "Windows did not grant foreground to the test window");
         var tabs = Field<TabControl>(form, "tabs"); tabs.SelectedIndex = 0; Field<ComboBox>(form, "gpu").Focus();
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < tabs.TabCount; i++)
         {
             int before = tabs.SelectedIndex; await KeyboardTab(form, false); await Task.Delay(450);
-            Check(tabs.SelectedIndex == (before + 1) % 5 && tabs.Focused, "Real Ctrl Tab input failed");
-            if (tabs.SelectedIndex == 1) Field<Button>(form, "rgb").Focus();
-            else if (tabs.SelectedIndex == 3) Field<TextBox>(form, "report").Focus();
-            else if (tabs.SelectedIndex == 4) { var language = Field<ComboBox>(form, "language"); language.Focus(); language.DroppedDown = true; }
-            else if (tabs.SelectedIndex == 0) Field<SensorView>(form, "overview").Focus();
+            Check(tabs.SelectedIndex == (before + 1) % tabs.TabCount && tabs.Focused, "Real Ctrl Tab input failed");
+            int page = (int)tabs.SelectedTab.Tag;
+            if (page == 1 && Field<Button>(form, "rgb").Visible) Field<Button>(form, "rgb").Focus();
+            else if (page == 3) Field<TextBox>(form, "report").Focus();
+            else if (page == 4) { var language = Field<ComboBox>(form, "language"); language.Focus(); language.DroppedDown = true; }
+            else if (page == 0) Field<SensorView>(form, "overview").Focus();
         }
-        for (int i = 0; i < 5; i++)
-        { int before = tabs.SelectedIndex; await KeyboardTab(form, true); await Task.Delay(450); Check(tabs.SelectedIndex == (before + 4) % 5 && tabs.Focused, "Real Ctrl Shift Tab input failed"); }
-        tabs.SelectedIndex = 4; int dialogs = 0; long maximum = 0; var watch = new Stopwatch();
+        for (int i = 0; i < tabs.TabCount; i++)
+        { int before = tabs.SelectedIndex; await KeyboardTab(form, true); await Task.Delay(450); Check(tabs.SelectedIndex == (before + tabs.TabCount - 1) % tabs.TabCount && tabs.Focused, "Real Ctrl Shift Tab input failed"); }
+        Call(form, "SelectPage", 4); int dialogs = 0; long maximum = 0; var watch = new Stopwatch();
         try
         {
             SystemDialogs.TestCreated = window =>

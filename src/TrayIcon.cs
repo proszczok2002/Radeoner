@@ -17,7 +17,9 @@ namespace Radeoner
         public static string Format(Snapshot snapshot, bool stale)
         {
             if (snapshot == null) return "Radeoner v" + L.Version + " — " + L.T("tray.waiting");
-            string suffix = L.T("tray.sensors", Value(snapshot, "temperature", "°C"), Value(snapshot, "fan", "RPM"),
+            double fan;
+            bool showFan = snapshot.Gpu.Type != 1 && snapshot.MetricValues.TryGetValue("fan", out fan) && !double.IsNaN(fan) && !double.IsInfinity(fan) && fan >= 0;
+            string suffix = L.T(showFan ? "tray.sensors" : "tray.sensorsNoFan", Value(snapshot, "temperature", "°C"), Value(snapshot, "fan", "RPM"),
                 Value(snapshot, snapshot.MetricValues.ContainsKey("boardPower") ? "boardPower" : "power", "W"));
             if (stale) suffix += ", " + L.T("tray.lastRead", snapshot.CapturedAt.ToLocalTime().ToString("HH:mm"));
             string prefix = "Radeoner v" + L.Version + ", ";

@@ -1,3 +1,4 @@
+param([ValidateSet('pl','en','de','ru','es','fr')][string]$Language='pl', [switch]$Integrated)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $report=Join-Path $root ('artifacts/tests/nvda-tray-keyboard-'+(Get-Date -Format 'HHmmss')+'.txt')
@@ -11,7 +12,8 @@ public static class TrayEnter {
  public static void Press() { foreach(int k in new[]{0x10,0x11,0x12,0x5B,0x5C,0x2D,0x14}) if((GetAsyncKeyState(k)&0x8000)!=0) throw new Exception("A user modifier is held"); if(SendInput(2,new[]{new Input{type=1,key=13},new Input{type=1,key=13,flags=2}},40)!=2)throw new Exception("Enter refused"); }
 }
 '@
-$process=Start-Process -FilePath (Join-Path $root 'artifacts/tests/Radeoner.Tests.exe') -ArgumentList '--nvda-tray',('"'+$report+'"') -WindowStyle Normal -PassThru
+$kind=if($Integrated){'integrated'}else{'discrete'}
+$process=Start-Process -FilePath (Join-Path $root 'artifacts/tests/Radeoner.Tests.exe') -ArgumentList '--nvda-tray',('"'+$report+'"'),$Language,$kind -WindowStyle Normal -PassThru
 $watch=[Diagnostics.Stopwatch]::StartNew()
 while(-not (Test-Path -LiteralPath ($report+'.ready')) -and $watch.ElapsedMilliseconds -lt 15000){Start-Sleep -Milliseconds 100}
 if(-not (Test-Path -LiteralPath ($report+'.ready'))){throw 'Own tray fixture not ready'}
@@ -34,7 +36,7 @@ if(-not $icon){
  if($more.Count -eq 1){$more[0].GetCurrentPattern([Windows.Automation.InvokePattern]::Pattern).Invoke(); Start-Sleep -Milliseconds 400}
  $icon=Find-AuditIcon
 }
-if(-not $icon){throw 'Exact owned 1.05 notification icon not found'}
+if(-not $icon){throw 'Exact owned notification icon not found'}
 $icon.SetFocus(); Start-Sleep -Milliseconds 250
 if(-not [Windows.Automation.AutomationElement]::FocusedElement.Current.Name.StartsWith($prefix)){throw 'Own icon did not receive focus'}
 [IO.File]::WriteAllText($report+'.focus','ready')

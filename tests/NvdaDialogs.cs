@@ -10,7 +10,7 @@ using Radeoner;
 
 internal static partial class Tests
 {
-    private static int NvdaTray(string output)
+    private static int NvdaTray(string output, string language = "pl", bool integrated = false)
     {
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         try
@@ -20,7 +20,10 @@ internal static partial class Tests
             {
                 using (var form = TestForm("nvda-tray"))
                 {
-                    SetAuditSnapshot(form, backend.Read(0)); var tray = new TrayIcon(Field<ContextMenuStrip>(form, "trayMenu")); SetField(form, "tray", tray);
+                    L.Load(language); Call(form, "ApplyLanguage"); var snapshot = backend.Read(0); snapshot.Gpu.Type = integrated ? 1 : 2;
+                    snapshot.Gpu.Name = integrated ? "AMD integrated GPU" : "AMD discrete GPU"; snapshot.MetricValues["fan"] = 333;
+                    if (integrated) { snapshot.Settings.Clear(); snapshot.Fan.Clear(); snapshot.ZeroRpm = null; snapshot.CanReset = false; }
+                    SetAuditSnapshot(form, snapshot); var tray = new TrayIcon(Field<ContextMenuStrip>(form, "trayMenu")); SetField(form, "tray", tray);
                     tray.ShowRequested += () => Call(form, "ShowFromTray");
                     form.Shown += async (s, e) =>
                     {
@@ -35,7 +38,8 @@ internal static partial class Tests
                             // Shell notification focus can move between Explorer
                             // HWNDs; the external harness verifies the exact UIA
                             // focused icon name before acknowledging this step.
-                            await speech.Native(GetForegroundWindow(), before, "tray/actual icon focus", "Radeoner v" + L.Version, false);
+                            string iconSpeech = await speech.Native(GetForegroundWindow(), before, language + (integrated ? "/integrated" : "/discrete") + "/tray/actual icon focus", "Radeoner v" + L.Version, false);
+                            Check(integrated ? iconSpeech.IndexOf("RPM", StringComparison.OrdinalIgnoreCase) < 0 : iconSpeech.Contains("333 RPM"), "Actual NVDA tray fan announcement differs from GPU capabilities");
                             before = speech.Snapshot(); File.WriteAllText(output + ".focused", "ready");
                             while (!form.Visible && watch.ElapsedMilliseconds < 90000) await Task.Delay(100);
                             Check(form.Visible, "Actual tray icon activation did not restore the app");
@@ -90,7 +94,7 @@ internal static partial class Tests
                         {
                             for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) { form.Activate(); await Task.Delay(100); }
                             Check(GetForegroundWindow() == form.Handle, "Native audit owner did not become foreground");
-                            foreach (string language in new[] { "pl", "en" })
+                            foreach (string language in L.Languages)
                             {
                                 L.Load(language); Call(form, "ApplyLanguage"); Field<TabControl>(form, "tabs").SelectedIndex = 4;
                                 foreach (string kind in new[] { "aboutProgram", "supportProject", "update" })
