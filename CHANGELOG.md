@@ -1,5 +1,31 @@
 # Zmiany / Changelog
 
+## 1.04
+
+### Polski
+
+- W oknie RGB dodano **Pobierz OpenRGB 1.1 (Windows 64-bit)**. Systemowy
+  dialog zapisu pozwala wybrać folder i potwierdzić zastąpienie istniejącego ZIP.
+- Pobieranie działa w tle, pokazuje postęp i ma przycisk anulowania. Zamknięcie
+  okna przerywa transfer. Rozmiar i SHA-256 są sprawdzane przed zapisem docelowym;
+  błąd lub anulowanie zachowują istniejący plik i usuwają plik częściowy.
+- Po pobraniu systemowy dialog wyjaśnia rozpakowanie ZIP, uruchomienie OpenRGB
+  i włączenie serwera SDK. Radeoner nie uruchamia pobranego EXE ani instalatorów.
+- Tłumaczenia i instrukcje po polsku i angielsku. Pozostała obsługa RGB wymaga
+  uruchomionego OpenRGB, tak jak w 1.03.
+
+### English
+
+- Added **Download OpenRGB 1.1 (Windows 64-bit)** to the RGB dialog, using a
+  native Save dialog with overwrite confirmation, background transfer,
+  percentage status and cancellation. Closing the window cancels the transfer.
+- The official portable ZIP is checked against a pinned size and SHA-256
+  before replacing the destination. Failure/cancellation preserves existing
+  files and removes partial downloads.
+- A native completion dialog explains extracting the ZIP and enabling the
+  OpenRGB SDK server. Downloaded executables/installers are not started.
+  Polish/English strings and instructions are included.
+
 ## 1.03
 
 ### Polski

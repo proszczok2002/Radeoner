@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,6 +12,8 @@ namespace Radeoner
         private readonly ComboBox devices = new ComboBox(), modes = new ComboBox(), preset = new ComboBox();
         private readonly NumericUpDown port = Number("rgb.port", 1, 65535, 6742), red = Number("rgb.red", 0, 255, 255), green = Number("rgb.green", 0, 255, 255), blue = Number("rgb.blue", 0, 255, 255), brightness = Number("rgb.brightness", 0, 100, 100);
         private readonly Button connect = Button("rgb.connect"), apply = Button("rgb.apply"), off = Button("rgb.off"), close = Button("dialog.closeName");
+        private readonly Button download = Button("rgb.download"), cancelDownload = Button("rgb.downloadCancel");
+        private CancellationTokenSource downloadCancellation;
         private readonly TextBox status = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
         private readonly Label dimming = new Label { AutoSize = true, MaximumSize = new Size(680, 0) };
         private OpenRgbClient client;
@@ -38,8 +41,11 @@ namespace Radeoner
             layout.Controls.Add(dimming, 0, 7); layout.SetColumnSpan(dimming, 2);
             var actions = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; actions.Controls.Add(apply); actions.Controls.Add(off); actions.Controls.Add(close);
             layout.Controls.Add(actions, 0, 8); layout.SetColumnSpan(actions, 2);
+            var downloads = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; downloads.Controls.Add(download); downloads.Controls.Add(cancelDownload);
+            layout.Controls.Add(downloads, 0, 9); layout.SetColumnSpan(downloads, 2);
             status.AccessibleName = L.T("rgb.status"); status.Text = L.T("rgb.ready"); status.MinimumSize = new Size(0, 70); layout.Controls.Add(status, 0, 10); layout.SetColumnSpan(status, 2);
             connect.Click += async (s, e) => await Connect(); apply.Click += async (s, e) => await Apply(false); off.Click += async (s, e) => await Apply(true);
+            download.Click += async (s, e) => await Download(); cancelDownload.Click += (s, e) => { if (downloadCancellation != null) downloadCancellation.Cancel(); };
             close.DialogResult = DialogResult.Cancel; CancelButton = close;
             devices.SelectedIndexChanged += (s, e) => SelectDevice(); modes.SelectedIndexChanged += (s, e) =>
             {
@@ -49,7 +55,7 @@ namespace Radeoner
             };
             preset.SelectedIndexChanged += (s, e) => { if (preset.SelectedIndex >= colors.Length || preset.SelectedIndex < 0) return; changing = true; var color = colors[preset.SelectedIndex]; red.Value = color[0]; green.Value = color[1]; blue.Value = color[2]; changing = false; };
             foreach (var channel in new[] { red, green, blue }) channel.ValueChanged += (s, e) => { if (!changing) preset.SelectedIndex = colors.Length; };
-            FormClosing += (s, e) => { closing = true; if (client != null) client.Dispose(); }; Shown += (s, e) => connect.Focus();
+            FormClosing += (s, e) => { closing = true; if (downloadCancellation != null) downloadCancellation.Cancel(); if (client != null) client.Dispose(); }; Shown += (s, e) => connect.Focus();
             Accessibility.Order(this); Appearance.Apply(this, theme); UpdateActions();
         }
         private static Button Button(string key) { return new ThemedButton { Text = L.T(key), AccessibleName = L.T(key), AutoSize = true, Padding = new Padding(8, 4, 8, 4) }; }
@@ -61,6 +67,7 @@ namespace Radeoner
         {
             bool selected = devices.SelectedItem is RgbDevice, color = modes.SelectedItem is RgbMode && ((RgbMode)modes.SelectedItem).CanColor;
             connect.Enabled = port.Enabled = !busy; devices.Enabled = modes.Enabled = !busy && selected;
+            download.Enabled = !busy; cancelDownload.Visible = downloadCancellation != null; cancelDownload.Enabled = downloadCancellation != null;
             preset.Enabled = red.Enabled = green.Enabled = blue.Enabled = brightness.Enabled = !busy && color;
             apply.Enabled = !busy && color; off.Enabled = !busy && selected && ((RgbDevice)devices.SelectedItem).Modes.Any(m => m.CanColor || string.Equals(m.Name, "Off", StringComparison.OrdinalIgnoreCase));
             dimming.Text = color ? L.T(((RgbMode)modes.SelectedItem).NativeBrightness ? "rgb.nativeBrightness" : "rgb.softwareBrightness") : "";
@@ -109,6 +116,42 @@ namespace Radeoner
             }
             catch (Exception ex) { if (!IsDisposed) { status.Text = L.T("rgb.failed", ex.GetBaseException().Message); if (client != null) client.Dispose(); client = null; devices.Items.Clear(); modes.Items.Clear(); status.Focus(); } }
             finally { busy = false; if (!IsDisposed) UpdateActions(); }
+        }
+        private async Task Download()
+        {
+            if (busy) return;
+            string destination;
+            using (var save = new SaveFileDialog { Title = L.T("rgb.downloadTitle"), Filter = L.T("rgb.downloadFilter"), FileName = OpenRgbDownload.FileName, DefaultExt = "zip", AddExtension = true, CheckPathExists = true, OverwritePrompt = true })
+            { if (save.ShowDialog(this) != DialogResult.OK) return; destination = save.FileName; }
+            busy = true; downloadCancellation = new CancellationTokenSource(); UpdateActions(); cancelDownload.Focus(); status.Text = L.T("rgb.downloading", 0);
+            int lastPercent = -1; bool finished = false;
+            var progress = new Progress<long>(bytes =>
+            {
+                if (finished || closing || IsDisposed || downloadCancellation == null) return;
+                int percent = (int)(bytes * 100 / OpenRgbDownload.Size);
+                if (percent / 10 != lastPercent / 10 || lastPercent < 0) { lastPercent = percent; status.Text = L.T("rgb.downloading", percent); }
+            });
+            var cancellation = downloadCancellation.Token;
+            try
+            {
+                await Task.Run(() => OpenRgbDownload.DownloadAsync(destination, progress, cancellation));
+                finished = true;
+                if (!closing && !IsDisposed)
+                {
+                    status.Text = L.T("rgb.downloaded", destination); status.Focus();
+                    SystemDialogs.Show(this, Text, L.T("rgb.downloadComplete"), status.Text, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                finished = true;
+                if (!closing && !IsDisposed)
+                {
+                    status.Text = L.T(cancellation.IsCancellationRequested || ex is OperationCanceledException ? "rgb.downloadCancelled" : "rgb.failed", ex.GetBaseException().Message); status.Focus();
+                    if (!cancellation.IsCancellationRequested) SystemDialogs.Show(this, Text, L.T("rgb.downloadTitle"), status.Text, false);
+                }
+            }
+            finally { downloadCancellation.Dispose(); downloadCancellation = null; busy = false; if (!closing && !IsDisposed) { UpdateActions(); status.Focus(); } }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)
         {

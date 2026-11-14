@@ -174,4 +174,11 @@ Pomocnik kończy się z aplikacją; nie jest instalowaną usługą.
 karty, trybu, gotowego koloru lub kanałów R/G/B 0–255 oraz jasności 0–100%.
 Wymaga uruchomionego **OpenRGB z włączonym lokalnym serwerem SDK** (domyślnie
 port 6742). Składnik jest opcjonalny: Radeoner nie instaluje OpenRGB i nie
-łączy się z nim bez użycia Połącz. [Instrukcja i ograniczenia RGB](docs/RGB.md).
+łączy się z nim bez użycia Połącz. Od **1.04** przycisk **Pobierz OpenRGB**
+pobiera oficjalny ZIP 1.1 dla Windows 64-bit w wybrane miejsce, z kontrolą
+SHA-256, postępem i anulowaniem. Rozpakuj go i włącz serwer SDK w OpenRGB.
+[Instrukcja i ograniczenia RGB / English instructions](docs/RGB.md).
+
+**1.04:** The RGB dialog can download the official OpenRGB 1.1 Windows 64-bit
+portable ZIP to a chosen location, with hash verification and cancellation.
+Extract it and start OpenRGB with its SDK server enabled before connecting.

@@ -182,5 +182,9 @@ Zastosuj RGB wysyła ustawienia. Wyłącz podświetlenie lub 0% gasi światło.
 Jasność używa funkcji karty, gdy dostępna; w innym przypadku przyciemnia kolor.
 Wyświetlane są tylko urządzenia GPU wykryte przez OpenRGB. Obsługa modelu
 zależy od wersji OpenRGB. Fizycznego RGB TUF RX 9070 XT nie testowano lokalnie.
+Od 1.04 przycisk Pobierz OpenRGB w oknie RGB zapisuje oficjalny ZIP OpenRGB 1.1
+dla Windows 64-bit w wybrane miejsce. Sprawdza SHA-256 i pokazuje postęp.
+Możesz anulować pobieranie; istniejący plik pozostanie bez zmian w razie błędu.
+Rozpakuj ZIP, uruchom OpenRGB.exe, włącz serwer SDK i wybierz Połącz w Radeonerze.
 OpenRGB nie jest dołączony ani instalowany automatycznie. Profile JSON Radeonera
 zawierają regulacje ADLX; nie zapisują obecnie ustawień podświetlenia.

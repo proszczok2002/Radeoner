@@ -6,7 +6,11 @@ Otwórz **Regulacja → Podświetlenie karty (RGB)**. Funkcja korzysta z
 opcjonalnego, zewnętrznego OpenRGB. Radeoner nie instaluje go, nie uruchamia
 automatycznie i nie dodaje sterowników do obsługi podświetlenia.
 
-1. Uruchom [OpenRGB](https://openrgb.org/) i włącz jego serwer SDK na tym samym komputerze.
+1. Jeśli nie masz OpenRGB, wybierz **Pobierz OpenRGB 1.1 (Windows 64-bit)**.
+   W systemowym oknie zapisu wybierz miejsce na ZIP. Pobieranie pokazuje postęp;
+   **Anuluj pobieranie** lub zamknięcie okna przerywa transfer. Po zakończeniu
+   rozpakuj ZIP, uruchom OpenRGB.exe i włącz serwer SDK na tym komputerze.
+   Możesz też skorzystać z [oficjalnych wydań](https://openrgb.org/releases.html).
 2. W Radeonerze podaj port (domyślnie **6742**) i wybierz **Połącz z OpenRGB**.
 3. Wybierz kartę z listy **Karta RGB**. Lista zawiera tylko urządzenia typu GPU.
 4. Wybierz tryb obsługujący kolor, gotowy kolor albo R/G/B od 0 do 255.
@@ -46,6 +50,11 @@ Open **Tuning → GPU lighting (RGB)**. This optional feature requires external
 [OpenRGB](https://openrgb.org/) with its SDK server enabled on the same computer.
 Radeoner does not install/start OpenRGB or bundle lighting drivers.
 
+If needed, choose **Download OpenRGB 1.1 (Windows 64-bit)** and select a ZIP
+destination in the native Save dialog. Status shows progress; **Cancel download**
+or closing the window cancels it. Extract the downloaded ZIP, run OpenRGB.exe
+and enable its SDK server. The app downloads but does not install/run OpenRGB.
+
 Connect on port **6742** (or your configured port), select an RGB GPU and
 color-capable mode, choose a preset or R/G/B 0–255, set brightness 0–100%,
 then **Apply RGB**. **Turn lighting off** or 0% disables lighting. Opening
@@ -64,3 +73,20 @@ abort writes. Readback validates OpenRGB's reported state, not physical light.
 Loopback TCP tests cover framing, capabilities, per-LED/mode color, hardware
 and software brightness, off/black and rejection of changed devices/bad packets.
 ADLX JSON profiles do not currently include RGB; nothing is applied at startup.
+
+## Paczka pobierania / Download provenance
+
+- Official release: [OpenRGB 1.1](https://codeberg.org/OpenRGB/OpenRGB/releases/tag/release_1.1),
+  linked by [openrgb.org/releases.html](https://openrgb.org/releases.html).
+- ZIP: `OpenRGB_1.1_Windows_64_8e16de2.zip`, 22,019,605 bytes.
+- SHA-256: `63291726c6fc84eb479ef2ee752e97e1187f6ce9c49fd27eee40ded588a8172a`.
+- Hash independently calculated from the official HTTPS download on 2026-11-14;
+  it is a pinned integrity check, not a publisher signature. The official API
+  did not expose a checksum for this asset. Updating the pin needs source review.
+- HTTPS to the fixed official Codeberg URL, no redirects, five-minute transfer
+  limit. No OpenRGB binary is bundled or mirrored in Radeoner releases.
+- Failed size/hash checks, cancellation and HTTP errors preserve an existing
+  destination. Temporary `.part` files are removed. The user confirms overwrite
+  using the native Save dialog before a verified file replaces the destination.
+- Tests cover valid replacement/new files, invalid hash, truncated/oversized
+  content without a length header, HTTP errors, redirects and cancellation.

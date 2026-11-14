@@ -127,3 +127,15 @@ try language, theme and 100–200% text; inspect About/support and Escape; read
 update notes and All changes, dismiss with No; try Yes on a disposable portable
 copy; hide/restore via Win+B and exit explicitly. Report expected versus actual
 speech and reproducible steps through GitHub Issues or the author's Telegram.
+# Pobieranie OpenRGB w 1.04 / OpenRGB download
+
+Okno RGB ma nazwany przycisk pobierania dostępny bez połączenia z serwerem.
+Wybór miejsca zapisu i pytanie o zastąpienie używają standardowego SaveFileDialog.
+Podczas transferu fokus przechodzi na Anuluj pobieranie. F6 wybiera tekstowy
+stan z postępem; Escape zamyka okno i anuluje transfer. Zakończenie pokazuje
+natywny TaskDialog z instrukcją rozpakowania i włączenia SDK.
+
+The RGB download uses native Save and completion dialogs, explicit accessible
+button names, a cancel button and a copyable status field (F6). Downloading is
+asynchronous; closing cancels it. Automated checks do not constitute an NVDA
+speech/listening test. No new NVDA speech test was performed for 1.04.

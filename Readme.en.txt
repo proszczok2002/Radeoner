@@ -76,4 +76,8 @@ Turn off or 0% disables lighting. Brightness uses hardware capability when
 reported, otherwise selected RGB channels are dimmed. Only GPU devices exposed
 by OpenRGB appear. Support depends on its version. Physical TUF RX 9070 XT RGB
 was not tested locally. OpenRGB is optional and not bundled/installed.
+Since 1.04, Download OpenRGB saves the official OpenRGB 1.1 Windows 64-bit
+portable ZIP to your chosen location, with SHA-256 checks, progress and cancel.
+Extract the ZIP, run OpenRGB.exe, enable its SDK server, then Connect in Radeoner.
+A failed/cancelled download preserves any existing destination file.
 Radeoner JSON profiles currently store ADLX tuning, not RGB settings.

@@ -163,6 +163,7 @@ internal static partial class Tests
                 foreach (var control in controls.Where(c => c is Button || c is ComboBox || c is NumericUpDown || c is TextBox)) Check(!string.IsNullOrWhiteSpace(control.AccessibleName), "Unlabeled RGB control");
                 foreach (var number in controls.OfType<NumericUpDown>()) Check(number.Controls.OfType<TextBox>().Single().AccessibleName == number.AccessibleName, "Unlabeled RGB numeric edit");
                 Check(controls.OfType<TextBox>().Any(t => t.Text == L.T("rgb.ready")), "RGB connected automatically");
+                Check(controls.OfType<Button>().Single(b => b.AccessibleName == L.T("rgb.download")).Enabled, "Download requires an RGB server");
             }
         });
     }

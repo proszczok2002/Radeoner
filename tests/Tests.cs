@@ -46,6 +46,11 @@ internal static partial class Tests
         if (args.Length == 2 && args[0] == "--driver-fixture") return DriverHost.Run(int.Parse(args[1]), () => new RpcFixture());
         try
         {
+            if (args.Length == 2 && args[0] == "--download-openrgb")
+            {
+                OpenRgbDownload.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+                Console.WriteLine("PASS official OpenRGB portable download: " + args[1]); return 0;
+            }
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
             Test("ADLX integer range ABI, inclusive bounds and step", () =>
             {
@@ -192,6 +197,7 @@ internal static partial class Tests
             RunAccessibilityTests();
             RunStabilityTests();
             RunRgbTests();
+            RunRgbDownloadTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;
         }
