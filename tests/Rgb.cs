@@ -25,6 +25,7 @@ internal static partial class Tests
         internal uint[] Colors = { 0xFFFFFF, 0xFFFFFF };
         internal uint ModeColor = 0xFFFFFF;
         internal Exception Failure;
+        internal System.Threading.ManualResetEventSlim ListRequested, ListRelease;
         internal RgbServer(bool nativeBrightness = false, bool modeSpecific = false, bool includeOff = true)
         {
             NativeBrightness = nativeBrightness; ModeSpecific = modeSpecific; IncludeOff = includeOff; listener.Start(); Port = ((IPEndPoint)listener.LocalEndpoint).Port;
@@ -44,7 +45,11 @@ internal static partial class Tests
                             Check(length < 100000, "Unbounded RGB request"); byte[] data = r.ReadBytes(length); Check(data.Length == length, "Truncated RGB request"); byte[] response = null;
                             if (command == 40) { Check(BitConverter.ToUInt32(data, 0) == 3, "Protocol 3 was not negotiated"); response = BitConverter.GetBytes(6u); }
                             else if (command == 50) Check(Encoding.UTF8.GetString(data).StartsWith("Radeoner v"), "RGB client version absent");
-                            else if (command == 0) response = BitConverter.GetBytes(2u);
+                            else if (command == 0)
+                            {
+                                if (ListRequested != null) { ListRequested.Set(); Check(ListRelease.Wait(3000), "RGB list gate timed out"); }
+                                response = BitConverter.GetBytes(2u);
+                            }
                             else if (command == 1)
                             {
                                 Check(data.SequenceEqual(BitConverter.GetBytes(3u)), "Controller requested at wrong protocol");

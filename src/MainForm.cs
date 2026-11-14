@@ -21,6 +21,7 @@ namespace Radeoner
         private readonly bool startInTray;
         private readonly string settingsPath;
         private AppSettings settings;
+        internal string ThemeName { get { return settings.Theme; } }
         private readonly StartupRegistration startup;
         private Font applicationFont;
         private readonly Dictionary<int, Font> fonts = new Dictionary<int, Font>();
@@ -30,6 +31,8 @@ namespace Radeoner
         private readonly NavigationComboBox gpu = new NavigationComboBox(), language = new NavigationComboBox(), theme = new NavigationComboBox(), textScale = new NavigationComboBox();
         private readonly Label gpuLabel = new Label(), languageLabel = new Label(), themeLabel = new Label(), textLabel = new Label(), preferencesNote = new Label();
         private readonly NavigationTabs tabs = new NavigationTabs();
+        private readonly Panel mainViewport = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), AutoScroll = true, AutoScrollMargin = new Size(0, 12) };
+        private readonly TableLayoutPanel mainLayout;
         private readonly SensorView overview = new SensorView();
         private readonly TextBox report = ReadOnlyText(), status = new TextBox { ReadOnly = true };
         private readonly FlowLayoutPanel tuningFields = new FlowLayoutPanel(), fanFields = new FlowLayoutPanel(), personalFields = new FlowLayoutPanel();
@@ -43,7 +46,7 @@ namespace Radeoner
         private CheckBox zeroRpm;
         internal Action<Exception> TestFailure;
         internal bool SuppressAutomaticUpdateChecks;
-        private bool initializedSuccessfully, sensorFailed, fittingSettings;
+        private bool initializedSuccessfully, sensorFailed, fittingSettings, fittingEditors, fittingMain;
         private Control savedFocus;
         private string savedEditor;
         private int savedSelectionStart, savedSelectionLength;
@@ -58,11 +61,12 @@ namespace Radeoner
             AutoScaleMode = AutoScaleMode.Dpi; MinimumSize = new Size(720, 520); Size = new Size(1040, 780);
             StartPosition = FormStartPosition.CenterScreen; KeyPreview = true;
             if (startInTray) { Opacity = 0; ShowInTaskbar = false; }
-            var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(12), AutoScroll = true };
+            var layout = mainLayout = new TableLayoutPanel { Dock = DockStyle.Top, ColumnCount = 1, RowCount = 5, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            Controls.Add(layout);
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 300)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            Controls.Add(mainViewport); mainViewport.Controls.Add(layout);
+            mainViewport.ClientSizeChanged += (s, e) => FitMainLayout(); layout.Layout += (s, e) => FitMainLayout();
             var top = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 2 };
             top.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             gpuLabel.AutoSize = true; gpuLabel.Anchor = AnchorStyles.Left; top.Controls.Add(gpuLabel, 0, 0);
@@ -73,6 +77,8 @@ namespace Radeoner
             tabs.Navigate = NavigateTab; tabs.SelectedIndexChanged += (s, e) => UpdateTabActions();
             foreach (var choice in new[] { gpu, language, theme, textScale }) choice.Navigate = NavigateTab;
             ConfigureFields(tuningFields); ConfigureFields(fanFields); ConfigureFields(personalFields);
+            tuningFields.ClientSizeChanged += (s, e) => FitEditorFields(tuningFields);
+            fanFields.ClientSizeChanged += (s, e) => FitEditorFields(fanFields);
             var tuningPage = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
             tuningPage.RowStyles.Add(new RowStyle(SizeType.AutoSize)); tuningPage.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             tuningPage.Controls.Add(rgb, 0, 0); tuningPage.Controls.Add(tuningFields, 0, 1);
@@ -95,6 +101,7 @@ namespace Radeoner
             timer.Tick += async (s, e) => await RefreshSensors(false);
             Shown += async (s, e) =>
             {
+                ApplyAppearance();
                 UpdateTabActions();
                 if (started) return; started = true;
                 tray = new TrayIcon(trayMenu); tray.ShowRequested += ShowFromTray; tray.EnsureVisible();
@@ -109,7 +116,7 @@ namespace Radeoner
         }
         private static TextBox ReadOnlyText() { return new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, WordWrap = true }; }
         private static Button Button() { return new ThemedButton { AutoSize = true, Padding = new Padding(8, 4, 8, 4), UseVisualStyleBackColor = true }; }
-        private static void ConfigureFields(FlowLayoutPanel panel) { panel.Dock = DockStyle.Fill; panel.AutoScroll = true; panel.FlowDirection = FlowDirection.TopDown; panel.WrapContents = false; panel.Padding = new Padding(8); }
+        private static void ConfigureFields(FlowLayoutPanel panel) { panel.Dock = DockStyle.Fill; panel.AutoScroll = true; panel.AutoScrollMargin = new Size(0, 16); panel.FlowDirection = FlowDirection.TopDown; panel.WrapContents = false; panel.Padding = new Padding(8); }
         private void AddTab(Control content) { var page = new TabPage { Padding = new Padding(8), UseVisualStyleBackColor = true }; page.Controls.Add(content); tabs.TabPages.Add(page); }
         private static Label Note(string text) { return new Label { Text = text, AutoSize = true, MaximumSize = new Size(820, 0), Margin = new Padding(3, 5, 3, 10) }; }
         private void BuildPersonalization()
@@ -204,14 +211,21 @@ namespace Radeoner
         { if (!disposed && IsHandleCreated) try { BeginInvoke((Action)ApplyAppearance); } catch (InvalidOperationException) { } }
         private void ApplyAppearance()
         {
+            if (disposed || Disposing) return;
+            var focused = Accessibility.Focused(this);
             if (!fonts.TryGetValue(settings.TextScale, out applicationFont))
             { applicationFont = new Font(SystemFonts.MessageBoxFont.FontFamily, SystemFonts.MessageBoxFont.Size * settings.TextScale / 100f); fonts.Add(settings.TextScale, applicationFont); }
             Font = applicationFont; trayMenu.Font = applicationFont; status.MinimumSize = new Size(0, Font.Height + 12); status.Height = Font.Height + 12; tabs.ItemSize = new Size(0, Font.Height + 14);
+            gpu.Parent.MinimumSize = new Size(0, gpu.Height + gpu.Margin.Vertical);
             Appearance.Apply(this, settings.Theme); trayMenu.RenderMode = ToolStripRenderMode.System;
+            Accessibility.FitNativeCombos(this);
             trayMenu.BackColor = Appearance.Dark(settings.Theme) ? Color.FromArgb(43, 43, 46) : SystemColors.Menu;
             trayMenu.ForeColor = Appearance.Dark(settings.Theme) ? Color.White : SystemColors.MenuText;
             foreach (ToolStripItem item in trayMenu.Items) { item.BackColor = trayMenu.BackColor; item.ForeColor = trayMenu.ForeColor; }
             FitSettings();
+            FitEditorFields(tuningFields); FitEditorFields(fanFields);
+            FitMainLayout();
+            if (focused != null && !focused.IsDisposed && focused.CanFocus && !focused.ContainsFocus) focused.Focus();
             if (IsHandleCreated && Visible) BeginInvoke((Action)(() => { if (!disposed) Accessibility.EnsureVisible(Accessibility.Focused(this)); }));
         }
         private void FitSettings()
@@ -228,16 +242,64 @@ namespace Radeoner
             }
             finally { personalFields.ResumeLayout(true); fittingSettings = false; }
         }
+        private void FitMainLayout()
+        {
+            if (disposed || Disposing || fittingMain || mainLayout == null || mainLayout.Controls.Count < 5) return;
+            fittingMain = true; mainLayout.SuspendLayout();
+            try
+            {
+                int width = Math.Max(440, mainViewport.ClientSize.Width - mainViewport.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 8);
+                mainLayout.MinimumSize = new Size(width, 0); mainLayout.MaximumSize = new Size(width, 0);
+                int otherHeight = 0;
+                foreach (int row in new[] { 0, 1, 3, 4 })
+                {
+                    var control = mainLayout.GetControlFromPosition(0, row);
+                    if (control != null && control.Visible) otherHeight += control.GetPreferredSize(new Size(width - control.Margin.Horizontal, 0)).Height + control.Margin.Vertical;
+                }
+                mainLayout.RowStyles[2].Height = Math.Max(300, mainViewport.ClientSize.Height - mainViewport.Padding.Vertical - otherHeight - 12);
+            }
+            finally { mainLayout.ResumeLayout(true); fittingMain = false; }
+        }
         private static void FitSettingsChildren(Control root, int width)
         {
             foreach (Control child in root.Controls)
             {
-                if (child is FlowLayoutPanel) { child.MaximumSize = new Size(width, 0); if (!((FlowLayoutPanel)child).WrapContents) child.Width = width; }
-                if (child is Label) child.MaximumSize = new Size(width, 0);
-                if (child is TextBox) child.Width = width;
-                FitSettingsChildren(child, width);
+                int available = Math.Max(180, width - child.Margin.Horizontal);
+                if (child is FlowLayoutPanel) { child.MaximumSize = new Size(available, 0); if (!((FlowLayoutPanel)child).WrapContents) child.Width = available; }
+                if (child is Label || child is CheckBox || child is Button || child is ComboBox) child.MaximumSize = new Size(available, 0);
+                if (child is TextBox) child.Width = available;
+                FitSettingsChildren(child, Math.Max(180, available - child.Padding.Horizontal));
             }
         }
+        private void FitEditorFields(FlowLayoutPanel fields)
+        {
+            if (fittingEditors) return; fittingEditors = true;
+            int width = Math.Max(260, fields.ClientSize.Width - fields.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 8);
+            fields.SuspendLayout();
+            try
+            {
+                foreach (Control child in fields.Controls)
+                {
+                    child.MaximumSize = new Size(width, 0);
+                    if (child is TableLayoutPanel || child is TextBox) { child.MinimumSize = new Size(width, 0); child.Width = width; }
+                    var table = child as TableLayoutPanel;
+                    if (table != null)
+                        foreach (Control cell in table.Controls) if (cell is Label) cell.MaximumSize = new Size(Math.Max(80, width - (table.GetColumnSpan(cell) == 2 ? 12 : 184)), 0);
+                }
+            }
+            finally { fields.ResumeLayout(true); fittingEditors = false; }
+        }
+        private static TableLayoutPanel EditorRow(string label, NumericUpDown number, string detail)
+        {
+            var row = new TableLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 2, Margin = new Padding(3, 3, 3, 12) };
+            row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 172));
+            row.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(3, 6, 8, 3) }, 0, 0);
+            number.Anchor = AnchorStyles.Right; row.Controls.Add(number, 1, 0);
+            if (!string.IsNullOrWhiteSpace(detail)) { var note = Note(detail); row.Controls.Add(note, 0, 1); row.SetColumnSpan(note, 2); }
+            return row;
+        }
+        private static TextBox UnavailableText(string name, string reason)
+        { return new TextBox { Text = reason, AccessibleName = name, ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Height = 100, Width = 600, Margin = new Padding(3, 8, 3, 12) }; }
         private void Announce(string text) { if (disposed) return; status.Text = text.Replace("\r", " ").Replace("\n", " "); if (status.IsHandleCreated && Visible) NotifyWinEvent(0x800E, status.Handle, -4, 0); }
         private void UpdateActions()
         {
@@ -257,6 +319,9 @@ namespace Radeoner
             refresh.Visible = tabs.SelectedIndex < 3;
             export.Visible = import.Visible = tuningPage; save.Visible = tabs.SelectedIndex == 3;
             monitoring.Visible = tabs.SelectedIndex == 0; gpu.Visible = gpuLabel.Visible = tabs.SelectedIndex != 4;
+            gpu.Parent.Visible = tabs.SelectedIndex != 4;
+            mainLayout.GetControlFromPosition(0, 1).Visible = tabs.SelectedIndex != 4;
+            FitMainLayout();
         }
         private void NavigateTab(int direction)
         {
@@ -356,31 +421,29 @@ namespace Radeoner
         private void Render()
         {
             sensors = snapshot; overview.Text = Overview(snapshot); report.Text = snapshot.Report(); ClearFields(tuningFields); ClearFields(fanFields); editors.Clear(); temperatures.Clear(); speeds.Clear(); zeroRpm = null;
-            tuningFields.Controls.Add(Note(L.T("ui.tuningNote"))); if (snapshot.Settings.Count == 0) tuningFields.Controls.Add(Note(L.T("ui.noTuning")));
+            tuningFields.Controls.Add(Note(L.T("ui.tuningNote"))); if (snapshot.Settings.Count == 0) tuningFields.Controls.Add(UnavailableText(L.T("ui.tuningAvailability"), L.T("ui.noTuning")));
             foreach (var setting in snapshot.Settings)
             {
-                var row = new FlowLayoutPanel { AutoSize = true, WrapContents = true, MaximumSize = new Size(1200, 0) };
-                row.Controls.Add(new Label { Text = setting.Name + " (" + setting.Unit + "):", AutoSize = true, Margin = new Padding(3, 6, 8, 3) });
-                var number = Number(setting.Name + ", " + setting.Unit, setting.Range, setting.Value); row.Controls.Add(number);
-                row.Controls.Add(new Label { Text = L.T("ui.range", setting.Range), AutoSize = true, Margin = new Padding(8, 6, 3, 3) });
-                editors.Add(setting.Id, number); tuningFields.Controls.Add(row); if (!string.IsNullOrEmpty(setting.Note)) tuningFields.Controls.Add(Note(setting.Note));
+                var number = Number(setting.Name + ", " + setting.Unit, setting.Range, setting.Value);
+                string detail = L.T("ui.range", setting.Range) + (string.IsNullOrEmpty(setting.Note) ? "" : ". " + setting.Note);
+                number.AccessibleDescription = detail; Accessibility.Number(number);
+                editors.Add(setting.Id, number); tuningFields.Controls.Add(EditorRow(setting.Name + " (" + setting.Unit + "):", number, detail));
             }
-            fanFields.Controls.Add(Note(L.T("ui.fanNote"))); if (snapshot.Fan.Count == 0) fanFields.Controls.Add(Note(L.T("ui.noFan")));
+            fanFields.Controls.Add(Note(L.T("ui.fanNote"))); if (snapshot.Fan.Count == 0) fanFields.Controls.Add(UnavailableText(L.T("ui.fanAvailability"), L.T("ui.noFan")));
             for (int i = 0; i < snapshot.Fan.Count; i++)
             {
-                var row = new FlowLayoutPanel { AutoSize = true, WrapContents = true };
-                row.Controls.Add(new Label { Text = L.T("ui.pointTemperature", i + 1), AutoSize = true, Margin = new Padding(3, 6, 3, 3) });
-                var t = Number(L.T("ui.pointTemperatureName", i + 1), snapshot.FanTemperature, snapshot.Fan[i].Temperature); row.Controls.Add(t); temperatures.Add(t);
-                row.Controls.Add(new Label { Text = L.T("ui.speed"), AutoSize = true, Margin = new Padding(8, 6, 3, 3) });
-                var s = Number(L.T("ui.pointSpeedName", i + 1), snapshot.FanSpeed, snapshot.Fan[i].Speed); row.Controls.Add(s); speeds.Add(s); fanFields.Controls.Add(row);
+                var t = Number(L.T("ui.pointTemperatureName", i + 1), snapshot.FanTemperature, snapshot.Fan[i].Temperature); temperatures.Add(t);
+                fanFields.Controls.Add(EditorRow(L.T("ui.pointTemperature", i + 1), t, null));
+                var s = Number(L.T("ui.pointSpeedName", i + 1), snapshot.FanSpeed, snapshot.Fan[i].Speed); speeds.Add(s);
+                fanFields.Controls.Add(EditorRow(L.T("ui.pointSpeedLabel", i + 1), s, null));
             }
             if (snapshot.Fan.Count > 0) fanFields.Controls.Add(Note(L.T("ui.fanRanges", snapshot.FanTemperature, snapshot.FanSpeed)));
             if (snapshot.ZeroRpm.HasValue)
             {
-                zeroRpm = new ThemedCheckBox { Text = L.T("ui.zeroRpm"), AccessibleName = L.T("ui.zeroRpmName"), Checked = snapshot.ZeroRpm.Value, AutoSize = true };
+                zeroRpm = new ThemedCheckBox { Text = L.T("ui.zeroRpm"), AccessibleName = L.T("ui.zeroRpmName"), Checked = snapshot.ZeroRpm.Value, AutoSize = true, Margin = new Padding(3, 3, 3, 18) };
                 zeroRpm.CheckedChanged += (s, e) => { dirty = true; UpdateActions(); }; fanFields.Controls.Add(zeroRpm);
             }
-            dirty = false; Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); Accessibility.Order(this); UpdateActions(); UpdateTray(false);
+            dirty = false; FitEditorFields(tuningFields); FitEditorFields(fanFields); Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); Accessibility.Order(this); UpdateActions(); UpdateTray(false);
         }
         private Dictionary<string, string> CaptureDraft()
         {
@@ -398,14 +461,27 @@ namespace Radeoner
         {
             var changes = new Changes();
             foreach (var setting in snapshot.Settings)
-            { int value; if (!int.TryParse(editors[setting.Id].Text, out value) || !setting.Range.Contains(value)) throw new InvalidOperationException(L.T("ui.invalidNumber", setting.Name, setting.Range)); if (value != setting.Value) changes.Values.Add(setting.Id, value); }
+            { int value; if (!int.TryParse(editors[setting.Id].Text, out value) || !setting.Range.Contains(value)) throw InvalidEditor(editors[setting.Id], L.T("ui.invalidNumber", setting.Name, setting.Range)); if (value != setting.Value) changes.Values.Add(setting.Id, value); }
             if (snapshot.Fan.Count > 0)
             {
                 var points = new List<FanPoint>();
-                for (int i = 0; i < temperatures.Count; i++) { int t, s; if (!int.TryParse(temperatures[i].Text, out t) || !int.TryParse(speeds[i].Text, out s)) throw new InvalidOperationException(L.T("ui.invalidFanNumber")); points.Add(new FanPoint(t, s)); }
+                for (int i = 0; i < temperatures.Count; i++)
+                {
+                    int t, s;
+                    if (!int.TryParse(temperatures[i].Text, out t)) throw InvalidEditor(temperatures[i], L.T("ui.invalidFanNumber"));
+                    if (!int.TryParse(speeds[i].Text, out s)) throw InvalidEditor(speeds[i], L.T("ui.invalidFanNumber"));
+                    points.Add(new FanPoint(t, s));
+                }
                 if (!Validation.SameFan(snapshot.Fan, points)) changes.Fan = points;
             }
             if (zeroRpm != null && zeroRpm.Checked != snapshot.ZeroRpm.Value) changes.ZeroRpm = zeroRpm.Checked; Validation.Validate(snapshot, changes); return changes;
+        }
+        private InvalidOperationException InvalidEditor(NumericUpDown number, string message)
+        {
+            for (Control parent = number.Parent; parent != null; parent = parent.Parent)
+                if (parent is TabPage) { tabs.SelectedTab = (TabPage)parent; break; }
+            number.Focus(); number.Select(0, number.Text.Length); Accessibility.EnsureVisible(number);
+            return new InvalidOperationException(message);
         }
         internal void Stage(Changes changes)
         {

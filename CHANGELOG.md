@@ -1,5 +1,33 @@
 # Zmiany / Changelog
 
+## 1.05 — wersja testowa / audit candidate, not released
+
+### Polski
+
+- Przewijany układ głównego okna zachowuje miejsce na zakładkę przy dużym
+  tekście; pola regulacji i wentylatora mają wyrównane wiersze i zawijane opisy.
+- Poprawiono wysokości natywnych list wyboru, przewijanie do całego pola
+  z fokusem, motyw pól/list/przycisków i wyróżnienie aktywnej zakładki.
+- Pomoc i pełny opis przejmują motyw i wielkość tekstu. RGB ma przewijaną
+  treść, krótsze przyciski oraz pełne nazwy dostępne dla czytnika.
+- Wyjaśnienia niedostępnych funkcji są osiągalne klawiszem Tab; błędne dane
+  kierują fokus na pole do poprawy. Osłony przy zamykaniu RGB i zmianie motywu.
+- Rozszerzono testy układu PL/EN i motywów oraz dodano osobny test rzeczywistych
+  wypowiedzi NVDA. **Nowe zmiany graficzne czekają na weryfikację NVDA**;
+  [szczegóły i ograniczenia audytu](docs/AUDIT_1.05.md).
+
+### English
+
+- Scrollable main layout preserves usable tab space at large text sizes;
+  aligned tuning/fan rows, wrapped descriptions, correctly sized native combos
+  and scrolling to the complete focused field.
+- Consistent field/list/button palette and tab indication; themed, scalable
+  details/help dialogs and a scrollable RGB dialog with full accessible names.
+- Focusable unsupported-feature explanations, invalid-input focus recovery
+  and closing/theme-update guards. Expanded PL/EN/theme/layout tests and an
+  opt-in actual NVDA Speech Viewer capture.
+- **Visual changes await actual NVDA verification; no stable 1.05 release yet.**
+
 ## 1.04
 
 ### Polski

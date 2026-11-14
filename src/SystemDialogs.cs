@@ -100,15 +100,9 @@ namespace Radeoner
         { Show(owner, title, title, text, false); }
         internal static void Details(IWin32Window owner, string title, string text)
         {
-            using (var form = new Form { Text = title, AccessibleName = title, Size = new System.Drawing.Size(700, 540), MinimumSize = new System.Drawing.Size(400, 300), StartPosition = FormStartPosition.CenterParent, ShowInTaskbar = false })
-            {
-                form.AutoScaleMode = AutoScaleMode.Dpi;
-                foreach (Form open in Application.OpenForms) if (open is MainForm) { form.Font = open.Font; break; }
-                var box = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, Text = text, AccessibleName = title, SelectionStart = 0, SelectionLength = 0 };
-                var close = new Button { Text = L.T("dialog.close"), AccessibleName = L.T("dialog.closeName"), Dock = DockStyle.Bottom, Height = 40, DialogResult = DialogResult.Cancel };
-                form.Controls.Add(box); form.Controls.Add(close); form.CancelButton = close;
-                form.Shown += (s, e) => { box.Focus(); box.Select(0, 0); }; form.ShowDialog(owner);
-            }
+            var font = System.Drawing.SystemFonts.MessageBoxFont; string theme = "system";
+            foreach (Form open in Application.OpenForms) if (open is MainForm) { font = open.Font; theme = ((MainForm)open).ThemeName; break; }
+            using (var form = new DetailsDialog(title, text, font, theme)) form.ShowDialog(owner);
         }
         internal sealed class WindowOwner : IWin32Window
         {

@@ -1,4 +1,7 @@
-Radeoner 1.04 — panel sterownika AMD
+Radeoner 1.05 — wersja testowa audytu dostępności
+
+To kandydat do audytu. Zmiany wyglądu czekają na rzeczywistą weryfikację NVDA.
+Stabilna publiczna wersja pozostaje 1.04. Nie zastępuj używanej kopii bez testu.
 
 Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
 4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu

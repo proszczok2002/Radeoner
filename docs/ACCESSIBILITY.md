@@ -1,4 +1,8 @@
-# Dostępność / Accessibility — 1.03
+# Dostępność / Accessibility
+
+Aktualne prace: [audyt 1.05 — weryfikacja NVDA otwarta](AUDIT_1.05.md).
+Current work: [1.05 audit candidate — NVDA verification pending](AUDIT_1.05.md).
+Poniższe wyniki opisują wcześniejsze wydania / Older release results follow.
 
 ## Polski
 

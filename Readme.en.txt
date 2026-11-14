@@ -1,4 +1,7 @@
-Radeoner 1.04 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.05 - accessibility audit candidate
+
+Visual changes await actual NVDA verification. Stable public release: 1.04.
+Use an isolated copy for the audit; do not replace your working app yet.
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner

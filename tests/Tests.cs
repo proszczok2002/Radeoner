@@ -43,9 +43,12 @@ internal static partial class Tests
     {
         if (args.Length == 2 && (args[0] == "--live-ui" || args[0] == "--live-tray" || args[0] == "--live-keyboard")) return LiveUi(args[1], args[0] == "--live-tray", args[0] == "--live-keyboard");
         if (args.Length == 2 && args[0] == "--live-dialogs") return LiveDialogs(args[1]);
+        if (args.Length == 2 && args[0] == "--live-nvda") return LiveNvda(args[1]);
         if (args.Length == 2 && args[0] == "--driver-fixture") return DriverHost.Run(int.Parse(args[1]), () => new RpcFixture());
         try
         {
+            Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length == 1 && args[0] == "--audit-ui") { RunFullAccessibilityTests(); Console.WriteLine("PASS full UI matrix"); return 0; }
             if (args.Length == 2 && args[0] == "--download-openrgb")
             {
                 OpenRgbDownload.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
@@ -198,6 +201,7 @@ internal static partial class Tests
             RunStabilityTests();
             RunRgbTests();
             RunRgbDownloadTests();
+            RunFullAccessibilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;
         }

@@ -17,17 +17,18 @@ namespace Radeoner
         private readonly TextBox status = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
         private readonly Label dimming = new Label { AutoSize = true, MaximumSize = new Size(680, 0) };
         private OpenRgbClient client;
-        private bool busy, changing;
+        private bool busy, changing, fitting;
         private volatile bool closing;
         private readonly int[][] colors = { new[] { 255, 255, 255 }, new[] { 255, 0, 0 }, new[] { 0, 255, 0 }, new[] { 0, 0, 255 }, new[] { 255, 130, 0 }, new[] { 160, 0, 255 } };
         internal RgbDialog(Font font, string theme)
         {
             Text = L.T("rgb.title") + " — Radeoner v" + L.Version; AccessibleName = Text; Font = font;
             AutoScaleMode = AutoScaleMode.Dpi; Size = new Size(800, 700); MinimumSize = new Size(560, 520); StartPosition = FormStartPosition.CenterParent; ShowInTaskbar = false;
-            var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 11, Padding = new Padding(12), AutoScroll = true };
+            var viewport = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), AutoScroll = true, AutoScrollMargin = new Size(0, 16) };
+            var layout = new TableLayoutPanel { Dock = DockStyle.Top, ColumnCount = 2, RowCount = 11, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            for (int i = 0; i < 10; i++) layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            Controls.Add(layout);
+            for (int i = 0; i < 11; i++) layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            Controls.Add(viewport); viewport.Controls.Add(layout);
             var instructions = new Label { Text = L.T("rgb.instructions"), AutoSize = true, MaximumSize = new Size(720, 0), Margin = new Padding(3, 3, 3, 12) };
             layout.Controls.Add(instructions, 0, 0); layout.SetColumnSpan(instructions, 2);
             var connection = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; connection.Controls.Add(port); connection.Controls.Add(connect); Row(layout, 1, "rgb.port", connection);
@@ -36,14 +37,18 @@ namespace Radeoner
             Row(layout, 2, "rgb.device", devices); Row(layout, 3, "rgb.mode", modes); Row(layout, 4, "rgb.preset", preset);
             preset.Items.AddRange(new object[] { L.T("rgb.white"), L.T("rgb.red"), L.T("rgb.green"), L.T("rgb.blue"), L.T("rgb.orange"), L.T("rgb.purple"), L.T("rgb.custom") }); preset.SelectedIndex = 0;
             var channels = new FlowLayoutPanel { AutoSize = true, WrapContents = true };
-            foreach (var pair in new[] { Tuple.Create("R", red), Tuple.Create("G", green), Tuple.Create("B", blue) }) { channels.Controls.Add(new Label { Text = pair.Item1, AutoSize = true, Margin = new Padding(3, 6, 3, 3) }); channels.Controls.Add(pair.Item2); }
+            foreach (var pair in new[] { Tuple.Create("R", red), Tuple.Create("G", green), Tuple.Create("B", blue) })
+            {
+                var channel = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = Padding.Empty };
+                channel.Controls.Add(new Label { Text = pair.Item1, AutoSize = true, Margin = new Padding(3, 6, 3, 3) }); channel.Controls.Add(pair.Item2); channels.Controls.Add(channel);
+            }
             Row(layout, 5, "rgb.channels", channels); Row(layout, 6, "rgb.brightness", brightness);
             layout.Controls.Add(dimming, 0, 7); layout.SetColumnSpan(dimming, 2);
             var actions = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; actions.Controls.Add(apply); actions.Controls.Add(off); actions.Controls.Add(close);
             layout.Controls.Add(actions, 0, 8); layout.SetColumnSpan(actions, 2);
             var downloads = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; downloads.Controls.Add(download); downloads.Controls.Add(cancelDownload);
             layout.Controls.Add(downloads, 0, 9); layout.SetColumnSpan(downloads, 2);
-            status.AccessibleName = L.T("rgb.status"); status.Text = L.T("rgb.ready"); status.MinimumSize = new Size(0, 70); layout.Controls.Add(status, 0, 10); layout.SetColumnSpan(status, 2);
+            status.AccessibleName = L.T("rgb.status"); status.Text = L.T("rgb.ready"); status.MinimumSize = new Size(0, Math.Max(100, Font.Height * 3)); layout.Controls.Add(status, 0, 10); layout.SetColumnSpan(status, 2);
             connect.Click += async (s, e) => await Connect(); apply.Click += async (s, e) => await Apply(false); off.Click += async (s, e) => await Apply(true);
             download.Click += async (s, e) => await Download(); cancelDownload.Click += (s, e) => { if (downloadCancellation != null) downloadCancellation.Cancel(); };
             close.DialogResult = DialogResult.Cancel; CancelButton = close;
@@ -55,10 +60,35 @@ namespace Radeoner
             };
             preset.SelectedIndexChanged += (s, e) => { if (preset.SelectedIndex >= colors.Length || preset.SelectedIndex < 0) return; changing = true; var color = colors[preset.SelectedIndex]; red.Value = color[0]; green.Value = color[1]; blue.Value = color[2]; changing = false; };
             foreach (var channel in new[] { red, green, blue }) channel.ValueChanged += (s, e) => { if (!changing) preset.SelectedIndex = colors.Length; };
-            FormClosing += (s, e) => { closing = true; if (downloadCancellation != null) downloadCancellation.Cancel(); if (client != null) client.Dispose(); }; Shown += (s, e) => connect.Focus();
-            Accessibility.Order(this); Appearance.Apply(this, theme); UpdateActions();
+            FormClosing += (s, e) => { closing = true; if (downloadCancellation != null) downloadCancellation.Cancel(); if (client != null) client.Dispose(); };
+            Shown += (s, e) => { Accessibility.FitNativeCombos(this); FitLayout(layout); connect.Focus(); };
+            viewport.ClientSizeChanged += (s, e) => FitLayout(layout);
+            FitLayout(layout);
+            Accessibility.Order(this); Appearance.Apply(this, theme); Appearance.FollowSystem(this, theme); UpdateActions();
         }
-        private static Button Button(string key) { return new ThemedButton { Text = L.T(key), AccessibleName = L.T(key), AutoSize = true, Padding = new Padding(8, 4, 8, 4) }; }
+        private void FitLayout(TableLayoutPanel layout)
+        {
+            if (fitting) return; fitting = true; layout.SuspendLayout();
+            try
+            {
+                int width = Math.Max(360, layout.Parent.ClientSize.Width - layout.Parent.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 12);
+                layout.MinimumSize = new Size(width, 0); layout.MaximumSize = new Size(width, 0);
+                int labelWidth = Math.Min(210, width / 3);
+                foreach (Control control in layout.Controls)
+                {
+                    int available = layout.GetColumnSpan(control) == 2 ? width : layout.GetColumn(control) == 0 ? labelWidth : Math.Max(130, width - labelWidth - 24);
+                    if (control is Label || control is FlowLayoutPanel) control.MaximumSize = new Size(available, 0);
+                    var flow = control as FlowLayoutPanel;
+                    if (flow != null)
+                    {
+                        flow.MinimumSize = new Size(available, 0);
+                        foreach (var button in flow.Controls.OfType<Button>()) button.MaximumSize = new Size(available - 8, 0);
+                    }
+                }
+            }
+            finally { layout.ResumeLayout(true); fitting = false; }
+        }
+        private static Button Button(string key) { return new ThemedButton { Text = L.T(key == "rgb.connect" ? "rgb.connectShort" : key == "rgb.download" ? "rgb.downloadShort" : key), AccessibleName = L.T(key), AutoSize = true, Padding = new Padding(8, 4, 8, 4) }; }
         private static NumericUpDown Number(string key, int min, int max, int value)
         { var control = new NumericUpDown { Minimum = min, Maximum = max, Value = value, Width = 115, AccessibleName = L.T(key), AccessibleDescription = L.T("ui.range", new IntRange(min, max, 1)) }; Accessibility.Number(control); return control; }
         private static void Row(TableLayoutPanel panel, int row, string key, Control control)
@@ -95,13 +125,13 @@ namespace Radeoner
             {
                 if (client != null) { client.Dispose(); client = null; } devices.Items.Clear(); modes.Items.Clear(); int selectedPort = (int)port.Value;
                 var found = await Task.Run(() => { next = new OpenRgbClient(selectedPort); client = next; if (closing) { next.Dispose(); throw new ObjectDisposedException("RgbDialog"); } return next.Devices(); });
-                if (IsDisposed) { next.Dispose(); return; } client = next; devices.Items.AddRange(found.ToArray());
+                if (closing || IsDisposed || Disposing) { next.Dispose(); return; } client = next; devices.Items.AddRange(found.ToArray());
                 if (devices.Items.Count > 0) devices.SelectedIndex = 0;
                 status.Text = L.T(found.Count == 0 ? "rgb.noGpu" : modes.Items.Count == 0 ? "rgb.noColor" : "rgb.connected", found.Count);
                 if (found.Count > 0) devices.Focus(); else status.Focus();
             }
-            catch (Exception ex) { if (next != null) next.Dispose(); if (!IsDisposed) { status.Text = L.T("rgb.failed", ex.Message); status.Focus(); } }
-            finally { busy = false; if (!IsDisposed) { UpdateActions(); if (devices.Items.Count > 0) devices.Focus(); } }
+            catch (Exception ex) { if (next != null) next.Dispose(); if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.failed", ex.Message); status.Focus(); } }
+            finally { busy = false; if (!closing && !IsDisposed && !Disposing) { UpdateActions(); if (devices.Items.Count > 0) devices.Focus(); } }
         }
         private async Task Apply(bool turnOff)
         {
@@ -112,10 +142,10 @@ namespace Radeoner
             try
             {
                 await Task.Run(() => client.Apply(device, index, r, g, b, level, turnOff));
-                if (!IsDisposed) { status.Text = L.T("rgb.sent"); status.Focus(); }
+                if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.sent"); status.Focus(); }
             }
-            catch (Exception ex) { if (!IsDisposed) { status.Text = L.T("rgb.failed", ex.GetBaseException().Message); if (client != null) client.Dispose(); client = null; devices.Items.Clear(); modes.Items.Clear(); status.Focus(); } }
-            finally { busy = false; if (!IsDisposed) UpdateActions(); }
+            catch (Exception ex) { if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.failed", ex.GetBaseException().Message); if (client != null) client.Dispose(); client = null; devices.Items.Clear(); modes.Items.Clear(); status.Focus(); } }
+            finally { busy = false; if (!closing && !IsDisposed && !Disposing) UpdateActions(); }
         }
         private async Task Download()
         {
