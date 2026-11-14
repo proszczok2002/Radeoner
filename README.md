@@ -91,8 +91,10 @@ Także **1.01 → 1.02** przeszło pełny test publicznego kanału:
 [wynik testu 1.02](docs/UPDATE_TEST_1.02.md).
 Także **1.02 → 1.03** przeszło pełny test aktualizacji z GitHuba:
 [wynik testu 1.03](docs/UPDATE_TEST_1.03.md).
-Najnowsze **1.03 → 1.04** przeszło pełny test publicznego kanału:
+Także **1.03 → 1.04** przeszło pełny test publicznego kanału:
 [wynik testu 1.04 / update test](docs/UPDATE_TEST_1.04.md).
+Najnowsze **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
+[wynik testu 1.05 / update test](docs/UPDATE_TEST_1.05.md).
 
 ## Klawiatura, tray i pliki
 
