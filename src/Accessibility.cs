@@ -10,11 +10,14 @@ namespace Radeoner
         private static readonly ConditionalWeakTable<Control, object> wired = new ConditionalWeakTable<Control, object>();
         internal static void Number(NumericUpDown number)
         {
-            number.AccessibleRole = AccessibleRole.SpinButton;
+            // The native edit is the focus target. Exposing its container as a
+            // second spin button makes NVDA repeat the name and range twice.
+            number.AccessibleRole = AccessibleRole.Client;
             foreach (Control child in number.Controls)
             {
                 child.AccessibleName = number.AccessibleName;
                 child.AccessibleDescription = number.AccessibleDescription;
+                if (child is TextBox) child.AccessibleRole = AccessibleRole.SpinButton;
             }
         }
         internal static void FitNativeCombos(Control root)

@@ -1,6 +1,6 @@
 # Zmiany / Changelog
 
-## 1.05 — wersja testowa / audit candidate, not released
+## 1.05
 
 ### Polski
 
@@ -12,9 +12,12 @@
   treść, krótsze przyciski oraz pełne nazwy dostępne dla czytnika.
 - Wyjaśnienia niedostępnych funkcji są osiągalne klawiszem Tab; błędne dane
   kierują fokus na pole do poprawy. Osłony przy zamykaniu RGB i zmianie motywu.
-- Rozszerzono testy układu PL/EN i motywów oraz dodano osobny test rzeczywistych
-  wypowiedzi NVDA. **Nowe zmiany graficzne czekają na weryfikację NVDA**;
-  [szczegóły i ograniczenia audytu](docs/AUDIT_1.05.md).
+- Usunięto podwójny odczyt nazwy i zakresu pól liczbowych przez NVDA;
+  poprawiono także nazwę grupy zakładek. Wartość i regulacja strzałkami działają.
+- Sprawdzono 540 punktów rzeczywistego tekstu Podglądu mowy NVDA w PL/EN,
+  trzech motywach i tekście 100/200%, 60 punktów dialogów systemowych,
+  rzeczywiste skróty klawiaturowe i obsługę traya.
+  [Wyniki i ograniczenia audytu](docs/AUDIT_1.05.md).
 
 ### English
 
@@ -26,7 +29,11 @@
 - Focusable unsupported-feature explanations, invalid-input focus recovery
   and closing/theme-update guards. Expanded PL/EN/theme/layout tests and an
   opt-in actual NVDA Speech Viewer capture.
-- **Visual changes await actual NVDA verification; no stable 1.05 release yet.**
+- Removed repeated NVDA numeric labels/ranges while preserving the focused
+  spin-control role, values and arrow-key editing; shortened the tab-group name.
+- Actual NVDA Speech Viewer validation passed 540 UI checkpoints across PL/EN,
+  three themes and 100/200% text, plus 60 native-dialog checkpoints. Real
+  keyboard shortcuts, tray speech and Enter-to-restore were also checked.
 
 ## 1.04
 

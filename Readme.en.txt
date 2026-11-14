@@ -1,7 +1,8 @@
-Radeoner 1.05 - accessibility audit candidate
+Radeoner 1.05 - lightweight, portable AMD GPU control for Windows
 
-Visual changes await actual NVDA verification. Stable public release: 1.04.
-Use an isolated copy for the audit; do not replace your working app yet.
+1.05 improves large-text layout, focus scrolling, dialog themes and NVDA
+numeric-field speech without repeating the label and range. Actual Speech
+Viewer output, native Windows dialogs and keyboard shortcuts were checked.
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner

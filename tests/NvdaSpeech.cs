@@ -59,7 +59,24 @@ internal sealed class NvdaSpeech
         return text.ToString();
     }
     private static string Normalize(string text) { return Regex.Replace(text.ToLowerInvariant(), @"[^\p{L}\p{N}]+", " ").Trim(); }
-    internal async Task Focus(Form form, Control control, string context, string expected = null)
+    internal string Snapshot() { return Read(); }
+    internal async Task Native(IntPtr window, string before, string context, string expected, bool requireForeground = true)
+    {
+        string spoken = "";
+        await Task.Delay(400);
+        for (int poll = 0; poll < 30; poll++)
+        {
+            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context);
+            string current = Read();
+            if (!current.StartsWith(before, StringComparison.Ordinal)) throw new InvalidOperationException("Speech history changed: " + context);
+            spoken = current.Substring(before.Length);
+            if (spoken.Trim().Length > 0 && (expected.Length == 0 || Normalize(spoken).Contains(Normalize(expected)))) break;
+            await Task.Delay(150);
+        }
+        log.AppendLine("\r\nCHECKPOINT " + context + "\r\nExpected name: " + expected + "\r\nActual NVDA text:\r\n" + spoken); Save();
+        if (spoken.Trim().Length == 0 || expected.Length > 0 && !Normalize(spoken).Contains(Normalize(expected))) throw new InvalidOperationException("Native NVDA speech not verified: " + context);
+    }
+    internal async Task Focus(Form form, Control control, string context, string expected = null, Func<Task> activate = null)
     {
         form.Activate(); SetForegroundWindow(form.Handle);
         for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) await Task.Delay(100);
@@ -67,11 +84,14 @@ internal sealed class NvdaSpeech
         if (control.ContainsFocus)
         {
             var alternate = Controls(form).FirstOrDefault(c => c is Button && c.CanFocus && c != control);
-            if (alternate != null) { alternate.Focus(); await Task.Delay(250); }
+            if (alternate != null) { alternate.Focus(); await Task.Delay(600); }
         }
-        string before = Read(); if (!control.Focus() && !control.ContainsFocus) throw new InvalidOperationException("Cannot focus " + context);
+        string before = Read();
+        if (activate != null) await activate();
+        else if (!control.Focus() && !control.ContainsFocus) throw new InvalidOperationException("Cannot focus " + context);
         string spoken = "", name = expected ?? control.AccessibleName;
         if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException("Unnamed NVDA checkpoint: " + context);
+        await Task.Delay(400);
         for (int poll = 0; poll < 20; poll++)
         {
             await Task.Delay(150);
@@ -91,6 +111,63 @@ internal sealed class NvdaSpeech
 
 internal static partial class Tests
 {
+    private static int NvdaNumbers(string output)
+    {
+        Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var speech = new NvdaSpeech(output); Exception failure = null;
+            using (var form = new Form { Text = "Radeoner — test etykiet NVDA", Size = new Size(650, 650) })
+            {
+                var layout = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, AutoScroll = true, WrapContents = false }; form.Controls.Add(layout);
+                var numbers = new List<NumericUpDown>(); int failed = 0;
+                foreach (var role in new[] { AccessibleRole.SpinButton, AccessibleRole.Client, AccessibleRole.Client })
+                {
+                    string label = "Pole próbne " + role + " " + numbers.Count;
+                    layout.Controls.Add(new Label { AutoSize = true, Text = label });
+                    var number = new NumericUpDown { Value = 42, AccessibleName = label, AccessibleDescription = "Zakres od 0 do 100", AccessibleRole = role, Width = 300 };
+                    foreach (Control child in number.Controls) { child.AccessibleName = label; child.AccessibleDescription = number.AccessibleDescription; }
+                    if (numbers.Count == 2) foreach (var child in number.Controls.OfType<TextBox>()) child.AccessibleRole = AccessibleRole.SpinButton;
+                    layout.Controls.Add(number); numbers.Add(number);
+                }
+                var close = new Button { Text = "Zamknij", AccessibleName = "Zamknij", AutoSize = true }; close.Click += (s, e) => form.Close(); layout.Controls.Add(close);
+                form.Shown += async (s, e) =>
+                {
+                    try
+                    {
+                        foreach (var number in numbers)
+                        {
+                            await speech.Focus(form, number, number.AccessibleName);
+                            try
+                            {
+                                await speech.Focus(form, number, number.AccessibleName + ": Up arrow changes and announces value", "43", async () =>
+                                {
+                                    number.Focus(); await Task.Delay(500);
+                                    Check(GetForegroundWindow() == form.Handle && !UserModifierHeld(), "Unsafe keyboard state");
+                                    var state = new byte[256]; GetKeyboardState(state);
+                                    foreach (int key in new[] { 0x10, 0x11, 0x12, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5 }) state[key] &= 0x7F;
+                                    SetKeyboardState(state);
+                                    var keys = new[] { Key(0x26), Key(0x26, true) };
+                                    keys[0].Flags |= 1; keys[1].Flags |= 1; // E0 arrow, not NVDA's numpad review key.
+                                    Check(SendInput(2, keys, Marshal.SizeOf(typeof(KeyInput))) == 2, "Up arrow input refused");
+                                    await Task.Delay(300);
+                                    File.AppendAllText(output + ".values", number.AccessibleName + ": " + number.Value + "\r\n");
+                                });
+                                Check(number.Value == 43, "Native numeric keyboard interaction changed");
+                            }
+                            catch (Exception ex) { failed++; File.AppendAllText(output + ".values", number.AccessibleName + ": " + ex.Message + "\r\n"); }
+                        }
+                        Check(failed == 0, "Numeric NVDA keyboard probes failed; review .values evidence");
+                    }
+                    catch (Exception ex) { failure = ex; }
+                    finally { form.Close(); }
+                };
+                Application.Run(form); if (failure != null) throw failure;
+            }
+            return 0;
+        }
+        catch (Exception ex) { Console.Error.WriteLine(ex); return 2; }
+    }
     private static int LiveNvda(string output)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
@@ -113,7 +190,10 @@ internal static partial class Tests
                                 string context = language + "/" + theme + "/" + scale; var tabs = Field<TabControl>(form, "tabs");
                                 for (int tab = 0; tab < 5; tab++)
                                 {
-                                    tabs.SelectedIndex = tab; await speech.Focus(form, tabs, context + "/tab" + tab, tabs.SelectedTab.Text);
+                                    tabs.SelectedIndex = (tab + 4) % 5;
+                                    string caption = tabs.TabPages[tab].Text;
+                                    await speech.Focus(form, tabs, context + "/tab" + tab, caption, () => KeyboardTab(form, false));
+                                    Check(tabs.SelectedIndex == tab && tabs.Focused, "Actual Ctrl Tab did not focus the target tab");
                                     foreach (var control in Descendants(tabs.SelectedTab).Where(c => c.Enabled && c.Visible && c.TabStop && (c is NumericUpDown || c is ComboBox || c is CheckBox || c is Button || c is ListView || c is TextBox)).Where(c => !(c is TextBox && c.Parent is NumericUpDown)).ToList()) await speech.Focus(form, control, context + "/" + control.AccessibleName);
                                 }
                                 using (var details = new DetailsDialog(L.T("ui.helpTitle"), L.T("ui.helpText", L.Version), form.Font, theme))

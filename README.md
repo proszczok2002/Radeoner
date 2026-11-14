@@ -1,5 +1,9 @@
 # Radeoner
 
+**1.05:** poprawiony układ dużego tekstu, motywy dialogów i odczyt pól liczbowych
+bez powtarzania nazwy/zakresu przez NVDA. [Audyt z rzeczywistymi wypowiedziami
+NVDA / Actual NVDA speech validation](docs/AUDIT_1.05.md).
+
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 
 [English documentation](README.en.md) · [Pobierz / Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Zgłoś problem / Issues](https://github.com/proszczok2002/Radeoner/issues) · [Współpraca / Contributing](CONTRIBUTING.md)

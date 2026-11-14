@@ -1,122 +1,92 @@
-# Audyt dostępności 1.05 / Accessibility audit (work in progress)
+# Audyt dostępności 1.05 / Accessibility audit
 
-## Stan / Status
+Data / Date: **2026-11-14**. Windows build 26300.9974 (26H2), NVDA 2026.3.1.
 
-**Poprawki są wersją testową. Weryfikacja wypowiedzi NVDA pozostaje otwarta.**
-Nie publikować stabilnego wydania 1.05 ani nie zastępować używanej kopii
-portable przed sprawdzeniem każdej zmiany graficznej z NVDA, zgodnie
-z wymaganiem użytkownika. Stabilne publiczne wydanie pozostaje 1.04.
+## Wynik / Result
 
-**This is an audit candidate. Actual NVDA speech verification is pending.**
-The user's requirement is to check every visual change with NVDA. Automated
-MSAA checks and an NVDA process running are not sufficient release evidence.
+Sprawdzono **rzeczywisty tekst Podglądu mowy działającego NVDA**, niezależnie
+od testów MSAA. Przejrzano nazwy, role, wartości, zakresy i powtórzenia.
+Nie wykonywano nagrania ani odsłuchu sygnału audio syntezatora.
 
-Środowisko: Windows build 26300.9974, 26H2; NVDA 2026.3.1 według lokalnego
-logu. Nie zmieniano ustawień NVDA, nie instalowano dodatków i nie zatrzymywano
-czytnika ani działającej kopii użytkownika.
+Actual running NVDA Speech Viewer output was captured and reviewed, separately
+from MSAA checks. This validates the recorded speech text, not an audio recording
+or a claim of universal accessibility certification.
 
-## Znalezione problemy i poprawki / Findings and changes
+| Próba / Check | Wynik / Result |
+| --- | --- |
+| 5 zakładek, PL/EN, jasny/ciemny/systemowy, tekst 100/200% | 540 punktów rzeczywistych odczytów NVDA: PASS |
+| Pola GPU, wentylator, ustawienia, RGB i pełny opis | Nazwy, role, wartości i zakresy odczytane |
+| Pola liczbowe: poprawność roli i strzałki | Pojedyncza nazwa/zakres, rola pokrętła; klawisz Up przez SendInput zmienia 42 na 43, NVDA odczytuje 43 |
+| O programie, wsparcie, Tak/Nie aktualizacji, pliki importu/eksportu/raportu/OpenRGB, PL/EN | 60 punktów odczytu NVDA: PASS; pliki anulowano, aktualizację odrzucono, linków nie otwierano |
+| Ctrl+Tab i Ctrl+Shift+Tab, także z rozwiniętej listy języka | Rzeczywisty SendInput w oknie testowym: PASS |
+| Tray: nazwa i wersja, GPU, temperatura, wentylator i moc | Wypowiedź NVDA z rzeczywistej ikony Shell: PASS |
+| Ukrycie, fokus ikony, Enter i przywrócenie okna, menu traya | Rzeczywista ikona, wejście klawiatury i odczyt menu: PASS |
+| Układ 760 x 650, 5 zakładek x PL/EN x 3 motywy x 100/200% | 60 kombinacji, kontrola całych pól we wszystkich przodkach przycinania: PASS |
+| Domyślne testy regresji | 57: PASS; ADLX i RGB z danymi kontrolnymi |
 
-| Obszar / Area | Poprawka / Change | Sprawdzenie automatyczne / Automated evidence | NVDA |
-| --- | --- | --- | --- |
-| Główne okno / Main window | Przewijany układ zachowuje miejsce na treść zakładek przy 200%; nie znika ona pod paskami przycisków | Minimum wysokości treści, widoczność całego pola po fokusie | Pending |
-| Regulacja / Tuning | Równe kolumny, zawijanie opisów, zakres i uwaga także w opisie dostępnym pola | Nazwy, jednostki, zakresy i widoczność pól w PL/EN | Pending |
-| Wentylator / Fan | Osobne nazwane wiersze temperatury i prędkości każdego punktu, miejsce na fokus Zero RPM | Kolejność, nazwy i zakresy pól; brak zapisów GPU | Pending |
-| Listy wyboru / Combos | Uwzględnienie rzeczywistej wysokości kontrolki Windows; kolory pola zgodne z motywem | Pole nie wychodzi poza wiersz, nazwa/rola pozostają natywne | Pending |
-| Motywy / Themes | Spójne tła pól/list, stany przycisków i zaznaczenie zakładki z widocznym fokusem | Kontrast zadanych kolorów; systemowe kolory/renderowanie w gałęzi wysokiego kontrastu | Pending |
-| Pomoc i pełny opis / Details | Motyw i tekst z aplikacji; przycisk zamknięcia rośnie z tekstem; F6 wybiera treść | Nazwa i rola pola, kopiowalny tekst, Tab/Escape, widoczność przy 200% | Pending |
-| RGB | Przewijana treść; krótsze etykiety przycisków z pełnymi nazwami dostępnymi; połączone pary R/G/B | Połączenie z kontrolowanym SDK, widoczność wszystkich aktywnych pól przy 200% | Pending |
-| Brak obsługi / Unsupported controls | Wyjaśnienia braku regulacji/wentylatora jako dostępny klawiszem Tab tekst | Tylko do odczytu, nazwa, treść i TabStop | Pending |
-| Błędna liczba / Invalid input | Fokus i zaznaczenie wracają do pola wymagającego poprawy | Niepoprawny tekst odrzucony, brak zapisu GPU | Pending |
+Native About/support dialogs created in at most **60 ms** in the visible keyboard
+trial; this is window creation time, not synthesizer reading duration.
 
-Motywy zachowują standardowe kontrolki Microsoft Windows Forms i ich
-dostawców dostępności. Okna wyboru plików i TaskDialog zachowują wygląd
-systemowy Windows. Wysoki kontrast ma pierwszeństwo przed wyborem motywu.
-Dialogi RGB i pełnego opisu reagują również na zmianę preferencji systemu.
+## Poprawki / Changes
 
-W jednej wcześniejszej próbie wystąpił wyjątek `Dispose while CreateHandle`
-przy zamykaniu okna testowego. Dodano osłony przed aktualizacją zamykanych
-kontrolek i test zamknięcia RGB podczas oczekiwania na listę urządzeń.
-Późniejsze próby przeszły; nie jest to dowód wykluczenia każdego możliwego
-wyścigu ani zastępstwo dłuższej próby interaktywnej z NVDA.
+- Główne okno zachowuje użyteczne miejsce na treść zakładek przy dużym tekście.
+  Całość i formularze przewijają się do pełnego pola z fokusem.
+- Parametry i punkty wentylatora mają wyrównane wiersze, zawijane etykiety,
+  zakresy i jednostki. Natywne listy wyboru uwzględniają rzeczywistą wysokość.
+- Motywy mają spójne pola/listy/przyciski i oznaczenie wybranej zakładki.
+  Zaznaczenie i fokus nie zależą wyłącznie od koloru.
+- Pomoc i pełny opis przejmują motyw i rozmiar tekstu. Przycisk zamknięcia
+  rośnie z tekstem. F6 wybiera treść; Escape zamyka.
+- RGB ma przewijaną treść i krótsze widoczne etykiety przycisków z pełnymi
+  nazwami dostępnymi. R/G/B pozostają razem ze swoimi polami.
+- Brak obsługi regulacji/wentylatora jest wyjaśniony w kopiowalnym polu
+  dostępnym klawiszem Tab. Niepoprawna liczba kieruje fokus do poprawy.
+- NVDA ujawnił powtarzanie nazwy i zakresu liczby przez zewnętrzne pokrętło
+  i wewnętrzną edycję. Kontener ma teraz rolę klienta, a natywne pole z fokusem
+  rolę pokrętła oraz nazwę/jednostkę/zakres/wartość. Nie wymieniono dostawcy
+  dostępności ani klasy kontrolki Windows. Przykład rzeczywistego odczytu:
+  `Minimalny zegar GPU, MHz — pokrętło — 1000 — Zakres 500 do 3000, krok 10`.
+- Nazwa grupy zakładek to teraz Zakładki Radeonera / Radeoner tabs.
+- Aktualizacje motywu i odpowiedzi RGB pomijają zamykane kontrolki. Test
+  zamknięcia podczas oczekiwania na listę urządzeń przeszedł również z NVDA.
 
-## Wykonane sprawdzenia / Completed automated checks
+English: responsive aligned rows, unclipped native combos, complete focus
+scrolling, consistent palettes, themed scalable details, scrollable RGB,
+focusable unsupported-feature explanations and invalid-field recovery were
+checked. Actual NVDA testing found and removed duplicated numeric labels and
+ranges while preserving native spin semantics, values and arrow-key input.
 
-- 57 testów: umowy ADLX, profile, aktualizator, izolacja sterownika,
-  obsługa klawiatury przez PreProcessMessage, nazwy/role MSAA i układ.
-- 60 kombinacji głównego okna: 5 zakładek × PL/EN × jasny/ciemny/systemowy
-  × tekst 100%/200%, okno 760 × 650. Każde aktywne pole jest fokusowane
-  i sprawdzane względem wszystkich nadrzędnych obszarów przycinania.
-- Dialogi RGB i pełnego opisu przy 200%, w obu językach i trzech motywach;
-  RGB korzysta z kontrolowanego serwera TCP, bez fizycznej karty RGB.
-- Testy uruchamiają te same style wizualne Windows co aplikacja. Zachowano
-  zrzuty DrawToBitmap do przeglądu układu; nie zastępują zdjęcia rzeczywistego
-  pulpitu ani weryfikacji odczytu czytnika.
-- Gałąź wysokiego kontrastu testowana przez odizolowany punkt testowy;
-  nie zmieniano konfiguracji Windows. Ręczna próba rzeczywistego trybu systemu
-  pozostaje otwarta.
-- Zadane kolory tekstu/tła mają sprawdzany współczynnik co najmniej 4,5:1.
-  Punktem odniesienia jest [opis kontrastu W3C](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
-  To test palety aplikacji, a nie certyfikacja całego pulpitu lub pikseli
-  malowanych przez natywne elementy Windows.
-- Rzeczywiste TaskDialog: treść zmian, Tak/Nie, O programie, Wsparcie i kontakt;
-  inspekcja MSAA przeszła, nie otwierano zewnętrznych linków.
-- Lokalna pełna aktualizacja 1.04 → kandydat 1.05 przeszła: start nowego EXE
-  i ADLX, potwierdzenie inicjalizacji, usunięcie starego EXE/pomocnika,
-  identyczne sumy profilu i preferencji. Osobna kopia, 2026-11-14 09:49 UTC.
-  Publiczny kanał nie jest testowany przed wymaganą weryfikacją NVDA.
+## Zakres i ograniczenia / Scope and limits
 
-English automated results: 57 checks passed; a 60-case main-window matrix
-checks clipping/focus in PL/EN, three themes and 100/200% text. RGB/details
-dialogs, palette contrast, simulated high-contrast selection and native
-TaskDialog MSAA checks passed. A local full 1.04 → 1.05-candidate update also
-passed while preserving settings/profiles. These results do not validate NVDA
-speech or a physical RGB GPU.
+- Dane GPU i lokalny serwer RGB w przebiegu mowy były kontrolnymi danymi testowymi.
+  Nie zmieniano nastaw fizycznej karty. Osobny test widocznego okna uruchomił
+  rzeczywisty odczyt ADLX. Nie wykonano fizycznego testu RGB TUF ani obciążenia RX 9060.
+- Wysoki kontrast ma pierwszeństwo w kodzie i testach wyboru palety. Nie
+  przełączano globalnego trybu wysokiego kontrastu Windows użytkownika.
+- Test palety sprawdza zadane kolory tekst/tło >= 4,5:1 według
+  [wzoru W3C](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+  Nie jest to certyfikacja każdego piksela rysowanego przez Windows.
+- NVDA może powtórzyć pierwszy wiersz natywnej listy przy wejściu. W zapisanych
+  próbach niektóre wejścia miały dwa jednakowe komunikaty tego wiersza.
+  Powtórzenia nazw i długich zakresów pól liczbowych usunięto.
+- Inne czytniki, monitory/DPI i modele GPU wymagają osobnych prób.
 
-## Próby niewykonane / Incomplete checks
+No NVDA add-on was installed and no reader configuration was changed. Speech
+Viewer was enabled by the user. Optional interactive tests abort when focus
+leaves the owned window; Shell icon tests additionally verify the exact owned
+icon name through UI Automation before sending Enter. Raw transcripts remain
+local and are not published wholesale.
 
-Próba rzeczywistych klawiszy zatrzymała się, ponieważ Windows nie przyznał
-oknu testowemu pierwszego planu. Nie wysłano Ctrl+Tab; wcześniejszy mechanizm
-próbował aktywacji pojedynczym Altem. Usunięto tę próbę: obecny test czeka
-do 30 sekund na aktywowanie własnego okna, zanim wyśle jakikolwiek skrót.
-Nie jest to zaliczona próba klawiatury z NVDA.
+## Powtórzenie testów / Reproduction
 
-Podgląd mowy nie był dostępny podczas preflight. `live-nvda.txt` zapisuje
-**NOT VERIFIED**; nie ma przechwyconej wypowiedzi potwierdzającej nowe kontrolki.
-Nie deklarujemy odsłuchu ani pełnego audytu NVDA.
+Enable NVDA Speech Viewer and run `tools/Test-Nvda.ps1`. It builds an isolated
+copy and captures actual speech at `artifacts/tests/live-nvda.txt`.
+Additional modes of `Radeoner.Tests.exe` are `--nvda-dialogs <report>` and
+`--nvda-numeric <report>`; `tools/Test-Nvda-Tray.ps1` checks the actual owned
+Shell icon. Keep the keyboard idle during the tour and activate the clearly
+labelled audit window if Windows requests manual activation.
 
-Foreground activation was refused before Ctrl+Tab during the keyboard tour.
-The earlier single-Alt activation attempt was removed; the current test waits
-for its own foreground window before sending keys. Speech Viewer was unavailable, so the
-NVDA capture reported **NOT VERIFIED** rather than substituting control names.
-
-## Jak dokończyć z NVDA / Completing reader verification
-
-1. Włącz **NVDA+N → Narzędzia → Podgląd mowy**. Nie zmieniaj opcji startu
-   podglądu z systemem. Zamknij pozostałe menu NVDA klawiszem Escape.
-2. Uruchom z katalogu projektu:
-   `powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Nvda.ps1`.
-   Powstaje osobna kompilacja testowa; stabilna kopia portable pozostaje zachowana.
-3. Aktywuj okno **Radeoner v1.05 — audyt / test data**, jeśli Windows sam go
-   nie uaktywni. Test czeka do 30 sekund. Podczas przebiegu nie używaj klawiatury.
-4. Test używa danych kontrolnych i lokalnego SDK testowego. Nie zapisuje
-   parametrów fizycznego GPU. Dla obu języków, trzech motywów i dwóch rozmiarów
-   tekstu fokusuje zakładki, pola, RGB i pełny opis. Zapisuje wyłącznie nowe
-   wypowiedzi z tych punktów w `artifacts/tests/live-nvda.txt`.
-5. Przeczytaj transkrypcję: nazwa, rola, wartość, jednostka, zakres, stan,
-   brak niepotrzebnych powtórzeń. Samo znalezienie nazwy nie oznacza, że cała
-   wypowiedź jest zrozumiała. Jeśli Windows blokuje także odczyt podglądu,
-   potrzebny jest odsłuch użytkownika i zapis rzeczywistych wypowiedzi.
-6. Osobno sprawdź rzeczywisty Tab/Shift+Tab, Ctrl+Tab/Ctrl+Shift+Tab z otwartą
-   listą, F5/F6/F1, zachowanie błędu liczby, pliki importu/eksportu/raportu/ZIP,
-   dialog Tak/Nie i pełny opis zmian, O programie, wsparcie, ukrycie/przywrócenie
-   przez tray oraz jasny/ciemny i rzeczywisty wysoki kontrast Windows.
-7. Dopiero po poprawieniu znalezionych problemów i zapisaniu wyników NVDA
-   przygotuj stabilne 1.05, pełny lokalny/publiczny test aktualizacji i porządki.
-
-English: enable NVDA Speech Viewer, run `tools/Test-Nvda.ps1`, activate the
-clearly labelled audit window if needed, and keep the keyboard idle. The
-optional tour reads actual newly appended Speech Viewer text, aborts if focus
-leaves its own window, and never changes NVDA settings or physical GPU tuning.
-Review name/role/value/state clarity manually; complete native file-dialog,
-tray, actual keyboard and real high-contrast checks before release.
+Evidence before housekeeping: `artifacts/tests/live-nvda.txt` (540 checkpoints),
+`nvda-native.txt` (60), `nvda-extended.txt` and `.values` (numeric keys),
+`nvda-tray-keyboard-*.txt` and `keyboard-release.txt`. Locate archived paths
+using `niepotrzebne/*/INDEKS.csv`. These are text captures, not audio recordings.
