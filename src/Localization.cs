@@ -10,6 +10,9 @@ namespace Radeoner
     public static class L
     {
         public const string Version = BuildInfo.DisplayVersion;
+        public static readonly string[] Languages = { "pl", "en", "de", "ru", "es", "fr" };
+        public static readonly string[] LanguageNames = { "Polski", "English", "Deutsch", "Русский", "Español", "Français" };
+        public static bool Supported(string language) { return Array.IndexOf(Languages, language) >= 0; }
         private static Dictionary<string, string> messages;
         public static string Language { get; private set; }
         public static CultureInfo Culture { get; private set; }
@@ -43,7 +46,7 @@ namespace Radeoner
         public static void Load(string language) { Load(language, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lang")); }
         internal static void Load(string language, string directory)
         {
-            if (language != "pl" && language != "en") language = "pl";
+            if (!Supported(language)) language = "pl";
             var fallback = BuiltIn("pl");
             foreach (var pair in BuiltIn(language)) fallback[pair.Key] = pair.Value;
             string file = Path.Combine(directory, language + ".lng");
@@ -55,7 +58,7 @@ namespace Radeoner
             catch (IOException) { } catch (UnauthorizedAccessException) { } catch (FormatException) { }
             // Publish a complete immutable dictionary so a background read never sees half a language.
             messages = fallback; Language = language;
-            Culture = CultureInfo.GetCultureInfo(language == "en" ? "en-US" : "pl-PL");
+            Culture = CultureInfo.GetCultureInfo(language == "en" ? "en-US" : language == "pl" ? "pl-PL" : language);
             CultureInfo.DefaultThreadCurrentCulture = Culture; CultureInfo.DefaultThreadCurrentUICulture = Culture;
             System.Threading.Thread.CurrentThread.CurrentCulture = Culture;
             System.Threading.Thread.CurrentThread.CurrentUICulture = Culture;
@@ -65,6 +68,14 @@ namespace Radeoner
             string value;
             if (!messages.TryGetValue(key, out value)) return "[" + key + "]";
             return args.Length == 0 ? value : string.Format(Culture, value, args);
+        }
+        internal static string Guide()
+        {
+            using (var stream = typeof(L).Assembly.GetManifestResourceStream("Radeoner.Guides." + Language))
+            {
+                if (stream == null) return T("ui.helpText", Version);
+                using (var reader = new StreamReader(stream, Encoding.UTF8)) return reader.ReadToEnd();
+            }
         }
     }
 }

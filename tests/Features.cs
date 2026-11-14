@@ -126,7 +126,7 @@ internal static partial class Tests
             var s = new Snapshot { Gpu = new GpuInfo { Name = "AMD Radeon RX 9070 XT" } };
             s.MetricValues["temperature"] = 40; s.MetricValues["fan"] = 333; s.MetricValues["power"] = 2;
             string text = TrayText.Format(s, false); Check(text.Contains("temperatura: 40 °C") && text.Contains("333 RPM") && text.Contains("moc: 2 W") && text.Length <= 127, "Tray measurements incorrect");
-            s.MetricValues.Remove("fan"); Check(TrayText.Format(s, false).Contains("wentylator: brak odczytu"), "Missing RPM fabricated");
+            s.MetricValues.Remove("fan"); Check(!TrayText.Format(s, false).Contains("wentylator"), "Unsupported fan is announced");
             s.Gpu.Name = new string('G', 300); text = TrayText.Format(s, true); Check(text.Length <= 127 && text.Contains("odczyt") && text.Contains("2 W"), "Long GPU name displaced readings or stale timestamp");
             L.Load("en"); Check(TrayText.Format(s, false).Contains("temperature"), "Tray not translated"); L.Load("pl");
         });

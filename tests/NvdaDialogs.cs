@@ -10,7 +10,7 @@ using Radeoner;
 
 internal static partial class Tests
 {
-    private static int NvdaTray(string output)
+    private static int NvdaTray(string output, string language = "pl", bool integrated = false)
     {
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         try
@@ -20,7 +20,10 @@ internal static partial class Tests
             {
                 using (var form = TestForm("nvda-tray"))
                 {
-                    SetAuditSnapshot(form, backend.Read(0)); var tray = new TrayIcon(Field<ContextMenuStrip>(form, "trayMenu")); SetField(form, "tray", tray);
+                    L.Load(language); Call(form, "ApplyLanguage"); var snapshot = backend.Read(0); snapshot.Gpu.Type = integrated ? 1 : 2;
+                    snapshot.Gpu.Name = integrated ? "AMD integrated GPU" : "AMD discrete GPU"; snapshot.MetricValues["fan"] = 333;
+                    if (integrated) { snapshot.Settings.Clear(); snapshot.Fan.Clear(); snapshot.ZeroRpm = null; snapshot.CanReset = false; }
+                    SetAuditSnapshot(form, snapshot); var tray = new TrayIcon(Field<ContextMenuStrip>(form, "trayMenu")); SetField(form, "tray", tray);
                     tray.ShowRequested += () => Call(form, "ShowFromTray");
                     form.Shown += async (s, e) =>
                     {
@@ -28,23 +31,24 @@ internal static partial class Tests
                         {
                             Check(tray.EnsureVisible(), "Native tray icon was not added"); Call(form, "UpdateTray", false); await Task.Delay(300);
                             Check((bool)Call(form, "HideToTray"), "Hide to tray failed");
-                            string before = speech.Snapshot(); File.WriteAllText(output + ".ready", TrayText.Format(Field<Snapshot>(form, "snapshot"), false));
+                            string before = await speech.SnapshotAsync(); File.WriteAllText(output + ".ready", TrayText.Format(Field<Snapshot>(form, "snapshot"), false));
                             var watch = Stopwatch.StartNew();
                             while (!File.Exists(output + ".focus") && watch.ElapsedMilliseconds < 60000) await Task.Delay(100);
                             Check(File.Exists(output + ".focus"), "Waiting for UI Automation to focus this exact tray icon timed out");
                             // Shell notification focus can move between Explorer
                             // HWNDs; the external harness verifies the exact UIA
                             // focused icon name before acknowledging this step.
-                            await speech.Native(GetForegroundWindow(), before, "tray/actual icon focus", "Radeoner v" + L.Version, false);
-                            before = speech.Snapshot(); File.WriteAllText(output + ".focused", "ready");
+                            string iconSpeech = await speech.Native(GetForegroundWindow(), before, language + (integrated ? "/integrated" : "/discrete") + "/tray/actual icon focus", "Radeoner v" + L.Version, false);
+                            Check(integrated ? iconSpeech.IndexOf("RPM", StringComparison.OrdinalIgnoreCase) < 0 : iconSpeech.Contains("333 RPM"), "Actual NVDA tray fan announcement differs from GPU capabilities");
+                            before = await speech.SnapshotAsync(); File.WriteAllText(output + ".focused", "ready");
                             while (!form.Visible && watch.ElapsedMilliseconds < 90000) await Task.Delay(100);
                             Check(form.Visible, "Actual tray icon activation did not restore the app");
                             await speech.Native(form.Handle, before, "tray/actual icon restores main window", "Radeoner v" + L.Version);
-                            var menu = Field<ContextMenuStrip>(form, "trayMenu"); before = speech.Snapshot(); menu.Show(form, new System.Drawing.Point(20, 20)); menu.Items[0].Select();
+                            var menu = Field<ContextMenuStrip>(form, "trayMenu"); before = await speech.SnapshotAsync(); menu.Show(form, new System.Drawing.Point(20, 20)); menu.Items[0].Select();
                             await speech.Native(GetForegroundWindow(), before, "tray/menu/show", menu.Items[0].Text.Replace("&", ""), false);
                             foreach (int index in new[] { 1, 2, 4 })
                             {
-                                before = speech.Snapshot();
+                                before = await speech.SnapshotAsync();
                                 Check((GetForegroundWindow() == form.Handle || GetForegroundWindow() == menu.Handle) && !UserModifierHeld(), "Own tray menu lost focus");
                                 var keys = new[] { Key(0x28), Key(0x28, true) }; keys[0].Flags |= 1; keys[1].Flags |= 1;
                                 Check(SendInput(2, keys, Marshal.SizeOf(typeof(KeyInput))) == 2, "Own menu Down key refused");
@@ -73,7 +77,7 @@ internal static partial class Tests
         Check(SendInput(2, new[] { Key(9), Key(9, true) }, Marshal.SizeOf(typeof(KeyInput))) == 2, "Native dialog Tab refused");
         await Task.Delay(100);
     }
-    private static int NvdaNativeDialogs(string output)
+    private static int NvdaNativeDialogs(string output, string onlyLanguage = null)
     {
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         try
@@ -90,12 +94,14 @@ internal static partial class Tests
                         {
                             for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) { form.Activate(); await Task.Delay(100); }
                             Check(GetForegroundWindow() == form.Handle, "Native audit owner did not become foreground");
-                            foreach (string language in new[] { "pl", "en" })
+                            foreach (string language in onlyLanguage == null ? L.Languages : new[] { onlyLanguage })
                             {
                                 L.Load(language); Call(form, "ApplyLanguage"); Field<TabControl>(form, "tabs").SelectedIndex = 4;
+                                string[] changes = { "Zmiana testowa dostępności.", "Accessibility test change.", "Teständerung zur Barrierefreiheit.", "Тестовое изменение доступности.", "Cambio de accesibilidad de prueba.", "Changement de test d'accessibilité." };
+                                string releaseBody = string.Join("\n", Enumerable.Range(0, L.Languages.Length).Select(i => "## " + L.LanguageNames[i] + "\n" + changes[i]));
                                 foreach (string kind in new[] { "aboutProgram", "supportProject", "update" })
                                 {
-                                    string before = speech.Snapshot(); Exception dialogFailure = null; bool question = kind == "update"; int created = 0;
+                                    string before = await speech.SnapshotAsync(); Exception dialogFailure = null; bool question = kind == "update"; int created = 0;
                                     SystemDialogs.TestCreated = window =>
                                     {
                                         created++; var timer = new System.Windows.Forms.Timer { Interval = 300 };
@@ -104,9 +110,9 @@ internal static partial class Tests
                                             timer.Stop(); timer.Dispose();
                                             try
                                             {
-                                                await speech.Native(window, before, language + "/native/" + kind, question ? "99.0" : kind == "aboutProgram" ? "Radeoner" : L.T("info.supportTitle"));
+                                                await speech.Native(window, before, language + "/native/" + kind, question ? changes[Array.IndexOf(L.Languages, language)] : kind == "aboutProgram" ? "Radeoner" : L.T("info.supportTitle"));
                                                 int count = question ? 3 : kind == "aboutProgram" ? 3 : 5;
-                                                for (int i = 0; i < count; i++) { string start = speech.Snapshot(); await NativeTab(window); await speech.Native(window, start, language + "/native/" + kind + "/Tab" + i, ""); }
+                                                for (int i = 0; i < count; i++) { string start = await speech.SnapshotAsync(); await NativeTab(window); await speech.Native(window, start, language + "/native/" + kind + "/Tab" + i, ""); }
                                             }
                                             catch (Exception ex) { dialogFailure = ex; }
                                             finally { SystemDialogs.PostMessage(window, 0x466, new IntPtr(question ? 7 : 8), IntPtr.Zero); }
@@ -116,7 +122,7 @@ internal static partial class Tests
                                     {
                                         if (question)
                                         {
-                                            SetField(form, "availableUpdate", new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = "## Polski\nZmiana testowa dostępności.\n## English\nAccessibility test change." });
+                                            SetField(form, "availableUpdate", new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = releaseBody });
                                             await (Task)Call(form, "DownloadAndInstallUpdate");
                                             Check(!Field<bool>(form, "updateInstalling"), "No started an update installation");
                                         }
@@ -129,7 +135,7 @@ internal static partial class Tests
                                 foreach (string kind in new[] { "export", "import", "report", "openrgb" })
                                 {
                                     string title = L.T(kind == "export" ? "profile.exportTitle" : kind == "import" ? "profile.importTitle" : kind == "report" ? "ui.reportTitle" : "rgb.downloadTitle");
-                                    string before = speech.Snapshot(); Exception fileFailure = null; int seen = 0;
+                                    string before = await speech.SnapshotAsync(); Exception fileFailure = null; int seen = 0;
                                     using (var timer = new System.Windows.Forms.Timer { Interval = 150 })
                                     using (FileDialog dialog = kind == "import" ? (FileDialog)new OpenFileDialog() : new SaveFileDialog())
                                     {
@@ -143,7 +149,7 @@ internal static partial class Tests
                                             try
                                             {
                                                 await speech.Native(window, before, language + "/file/" + kind, title);
-                                                for (int i = 0; i < 3; i++) { string start = speech.Snapshot(); await NativeTab(window); await speech.Native(window, start, language + "/file/" + kind + "/Tab" + i, ""); }
+                                                for (int i = 0; i < 3; i++) { string start = await speech.SnapshotAsync(); await NativeTab(window); await speech.Native(window, start, language + "/file/" + kind + "/Tab" + i, ""); }
                                             }
                                             catch (Exception ex) { fileFailure = ex; }
                                             finally { SystemDialogs.PostMessage(window, 0x10, IntPtr.Zero, IntPtr.Zero); }

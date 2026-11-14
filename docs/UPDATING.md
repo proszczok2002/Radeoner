@@ -28,6 +28,16 @@ sterowników ani ustawień GPU. Kontrole sum chronią przed uszkodzeniem plików
 zaufanie do publikacji opiera się na HTTPS i uprawnieniach do repozytorium GitHub.
 Binaria nie mają obecnie podpisu Authenticode.
 
+Od 1.06 wszystkie sześć języków i instrukcji jest zaszytych w EXE. Cztery nowe
+pliki LNG i instrukcje są w repozytorium; nie dodawaj ich do listy plików ZIP
+bez zaplanowania migracji. Updatery 1.05 i starsze wymagają dokładnie ośmiu
+znanych ścieżek. Własne `lang/<kod>.lng` w folderze programu nadal działają.
+
+From 1.06, all six languages and guides are embedded in the EXE. New LNG/guide
+sources remain in the repository. Do not add portable ZIP paths without an
+upgrade migration: updaters through 1.05 require exactly eight known files.
+Local `lang/<code>.lng` overrides continue to work.
+
 ### Wersje i tworzenie wydania
 
 Źródłem wersji jest `version.json`. Widoczne **1.0** ma numer wewnętrzny

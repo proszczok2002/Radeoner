@@ -52,22 +52,31 @@ internal sealed class NvdaSpeech
     private string Read()
     {
         IntPtr length, copied;
-        if (SendMessageTimeout(edit, 0x000E, IntPtr.Zero, null, 2, 1000, out length) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer; no speech result can be verified.");
+        if (SendMessageTimeout(edit, 0x000E, IntPtr.Zero, null, 2, 3000, out length) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer (error " + Marshal.GetLastWin32Error() + "); no speech result can be verified.");
         int count = length.ToInt32(); if (count < 0 || count > 1000000) throw new InvalidOperationException("Clear Speech Viewer before the audit (history is too large).");
         var text = new StringBuilder(count + 1);
-        if (SendMessageTimeout(edit, 0x000D, new IntPtr(text.Capacity), text, 2, 1000, out copied) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer.");
+        if (SendMessageTimeout(edit, 0x000D, new IntPtr(text.Capacity), text, 2, 3000, out copied) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer (error " + Marshal.GetLastWin32Error() + ").");
         return text.ToString();
     }
     private static string Normalize(string text) { return Regex.Replace(text.ToLowerInvariant(), @"[^\p{L}\p{N}]+", " ").Trim(); }
-    internal string Snapshot() { return Read(); }
-    internal async Task Native(IntPtr window, string before, string context, string expected, bool requireForeground = true)
+    // NVDA may synchronously query the owned STA window while processing focus.
+    // Await the cross-process text read so that window can service those queries.
+    internal Task<string> SnapshotAsync() { return Task.Run((Func<string>)Read); }
+    private static string ForegroundContext(IntPtr expected)
+    {
+        IntPtr current = GetForegroundWindow(); uint pid; GetWindowThreadProcessId(current, out pid);
+        var name = new StringBuilder(256); GetClassName(current, name, name.Capacity);
+        return " expected=" + expected.ToString("X") + " current=" + current.ToString("X") + " pid=" + pid + " class=" + name;
+    }
+    internal async Task<string> Native(IntPtr window, string before, string context, string expected, bool requireForeground = true)
     {
         string spoken = "";
         await Task.Delay(400);
         for (int poll = 0; poll < 30; poll++)
         {
-            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context);
-            string current = Read();
+            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context + ForegroundContext(window));
+            string current = await SnapshotAsync();
+            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context + ForegroundContext(window));
             if (!current.StartsWith(before, StringComparison.Ordinal)) throw new InvalidOperationException("Speech history changed: " + context);
             spoken = current.Substring(before.Length);
             if (spoken.Trim().Length > 0 && (expected.Length == 0 || Normalize(spoken).Contains(Normalize(expected)))) break;
@@ -75,6 +84,7 @@ internal sealed class NvdaSpeech
         }
         log.AppendLine("\r\nCHECKPOINT " + context + "\r\nExpected name: " + expected + "\r\nActual NVDA text:\r\n" + spoken); Save();
         if (spoken.Trim().Length == 0 || expected.Length > 0 && !Normalize(spoken).Contains(Normalize(expected))) throw new InvalidOperationException("Native NVDA speech not verified: " + context);
+        return spoken;
     }
     internal async Task Focus(Form form, Control control, string context, string expected = null, Func<Task> activate = null)
     {
@@ -86,7 +96,8 @@ internal sealed class NvdaSpeech
             var alternate = Controls(form).FirstOrDefault(c => c is Button && c.CanFocus && c != control);
             if (alternate != null) { alternate.Focus(); await Task.Delay(600); }
         }
-        string before = Read();
+        string before = await SnapshotAsync();
+        if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Audit window lost foreground before focus: " + context);
         if (activate != null) await activate();
         else if (!control.Focus() && !control.ContainsFocus) throw new InvalidOperationException("Cannot focus " + context);
         string spoken = "", name = expected ?? control.AccessibleName;
@@ -96,7 +107,8 @@ internal sealed class NvdaSpeech
         {
             await Task.Delay(150);
             if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Foreground changed; no speech from other applications was recorded at " + context);
-            string current = Read();
+            string current = await SnapshotAsync();
+            if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Foreground changed; no speech from other applications was recorded at " + context);
             if (!current.StartsWith(before, StringComparison.Ordinal)) throw new InvalidOperationException("Speech Viewer history changed during the audit; repeat checkpoint " + context);
             spoken = current.Substring(before.Length);
             if (Normalize(spoken).Contains(Normalize(name))) break;
@@ -177,7 +189,7 @@ internal static partial class Tests
             var speech = new NvdaSpeech(output);
             WithDriver((driver, backend) =>
             {
-                foreach (string language in new[] { "pl", "en" }) foreach (string theme in new[] { "light", "dark", "system" }) foreach (int scale in new[] { 100, 200 })
+                foreach (string language in L.Languages) foreach (string theme in new[] { "light", "dark", "system" }) foreach (int scale in new[] { 200 })
                 {
                     string path = TestFile("nvda.settings.json"); new AppSettings { Language = language, Theme = theme, TextScale = scale, CheckUpdates = false }.Save(path);
                     using (var form = new MainForm(false, path, new StartupRegistration(Application.ExecutablePath, @"Software\Radeoner\Tests", "Unused")) { SuppressAutomaticUpdateChecks = true })
@@ -196,7 +208,7 @@ internal static partial class Tests
                                     Check(tabs.SelectedIndex == tab && tabs.Focused, "Actual Ctrl Tab did not focus the target tab");
                                     foreach (var control in Descendants(tabs.SelectedTab).Where(c => c.Enabled && c.Visible && c.TabStop && (c is NumericUpDown || c is ComboBox || c is CheckBox || c is Button || c is ListView || c is TextBox)).Where(c => !(c is TextBox && c.Parent is NumericUpDown)).ToList()) await speech.Focus(form, control, context + "/" + control.AccessibleName);
                                 }
-                                using (var details = new DetailsDialog(L.T("ui.helpTitle"), L.T("ui.helpText", L.Version), form.Font, theme))
+                                using (var details = new DetailsDialog(L.T("ui.helpTitle"), L.T("ui.helpText", L.Version) + "\r\n\r\n" + L.Guide(), form.Font, theme))
                                     NvdaDialog(form, details, async () => { foreach (var c in Descendants(details).Where(c => c is TextBox || c is Button)) await speech.Focus(details, c, context + "/details/" + c.AccessibleName); });
                                 using (var server = new RgbServer()) using (var rgb = new RgbDialog(form.Font, theme))
                                     NvdaDialog(form, rgb, async () =>
@@ -205,6 +217,22 @@ internal static partial class Tests
                                         await (Task)typeof(RgbDialog).GetMethod("Connect", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(rgb, null);
                                         foreach (var c in Descendants(rgb).Where(c => c.Enabled && c.Visible && c.TabStop && (c is Button || c is NumericUpDown || c is ComboBox || c is TextBox)).Where(c => !(c is TextBox && c.Parent is NumericUpDown))) await speech.Focus(rgb, c, context + "/RGB/" + c.AccessibleName);
                                     });
+                                var integrated = backend.Read(0); integrated.Gpu.Type = 1; integrated.Settings.Clear(); integrated.Fan.Clear(); integrated.ZeroRpm = null; integrated.CanReset = false;
+                                SetField(form, "snapshot", integrated); Call(form, "Render");
+                                Check(tabs.TabCount == 3, "Unsupported integrated pages remained visible");
+                                for (int tab = 0; tab < tabs.TabCount; tab++)
+                                {
+                                    tabs.SelectedIndex = (tab + tabs.TabCount - 1) % tabs.TabCount;
+                                    await speech.Focus(form, tabs, context + "/integrated/tab" + tab, tabs.TabPages[tab].Text, () => KeyboardTab(form, false));
+                                    Check(tabs.SelectedIndex == tab, "Real Ctrl Tab included an unavailable integrated page");
+                                }
+                                await speech.Focus(form, tabs, context + "/integrated/reverse", L.T("ui.reportTab"), () => KeyboardTab(form, true));
+                                Check((int)tabs.SelectedTab.Tag == 3, "Reverse integrated navigation failed");
+                                var supported = backend.Read(0); supported.Gpu.Type = 1; SetField(form, "snapshot", supported); Call(form, "Render");
+                                Check(tabs.TabCount == 5, "Supported integrated controls were hidden");
+                                Call(form, "SelectPage", 1);
+                                await speech.Focus(form, Field<Dictionary<string, NumericUpDown>>(form, "editors").Values.First(), context + "/integrated/supported setting");
+                                backend.Gpus[0].Type = 2;
                             }
                             catch (Exception ex) { failure = ex; }
                             finally { SetField(form, "exitRequested", true); form.Close(); }

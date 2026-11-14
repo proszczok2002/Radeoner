@@ -119,6 +119,23 @@ namespace Radeoner
         internal static string ReadableNotes(string notes)
         {
             if (string.IsNullOrWhiteSpace(notes)) return L.T("update.noNotes");
+            // Release bodies use one H2 per language. Keep the current language
+            // ahead of the preview limit; legacy releases fall back to English.
+            var headings = Regex.Matches(notes, @"(?m)^##[ \t]+([^\r\n]+)\r?$");
+            Match selected = null;
+            foreach (string language in new[] { L.LanguageNames[Array.IndexOf(L.Languages, L.Language)], "English", "Polski" })
+            {
+                foreach (Match heading in headings)
+                    if (string.Equals(heading.Groups[1].Value.Trim(), language, StringComparison.OrdinalIgnoreCase)) { selected = heading; break; }
+                if (selected != null) break;
+            }
+            if (selected != null)
+            {
+                int start = selected.Index + selected.Length, end = notes.Length;
+                foreach (Match heading in headings) if (heading.Index > selected.Index) { end = heading.Index; break; }
+                string translated = notes.Substring(start, end - start).Trim();
+                if (translated.Length > 0) notes = translated;
+            }
             string text = Regex.Replace(notes, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)");
             text = Regex.Replace(text, @"(?m)^\s*#{1,6}\s*", "").Replace("**", "").Replace("`", "");
             text = Regex.Replace(text, @"[\x00-\x08\x0B\x0C\x0E-\x1F]", "").Trim();

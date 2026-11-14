@@ -1,8 +1,10 @@
-Radeoner 1.05 — panel sterownika AMD
+Radeoner 1.06 — panel sterownika AMD
 
-W 1.05 poprawiono układ dużego tekstu, przewijanie do fokusu, motywy dialogów
-oraz odczyt pól liczbowych przez NVDA bez powtarzania nazwy i zakresu.
-Sprawdzono rzeczywisty tekst Podglądu mowy NVDA, skróty i dialogi Windows.
+W 1.06 dodano niemiecki, rosyjski, hiszpański i francuski oraz instrukcje
+w tych językach. Dostępne ustawienia zależą od możliwości wybranej karty.
+Puste zakładki Regulacja i Wentylator są pomijane przez Ctrl+Tab.
+Na integrze zasobnik nie wspomina o wentylatorach; na pozostałych kartach
+obroty są podawane tylko z prawidłowego odczytu (także 0 RPM).
 
 Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
 4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu
@@ -17,7 +19,7 @@ Nie kopiuj bibliotek sterownika z innego komputera do folderu programu.
 
 FUNKCJE
 - wybór karty AMD; rozpoznawanie integry i karty dedykowanej przez ADLX;
-- tekstowe odczyty czujników, jednostki, informacja o braku obsługi;
+- tekstowe odczyty obsługiwanych czujników z jednostkami; szczegóły braków w raporcie;
 - limit mocy w procentach, zegary GPU i VRAM, napięcie;
 - także tabele stanów wydajności starszych GPU obsługiwanych przez ADLX;
 - krzywa wentylatora: temperatura w stopniach C i prędkość w procentach;
@@ -30,7 +32,7 @@ FUNKCJE
 - eksport i import profili JSON z wartościami ustawień i krzywą wentylatora;
 - Alt+F4 i krzyżyk chowają do traya; osobne Zakończ zamyka cały program;
 - ikona pokazuje nazwę GPU, temperaturę, obroty i moc, jeśli sterownik je podaje;
-- Personalizacja: język polski/angielski, motyw i rozmiar tekstu 100–200%;
+- Ustawienia: Polski, English, Deutsch, Русский, Español, Français, motyw i tekst 100–200%;
 - opcjonalny autostart dla bieżącego użytkownika, bez uprawnień administratora.
 
 PROFILE JSON
@@ -53,9 +55,11 @@ Kliknięcie lub aktywowanie ikony w zasobniku otwiera okno. Menu kontekstowe
 (prawy przycisk myszy lub klawisz menu) zawiera Otwórz, Odśwież, Ustawienia
 i Zakończ. Ten ostatni, tak jak przycisk Zakończ w oknie, kończy cały program.
 Ponowne uruchomienie EXE otwiera okno już uruchomionej instancji.
-Ikona zawiera prawdziwe odczyty dla wybranego GPU, np. temperaturę, obroty
-w RPM i moc całej karty, a jeśli tego czujnika nie ma — moc GPU. Brak odczytu
-jest oznaczony tekstowo. Długość nazwy jest dopasowana do limitu ikony Windows.
+Ikona zawiera wersję programu oraz prawdziwe odczyty wybranego GPU: temperaturę
+i moc całej karty, a jeśli tego czujnika nie ma — moc GPU. Wentylator pojawia
+się wyłącznie na karcie innej niż integra i przy prawidłowym odczycie RPM.
+0 RPM oznacza zatrzymany wentylator i jest poprawną wartością.
+Długość nazwy jest dopasowana do limitu ikony Windows.
 Po wyłączeniu odświeżania lub błędzie ikona pokazuje czas ostatniego odczytu.
 Odświeżanie co sekundę jest domyślnie włączone i działa także w trayu.
 Można je wyłączyć polem nad zakładkami; ustawienie zostanie zapamiętane.
@@ -71,9 +75,14 @@ autostart ponownie, aby zaktualizować ścieżkę. Argument --tray uruchamia do 
 USTAWIENIA I PLIKI LNG
 Wybierz motyw Systemowy, Jasny lub Ciemny oraz tekst od 100% do 200%.
 Systemowy odczytuje jasny/ciemny wygląd aplikacji Windows.
-Wysoki kontrast Windows ma pierwszeństwo. Język Polski/English zmienia się
+Wysoki kontrast Windows ma pierwszeństwo. Wybrany spośród sześciu języków zmienia się
 od razu, także w nazwach dla NVDA. Zmiana wyglądu lub języka zachowuje pola.
-Tłumaczenia UTF-8: lang/pl.lng i lang/en.lng, wpisy klucz=tekst.
+Tłumaczenia UTF-8: lang/pl.lng, en.lng, de.lng, ru.lng, es.lng i fr.lng w kodzie
+źródłowym. Wszystkie są też wbudowane w EXE. Wpisy mają postać klucz=tekst.
+Paczka portable zachowuje osiem dotychczasowych plików dla zgodności updatera;
+cztery nowe języki nie wymagają oddzielnych plików. Pełna instrukcja w każdym
+języku jest wbudowana w EXE i dostępna offline klawiszem F1. Własny plik
+lang/<kod>.lng może zastąpić wbudowane tłumaczenie.
 Komentarz zaczyna się od #, a zapis \n oznacza nową linię. Nazw kluczy nie zmieniaj.
 Brakujące wpisy korzystają z tłumaczeń zapasowych wbudowanych z tych samych LNG.
 Po edycji pliku przełącz język lub uruchom aplikację ponownie.

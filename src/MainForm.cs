@@ -31,6 +31,9 @@ namespace Radeoner
         private readonly NavigationComboBox gpu = new NavigationComboBox(), language = new NavigationComboBox(), theme = new NavigationComboBox(), textScale = new NavigationComboBox();
         private readonly Label gpuLabel = new Label(), languageLabel = new Label(), themeLabel = new Label(), textLabel = new Label(), preferencesNote = new Label();
         private readonly NavigationTabs tabs = new NavigationTabs();
+        private readonly List<TabPage> allPages = new List<TabPage>();
+        private int CurrentPage { get { return tabs.SelectedTab == null ? 0 : (int)tabs.SelectedTab.Tag; } }
+        private void SelectPage(int logical) { tabs.SelectedTab = tabs.TabPages.Contains(allPages[logical]) ? allPages[logical] : allPages[0]; }
         private readonly Panel mainViewport = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), AutoScroll = true, AutoScrollMargin = new Size(0, 12) };
         private readonly TableLayoutPanel mainLayout;
         private readonly SensorView overview = new SensorView();
@@ -91,7 +94,7 @@ namespace Radeoner
             personalFields.ClientSizeChanged += (s, e) => FitSettings();
             trayMenu.Items.AddRange(new ToolStripItem[] { trayShow, trayRead, trayPersonalize, new ToolStripSeparator(), trayExit });
             trayShow.Click += (s, e) => ShowFromTray(); trayRead.Click += async (s, e) => await RefreshSensors(true);
-            trayPersonalize.Click += (s, e) => { ShowFromTray(); tabs.SelectedIndex = 4; language.Focus(); }; trayExit.Click += async (s, e) => await RequestExit();
+            trayPersonalize.Click += (s, e) => { ShowFromTray(); SelectPage(4); language.Focus(); }; trayExit.Click += async (s, e) => await RequestExit();
             refresh.Click += async (s, e) => await RefreshAll(true); apply.Click += async (s, e) => await ApplyChanges();
             undo.Click += async (s, e) => await UndoChanges(); factory.Click += async (s, e) => await ResetFactory();
             save.Click += (s, e) => SaveReport(); export.Click += (s, e) => ExportProfile(); import.Click += async (s, e) => await ImportProfile();
@@ -117,19 +120,21 @@ namespace Radeoner
         private static TextBox ReadOnlyText() { return new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, WordWrap = true }; }
         private static Button Button() { return new ThemedButton { AutoSize = true, Padding = new Padding(8, 4, 8, 4), UseVisualStyleBackColor = true }; }
         private static void ConfigureFields(FlowLayoutPanel panel) { panel.Dock = DockStyle.Fill; panel.AutoScroll = true; panel.AutoScrollMargin = new Size(0, 16); panel.FlowDirection = FlowDirection.TopDown; panel.WrapContents = false; panel.Padding = new Padding(8); }
-        private void AddTab(Control content) { var page = new TabPage { Padding = new Padding(8), UseVisualStyleBackColor = true }; page.Controls.Add(content); tabs.TabPages.Add(page); }
+        private void AddTab(Control content) { var page = new TabPage { Tag = allPages.Count, Padding = new Padding(8), UseVisualStyleBackColor = true }; page.Controls.Add(content); allPages.Add(page); tabs.TabPages.Add(page); }
         private static Label Note(string text) { return new Label { Text = text, AutoSize = true, MaximumSize = new Size(820, 0), Margin = new Padding(3, 5, 3, 10) }; }
         private void BuildPersonalization()
         {
             var preferenceFields = SettingsGroup(appearanceGroup);
             foreach (var box in new[] { language, theme, textScale }) { box.DropDownStyle = ComboBoxStyle.DropDownList; box.Width = 280; }
-            language.Items.AddRange(new object[] { "Polski", "English" }); language.SelectedIndex = settings.Language == "en" ? 1 : 0;
+            language.Items.AddRange(L.LanguageNames); language.SelectedIndex = Array.IndexOf(L.Languages, settings.Language);
             theme.Items.AddRange(new object[] { "", "", "" }); theme.SelectedIndex = settings.Theme == "dark" ? 2 : settings.Theme == "light" ? 1 : 0;
             foreach (int scale in new[] { 100, 125, 150, 175, 200 }) textScale.Items.Add(scale + " %"); textScale.SelectedIndex = (settings.TextScale - 100) / 25;
             foreach (var pair in new[] { Tuple.Create(languageLabel, language), Tuple.Create(themeLabel, theme), Tuple.Create(textLabel, textScale) })
             {
-                var row = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; pair.Item1.AutoSize = true; pair.Item1.Margin = new Padding(3, 6, 12, 3);
-                row.Controls.Add(pair.Item1); row.Controls.Add(pair.Item2); preferenceFields.Controls.Add(row);
+                var row = new TableLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 2 };
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); row.RowStyles.Add(new RowStyle(SizeType.AutoSize)); row.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                pair.Item1.AutoSize = true; pair.Item1.Margin = new Padding(3, 6, 12, 3);
+                row.Controls.Add(pair.Item1, 0, 0); row.Controls.Add(pair.Item2, 0, 1); preferenceFields.Controls.Add(row);
             }
             try { autoStart.Checked = startup.Enabled; } catch { autoStart.Enabled = false; }
             preferenceFields.Controls.Add(autoStart); preferencesNote.AutoSize = true; preferencesNote.MaximumSize = new Size(700, 0); preferencesNote.Margin = new Padding(3, 12, 3, 3); preferenceFields.Controls.Add(preferencesNote);
@@ -161,7 +166,7 @@ namespace Radeoner
         { try { next.Save(settingsPath); settings = next; return true; } catch (Exception ex) { Failed(new InvalidOperationException(L.T("prefs.saveError", ex.Message), ex)); return false; } }
         private void RestorePreferenceChoices()
         {
-            changingPreferences = true; language.SelectedIndex = settings.Language == "en" ? 1 : 0; theme.SelectedIndex = settings.Theme == "dark" ? 2 : settings.Theme == "light" ? 1 : 0;
+            changingPreferences = true; language.SelectedIndex = Array.IndexOf(L.Languages, settings.Language); theme.SelectedIndex = settings.Theme == "dark" ? 2 : settings.Theme == "light" ? 1 : 0;
             textScale.SelectedIndex = (settings.TextScale - 100) / 25; monitoring.Checked = settings.RefreshSensors; changingPreferences = false;
         }
         private void ChangeMonitoring()
@@ -171,7 +176,7 @@ namespace Radeoner
         }
         private async Task ChangeLanguage()
         {
-            string nextLanguage = language.SelectedIndex == 1 ? "en" : "pl"; if (nextLanguage == settings.Language) return;
+            string nextLanguage = language.SelectedIndex >= 0 ? L.Languages[language.SelectedIndex] : "pl"; if (nextLanguage == settings.Language) return;
             SetBusy(true);
             try
             {
@@ -195,7 +200,7 @@ namespace Radeoner
             SetButton(rgb, "rgb.open", "rgb.openName");
             monitoring.Text = L.T("ui.monitoring"); monitoring.AccessibleName = L.T("ui.monitoringName"); tabs.AccessibleName = L.T("ui.tabs");
             string[] keys = { "ui.readingsTab", "ui.tuningTab", "ui.fanTab", "ui.reportTab", "settings.tab" };
-            for (int i = 0; i < keys.Length; i++) { tabs.TabPages[i].Text = L.T(keys[i]); tabs.TabPages[i].AccessibleName = L.T(keys[i]); }
+            for (int i = 0; i < keys.Length; i++) { allPages[i].Text = L.T(keys[i]); allPages[i].AccessibleName = L.T(keys[i]); }
             languageLabel.Text = L.T("prefs.language"); language.AccessibleName = L.T("prefs.languageName"); themeLabel.Text = L.T("prefs.theme"); theme.AccessibleName = L.T("prefs.themeName");
             textLabel.Text = L.T("prefs.text"); textScale.AccessibleName = L.T("prefs.textName");
             changingPreferences = true; int themeIndex = theme.SelectedIndex;
@@ -250,6 +255,11 @@ namespace Radeoner
             {
                 int width = Math.Max(440, mainViewport.ClientSize.Width - mainViewport.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 8);
                 mainLayout.MinimumSize = new Size(width, 0); mainLayout.MaximumSize = new Size(width, 0);
+                foreach (int row in new[] { 1, 3 })
+                {
+                    var tools = mainLayout.GetControlFromPosition(0, row);
+                    foreach (Control child in tools.Controls) child.MaximumSize = new Size(Math.Max(180, width - tools.Margin.Horizontal - child.Margin.Horizontal), 0);
+                }
                 int otherHeight = 0;
                 foreach (int row in new[] { 0, 1, 3, 4 })
                 {
@@ -266,6 +276,7 @@ namespace Radeoner
             {
                 int available = Math.Max(180, width - child.Margin.Horizontal);
                 if (child is FlowLayoutPanel) { child.MaximumSize = new Size(available, 0); if (!((FlowLayoutPanel)child).WrapContents) child.Width = available; }
+                if (child is TableLayoutPanel) { child.MaximumSize = new Size(available, 0); child.MinimumSize = new Size(available, 0); child.Width = available; }
                 if (child is Label || child is CheckBox || child is Button || child is ComboBox) child.MaximumSize = new Size(available, 0);
                 if (child is TextBox) child.Width = available;
                 FitSettingsChildren(child, Math.Max(180, available - child.Padding.Horizontal));
@@ -298,8 +309,6 @@ namespace Radeoner
             if (!string.IsNullOrWhiteSpace(detail)) { var note = Note(detail); row.Controls.Add(note, 0, 1); row.SetColumnSpan(note, 2); }
             return row;
         }
-        private static TextBox UnavailableText(string name, string reason)
-        { return new TextBox { Text = reason, AccessibleName = name, ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Height = 100, Width = 600, Margin = new Padding(3, 8, 3, 12) }; }
         private void Announce(string text) { if (disposed) return; status.Text = text.Replace("\r", " ").Replace("\n", " "); if (status.IsHandleCreated && Visible) NotifyWinEvent(0x800E, status.Handle, -4, 0); }
         private void UpdateActions()
         {
@@ -308,19 +317,20 @@ namespace Radeoner
             rgb.Enabled = !busy;
             apply.Enabled = !busy && selected && dirty; undo.Enabled = !busy && selected && lastApply != null && lastApply.After.Gpu.Id == snapshot.Gpu.Id;
             factory.Enabled = !busy && selected && snapshot.CanReset; save.Enabled = !busy && selected;
-            export.Enabled = import.Enabled = !busy && selected; trayRead.Enabled = !busy && selected; exit.Enabled = trayExit.Enabled = !busy;
+            export.Enabled = import.Enabled = !busy && selected && (snapshot.Settings.Count > 0 || snapshot.Fan.Count > 0 || snapshot.ZeroRpm.HasValue); trayRead.Enabled = !busy && selected; exit.Enabled = trayExit.Enabled = !busy;
             UpdateUpdateActions();
             UpdateTabActions();
         }
         private void UpdateTabActions()
         {
-            bool tuningPage = tabs.SelectedIndex == 1 || tabs.SelectedIndex == 2;
-            apply.Visible = undo.Visible = factory.Visible = tuningPage;
-            refresh.Visible = tabs.SelectedIndex < 3;
-            export.Visible = import.Visible = tuningPage; save.Visible = tabs.SelectedIndex == 3;
-            monitoring.Visible = tabs.SelectedIndex == 0; gpu.Visible = gpuLabel.Visible = tabs.SelectedIndex != 4;
-            gpu.Parent.Visible = tabs.SelectedIndex != 4;
-            mainLayout.GetControlFromPosition(0, 1).Visible = tabs.SelectedIndex != 4;
+            bool tunable = snapshot != null && (snapshot.Settings.Count > 0 || snapshot.Fan.Count > 0 || snapshot.ZeroRpm.HasValue);
+            bool tuningPage = CurrentPage == 1 || CurrentPage == 2;
+            apply.Visible = undo.Visible = tuningPage && tunable; factory.Visible = tuningPage && snapshot != null && snapshot.CanReset;
+            refresh.Visible = CurrentPage < 3;
+            export.Visible = import.Visible = tuningPage && tunable; save.Visible = CurrentPage == 3;
+            monitoring.Visible = CurrentPage == 0; gpu.Visible = gpuLabel.Visible = CurrentPage != 4;
+            gpu.Parent.Visible = CurrentPage != 4;
+            mainLayout.GetControlFromPosition(0, 1).Visible = CurrentPage != 4;
             FitMainLayout();
         }
         private void NavigateTab(int direction)
@@ -328,6 +338,22 @@ namespace Radeoner
             if (tabs.TabCount == 0) return;
             tabs.SelectedIndex = (tabs.SelectedIndex + direction + tabs.TabCount) % tabs.TabCount;
             tabs.Focus();
+        }
+        private void UpdateCapabilityTabs()
+        {
+            bool[] wanted = { true, snapshot == null || snapshot.Settings.Count > 0 || snapshot.CanReset || snapshot.Gpu.Type != 1,
+                snapshot == null || snapshot.Fan.Count > 0 || snapshot.ZeroRpm.HasValue, true, true };
+            var selected = tabs.SelectedTab;
+            for (int i = 0; i < allPages.Count; i++) if (!wanted[i] && tabs.TabPages.Contains(allPages[i])) tabs.TabPages.Remove(allPages[i]);
+            int position = 0;
+            for (int i = 0; i < allPages.Count; i++) if (wanted[i])
+            {
+                if (!tabs.TabPages.Contains(allPages[i])) { tabs.TabPages.Insert(position, allPages[i]); Appearance.Apply(allPages[i], settings.Theme); }
+                position++;
+            }
+            if (selected != null && tabs.TabPages.Contains(selected)) tabs.SelectedTab = selected;
+            else tabs.SelectedTab = allPages[0];
+            rgb.Visible = snapshot == null || snapshot.Gpu.Type != 1;
         }
         private void SetBusy(bool value)
         {
@@ -421,7 +447,7 @@ namespace Radeoner
         private void Render()
         {
             sensors = snapshot; overview.Text = Overview(snapshot); report.Text = snapshot.Report(); ClearFields(tuningFields); ClearFields(fanFields); editors.Clear(); temperatures.Clear(); speeds.Clear(); zeroRpm = null;
-            tuningFields.Controls.Add(Note(L.T("ui.tuningNote"))); if (snapshot.Settings.Count == 0) tuningFields.Controls.Add(UnavailableText(L.T("ui.tuningAvailability"), L.T("ui.noTuning")));
+            if (snapshot.Settings.Count > 0) tuningFields.Controls.Add(Note(L.T("ui.tuningNote")));
             foreach (var setting in snapshot.Settings)
             {
                 var number = Number(setting.Name + ", " + setting.Unit, setting.Range, setting.Value);
@@ -429,7 +455,7 @@ namespace Radeoner
                 number.AccessibleDescription = detail; Accessibility.Number(number);
                 editors.Add(setting.Id, number); tuningFields.Controls.Add(EditorRow(setting.Name + " (" + setting.Unit + "):", number, detail));
             }
-            fanFields.Controls.Add(Note(L.T("ui.fanNote"))); if (snapshot.Fan.Count == 0) fanFields.Controls.Add(UnavailableText(L.T("ui.fanAvailability"), L.T("ui.noFan")));
+            if (snapshot.Fan.Count > 0) fanFields.Controls.Add(Note(L.T("ui.fanNote")));
             for (int i = 0; i < snapshot.Fan.Count; i++)
             {
                 var t = Number(L.T("ui.pointTemperatureName", i + 1), snapshot.FanTemperature, snapshot.Fan[i].Temperature); temperatures.Add(t);
@@ -443,7 +469,7 @@ namespace Radeoner
                 zeroRpm = new ThemedCheckBox { Text = L.T("ui.zeroRpm"), AccessibleName = L.T("ui.zeroRpmName"), Checked = snapshot.ZeroRpm.Value, AutoSize = true, Margin = new Padding(3, 3, 3, 18) };
                 zeroRpm.CheckedChanged += (s, e) => { dirty = true; UpdateActions(); }; fanFields.Controls.Add(zeroRpm);
             }
-            dirty = false; FitEditorFields(tuningFields); FitEditorFields(fanFields); Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); Accessibility.Order(this); UpdateActions(); UpdateTray(false);
+            dirty = false; UpdateCapabilityTabs(); FitEditorFields(tuningFields); FitEditorFields(fanFields); Appearance.Apply(tuningFields, settings.Theme); Appearance.Apply(fanFields, settings.Theme); Accessibility.Order(this); UpdateActions(); UpdateTray(false);
         }
         private Dictionary<string, string> CaptureDraft()
         {
@@ -510,7 +536,7 @@ namespace Radeoner
                 {
                     var profile = Profiles.Load(dialog.FileName); await FinishSensorRead(); var current = await Task.Run(() => backend.Read(snapshot.Gpu.Index));
                     var changes = Profiles.Prepare(current, profile); snapshot = current; Render(); Stage(changes);
-                    tabs.SelectedIndex = snapshot.Settings.Count > 0 ? 1 : snapshot.Fan.Count > 0 ? 2 : 0; Announce(L.T(changes.Empty ? "profile.same" : "profile.loaded"));
+                    SelectPage(snapshot.Settings.Count > 0 ? 1 : snapshot.Fan.Count > 0 || snapshot.ZeroRpm.HasValue ? 2 : 0); Announce(L.T(changes.Empty ? "profile.same" : "profile.loaded"));
                 }
                 catch (Exception ex) { Failed(ex); } finally { SetBusy(false); }
             }
@@ -570,14 +596,14 @@ namespace Radeoner
             // Never race a native read/write during Windows shutdown.
             if (!busy && !sensorReading && backend != null) { backend.Dispose(); backend = null; }
         }
-        private void ShowHelp() { SystemDialogs.Details(this, L.T("ui.helpTitle"), L.T("ui.helpText", L.Version)); }
+        private void ShowHelp() { SystemDialogs.Details(this, L.T("ui.helpTitle"), L.T("ui.helpText", L.Version) + "\r\n\r\n" + L.Guide()); }
         private async void RunKeyboard(Func<Task> action) { try { await action(); } catch (Exception ex) { Failed(ex); } }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             int direction = NavigationTabs.Direction(keyData);
             if (direction != 0) { NavigateTab(direction); return true; }
             if ((keyData & Keys.Modifiers) == Keys.Control && (keyData & Keys.KeyCode) >= Keys.D1 && (keyData & Keys.KeyCode) <= Keys.D5)
-            { tabs.SelectedIndex = (int)(keyData & Keys.KeyCode) - (int)Keys.D1; tabs.Focus(); return true; }
+            { SelectPage((int)(keyData & Keys.KeyCode) - (int)Keys.D1); tabs.Focus(); return true; }
             if (keyData == Keys.F5) { if (refresh.Enabled) RunKeyboard(() => RefreshAll(true)); return true; }
             if (keyData == (Keys.Control | Keys.Enter)) { if (apply.Enabled) RunKeyboard(ApplyChanges); return true; }
             if (keyData == (Keys.Control | Keys.E)) { if (export.Enabled) ExportProfile(); return true; }
@@ -589,7 +615,7 @@ namespace Radeoner
         protected override void Dispose(bool disposing)
         {
             if (disposing && !disposed) { disposed = true; SystemEvents.UserPreferenceChanged -= SystemPreferencesChanged; timer.Dispose(); DisposeUpdates(); if (tray != null) tray.Dispose(); trayMenu.Dispose(); if (!busy && !sensorReading && backend != null) { backend.Dispose(); backend = null; } }
-            base.Dispose(disposing); if (disposing) { foreach (var font in fonts.Values) font.Dispose(); fonts.Clear(); applicationFont = null; }
+            base.Dispose(disposing); if (disposing) { foreach (var page in allPages) if (!page.IsDisposed) page.Dispose(); foreach (var font in fonts.Values) font.Dispose(); fonts.Clear(); applicationFont = null; }
         }
     }
 }

@@ -86,7 +86,7 @@ namespace Radeoner
         {
             if (updateChecking || updateInstalling || showingUpdateOffer || disposed) return;
             updateChecking = true; UpdateUpdateActions(); updateStatus.Text = L.T("update.checking");
-            if (manual) { tabs.SelectedIndex = 4; Announce(updateStatus.Text); }
+            if (manual) { SelectPage(4); Announce(updateStatus.Text); }
             try
             {
                 using (var transport = new GithubTransport()) availableUpdate = await new UpdateFeed(transport).CheckAsync(new Version(BuildInfo.AssemblyVersion), updateCancellation.Token);
