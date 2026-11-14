@@ -97,6 +97,8 @@ internal static partial class Tests
                             foreach (string language in L.Languages)
                             {
                                 L.Load(language); Call(form, "ApplyLanguage"); Field<TabControl>(form, "tabs").SelectedIndex = 4;
+                                string[] changes = { "Zmiana testowa dostępności.", "Accessibility test change.", "Teständerung zur Barrierefreiheit.", "Тестовое изменение доступности.", "Cambio de accesibilidad de prueba.", "Changement de test d'accessibilité." };
+                                string releaseBody = string.Join("\n", Enumerable.Range(0, L.Languages.Length).Select(i => "## " + L.LanguageNames[i] + "\n" + changes[i]));
                                 foreach (string kind in new[] { "aboutProgram", "supportProject", "update" })
                                 {
                                     string before = speech.Snapshot(); Exception dialogFailure = null; bool question = kind == "update"; int created = 0;
@@ -108,7 +110,7 @@ internal static partial class Tests
                                             timer.Stop(); timer.Dispose();
                                             try
                                             {
-                                                await speech.Native(window, before, language + "/native/" + kind, question ? "99.0" : kind == "aboutProgram" ? "Radeoner" : L.T("info.supportTitle"));
+                                                await speech.Native(window, before, language + "/native/" + kind, question ? changes[Array.IndexOf(L.Languages, language)] : kind == "aboutProgram" ? "Radeoner" : L.T("info.supportTitle"));
                                                 int count = question ? 3 : kind == "aboutProgram" ? 3 : 5;
                                                 for (int i = 0; i < count; i++) { string start = speech.Snapshot(); await NativeTab(window); await speech.Native(window, start, language + "/native/" + kind + "/Tab" + i, ""); }
                                             }
@@ -120,7 +122,7 @@ internal static partial class Tests
                                     {
                                         if (question)
                                         {
-                                            SetField(form, "availableUpdate", new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = "## Polski\nZmiana testowa dostępności.\n## English\nAccessibility test change." });
+                                            SetField(form, "availableUpdate", new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = releaseBody });
                                             await (Task)Call(form, "DownloadAndInstallUpdate");
                                             Check(!Field<bool>(form, "updateInstalling"), "No started an update installation");
                                         }

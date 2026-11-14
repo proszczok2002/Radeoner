@@ -7,7 +7,7 @@ announcements, and six languages with offline F1 guides.
 
 [Polska dokumentacja](README.md) · [Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Report an issue](https://github.com/proszczok2002/Radeoner/issues) · [Contribute](CONTRIBUTING.md)
 
-[Deutsch](Readme.de.txt) · [Русский](Readme.ru.txt) · [Español](Readme.es.txt) · [Français](Readme.fr.txt)
+[Deutsch](README.de.md) · [Русский](README.ru.md) · [Español](README.es.md) · [Français](README.fr.md)
 
 Radeoner communicates with the installed AMD driver through the public ADLX API.
 Use the monitoring and tuning capabilities your GPU exposes without installing

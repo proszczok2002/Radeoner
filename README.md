@@ -7,7 +7,7 @@ integry oraz sześć języków z instrukcjami offline w F1.
 
 [English documentation](README.en.md) · [Pobierz / Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Zgłoś problem / Issues](https://github.com/proszczok2002/Radeoner/issues) · [Współpraca / Contributing](CONTRIBUTING.md)
 
-[Deutsch](Readme.de.txt) · [Русский](Readme.ru.txt) · [Español](Readme.es.txt) · [Français](Readme.fr.txt)
+[Deutsch](README.de.md) · [Русский](README.ru.md) · [Español](README.es.md) · [Français](README.fr.md)
 
 Radeoner komunikuje się ze sterownikiem AMD przez publiczne API ADLX. Pozwala
 korzystać z odczytów i regulacji udostępnianych przez kartę bez instalowania

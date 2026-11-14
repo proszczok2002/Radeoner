@@ -9,6 +9,20 @@ internal static partial class Tests
 {
     private static void RunLanguageTests()
     {
+        Test("Update previews select all six release-note languages, retain subheadings and support legacy notes", () =>
+        {
+            string body = "# Radeoner 1.06\n" + string.Join("\n", Enumerable.Range(0, L.Languages.Length).Select(i => "## " + L.LanguageNames[i] + "\n**NVDA-" + L.Languages[i] + "**\n### Details\nMore-" + L.Languages[i])) + "\n## Guides\nOther text";
+            foreach (string code in L.Languages)
+            {
+                L.Load(code); string notes = UpdateFeed.ReadableNotes(body);
+                Check(notes.Contains("NVDA-" + code) && notes.Contains("More-" + code) && notes.Contains("Details") && !notes.Contains("Other text"), "Wrong localized preview: " + code);
+                foreach (string other in L.Languages.Where(x => x != code)) Check(!notes.Contains("NVDA-" + other), "Other language leaked into preview: " + code);
+            }
+            L.Load("fr"); Check(UpdateFeed.ReadableNotes("## Polski\nPolish\n## English\nEnglish text") == "English text", "Legacy English fallback failed");
+            Check(UpdateFeed.ReadableNotes("## Changes\n- **Fix**") == "Changes\n- Fix", "Plain release notes were lost");
+            Check(UpdateFeed.ReadableNotes("## English\n\n## Polski\nPolish").Contains("Polish"), "Empty translation erased the release notes");
+            L.Load("pl");
+        });
         Test("All six embedded languages preserve keys, format arguments, guides and preferences", () =>
         {
             var assembly = typeof(L).Assembly; Dictionary<string, string> baseline;
