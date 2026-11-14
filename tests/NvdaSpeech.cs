@@ -52,22 +52,31 @@ internal sealed class NvdaSpeech
     private string Read()
     {
         IntPtr length, copied;
-        if (SendMessageTimeout(edit, 0x000E, IntPtr.Zero, null, 2, 1000, out length) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer; no speech result can be verified.");
+        if (SendMessageTimeout(edit, 0x000E, IntPtr.Zero, null, 2, 3000, out length) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer (error " + Marshal.GetLastWin32Error() + "); no speech result can be verified.");
         int count = length.ToInt32(); if (count < 0 || count > 1000000) throw new InvalidOperationException("Clear Speech Viewer before the audit (history is too large).");
         var text = new StringBuilder(count + 1);
-        if (SendMessageTimeout(edit, 0x000D, new IntPtr(text.Capacity), text, 2, 1000, out copied) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer.");
+        if (SendMessageTimeout(edit, 0x000D, new IntPtr(text.Capacity), text, 2, 3000, out copied) == IntPtr.Zero) throw new InvalidOperationException("Windows refused reading NVDA Speech Viewer (error " + Marshal.GetLastWin32Error() + ").");
         return text.ToString();
     }
     private static string Normalize(string text) { return Regex.Replace(text.ToLowerInvariant(), @"[^\p{L}\p{N}]+", " ").Trim(); }
-    internal string Snapshot() { return Read(); }
+    // NVDA may synchronously query the owned STA window while processing focus.
+    // Await the cross-process text read so that window can service those queries.
+    internal Task<string> SnapshotAsync() { return Task.Run((Func<string>)Read); }
+    private static string ForegroundContext(IntPtr expected)
+    {
+        IntPtr current = GetForegroundWindow(); uint pid; GetWindowThreadProcessId(current, out pid);
+        var name = new StringBuilder(256); GetClassName(current, name, name.Capacity);
+        return " expected=" + expected.ToString("X") + " current=" + current.ToString("X") + " pid=" + pid + " class=" + name;
+    }
     internal async Task<string> Native(IntPtr window, string before, string context, string expected, bool requireForeground = true)
     {
         string spoken = "";
         await Task.Delay(400);
         for (int poll = 0; poll < 30; poll++)
         {
-            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context);
-            string current = Read();
+            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context + ForegroundContext(window));
+            string current = await SnapshotAsync();
+            if (requireForeground && GetForegroundWindow() != window) throw new InvalidOperationException("Native audit lost its own foreground window: " + context + ForegroundContext(window));
             if (!current.StartsWith(before, StringComparison.Ordinal)) throw new InvalidOperationException("Speech history changed: " + context);
             spoken = current.Substring(before.Length);
             if (spoken.Trim().Length > 0 && (expected.Length == 0 || Normalize(spoken).Contains(Normalize(expected)))) break;
@@ -87,7 +96,8 @@ internal sealed class NvdaSpeech
             var alternate = Controls(form).FirstOrDefault(c => c is Button && c.CanFocus && c != control);
             if (alternate != null) { alternate.Focus(); await Task.Delay(600); }
         }
-        string before = Read();
+        string before = await SnapshotAsync();
+        if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Audit window lost foreground before focus: " + context);
         if (activate != null) await activate();
         else if (!control.Focus() && !control.ContainsFocus) throw new InvalidOperationException("Cannot focus " + context);
         string spoken = "", name = expected ?? control.AccessibleName;
@@ -97,7 +107,8 @@ internal sealed class NvdaSpeech
         {
             await Task.Delay(150);
             if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Foreground changed; no speech from other applications was recorded at " + context);
-            string current = Read();
+            string current = await SnapshotAsync();
+            if (GetForegroundWindow() != form.Handle) throw new InvalidOperationException("Foreground changed; no speech from other applications was recorded at " + context);
             if (!current.StartsWith(before, StringComparison.Ordinal)) throw new InvalidOperationException("Speech Viewer history changed during the audit; repeat checkpoint " + context);
             spoken = current.Substring(before.Length);
             if (Normalize(spoken).Contains(Normalize(name))) break;
