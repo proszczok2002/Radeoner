@@ -1,4 +1,4 @@
-Radeoner 1.03 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.04 - lightweight, portable AMD GPU control for Windows
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner

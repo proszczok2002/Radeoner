@@ -1,4 +1,4 @@
-Radeoner 1.03 — panel sterownika AMD
+Radeoner 1.04 — panel sterownika AMD
 
 Uruchom Radeoner.exe. Aplikacja jest przenośna, używa Microsoft .NET Framework
 4.8 i Windows Forms. Dla Windows 10/11 x64. Nie wymaga instalacji panelu
