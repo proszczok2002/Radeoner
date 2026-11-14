@@ -21,7 +21,7 @@ internal static partial class Tests
     [DllImport("user32.dll")] private static extern uint SendInput(uint count, KeyInput[] input, int size);
     [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
     private static KeyInput Key(ushort code, bool up = false) { return new KeyInput { Type = 1, Key = code, Flags = up ? 2u : 0 }; }
-    private static bool UserModifierHeld() { return new[] { 0x10, 0x11, 0x12 }.Any(k => (GetAsyncKeyState(k) & 0x8000) != 0); }
+    private static bool UserModifierHeld() { return new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C, 0x2D, 0x14 }.Any(k => (GetAsyncKeyState(k) & 0x8000) != 0); }
     private static async Task KeyboardTab(MainForm form, bool reverse)
     {
         for (int wait = 0; wait < 30 && UserModifierHeld(); wait++) await Task.Delay(100);
@@ -40,11 +40,9 @@ internal static partial class Tests
     {
         Call(form, "ShowFromTray"); form.Opacity = 1; form.Location = new System.Drawing.Point(100, 100); ShowWindow(form.Handle, 1); form.Activate(); SetForegroundWindow(form.Handle);
         await Task.Delay(400);
-        if (GetForegroundWindow() != form.Handle && Control.ModifierKeys == Keys.None)
-        {
-            SendInput(2, new[] { Key(0x12), Key(0x12, true) }, Marshal.SizeOf(typeof(KeyInput)));
-            SetForegroundWindow(form.Handle); await Task.Delay(200);
-        }
+        // Wait for manual activation when Windows refuses the request. Do not
+        // send an activation key to whichever application currently owns focus.
+        for (int wait = 0; wait < 300 && GetForegroundWindow() != form.Handle; wait++) await Task.Delay(100);
         Check(GetForegroundWindow() == form.Handle, "Windows did not grant foreground to the test window");
         var tabs = Field<TabControl>(form, "tabs"); tabs.SelectedIndex = 0; Field<ComboBox>(form, "gpu").Focus();
         for (int i = 0; i < 5; i++)

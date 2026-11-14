@@ -1,4 +1,8 @@
-Radeoner 1.04 - lightweight, portable AMD GPU control for Windows
+Radeoner 1.05 - lightweight, portable AMD GPU control for Windows
+
+1.05 improves large-text layout, focus scrolling, dialog themes and NVDA
+numeric-field speech without repeating the label and range. Actual Speech
+Viewer output, native Windows dialogs and keyboard shortcuts were checked.
 
 Polish instructions: Czytaj.txt. Full documentation:
 https://github.com/proszczok2002/Radeoner

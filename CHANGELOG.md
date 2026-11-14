@@ -1,5 +1,40 @@
 # Zmiany / Changelog
 
+## 1.05
+
+### Polski
+
+- Przewijany układ głównego okna zachowuje miejsce na zakładkę przy dużym
+  tekście; pola regulacji i wentylatora mają wyrównane wiersze i zawijane opisy.
+- Poprawiono wysokości natywnych list wyboru, przewijanie do całego pola
+  z fokusem, motyw pól/list/przycisków i wyróżnienie aktywnej zakładki.
+- Pomoc i pełny opis przejmują motyw i wielkość tekstu. RGB ma przewijaną
+  treść, krótsze przyciski oraz pełne nazwy dostępne dla czytnika.
+- Wyjaśnienia niedostępnych funkcji są osiągalne klawiszem Tab; błędne dane
+  kierują fokus na pole do poprawy. Osłony przy zamykaniu RGB i zmianie motywu.
+- Usunięto podwójny odczyt nazwy i zakresu pól liczbowych przez NVDA;
+  poprawiono także nazwę grupy zakładek. Wartość i regulacja strzałkami działają.
+- Sprawdzono 540 punktów rzeczywistego tekstu Podglądu mowy NVDA w PL/EN,
+  trzech motywach i tekście 100/200%, 60 punktów dialogów systemowych,
+  rzeczywiste skróty klawiaturowe i obsługę traya.
+  [Wyniki i ograniczenia audytu](docs/AUDIT_1.05.md).
+
+### English
+
+- Scrollable main layout preserves usable tab space at large text sizes;
+  aligned tuning/fan rows, wrapped descriptions, correctly sized native combos
+  and scrolling to the complete focused field.
+- Consistent field/list/button palette and tab indication; themed, scalable
+  details/help dialogs and a scrollable RGB dialog with full accessible names.
+- Focusable unsupported-feature explanations, invalid-input focus recovery
+  and closing/theme-update guards. Expanded PL/EN/theme/layout tests and an
+  opt-in actual NVDA Speech Viewer capture.
+- Removed repeated NVDA numeric labels/ranges while preserving the focused
+  spin-control role, values and arrow-key editing; shortened the tab-group name.
+- Actual NVDA Speech Viewer validation passed 540 UI checkpoints across PL/EN,
+  three themes and 100/200% text, plus 60 native-dialog checkpoints. Real
+  keyboard shortcuts, tray speech and Enter-to-restore were also checked.
+
 ## 1.04
 
 ### Polski

@@ -17,6 +17,19 @@ namespace Radeoner
     internal sealed class NavigationTabs : TabControl
     {
         internal Action<int> Navigate;
+        protected override void WndProc(ref Message message)
+        {
+            base.WndProc(ref message);
+            // Preserve the native tab provider and keyboard handling.
+            bool print = message.Msg == 0x0317 || message.Msg == 0x0318;
+            if ((message.Msg == 0x000F || print && message.WParam != IntPtr.Zero) && DrawMode == TabDrawMode.OwnerDrawFixed && TabCount > 0 && !IsDisposed && !Disposing && !Radeoner.Appearance.HighContrast)
+            {
+                var last = GetTabRect(TabCount - 1);
+                if (last.Right < ClientSize.Width - 8)
+                    using (var graphics = print ? System.Drawing.Graphics.FromHdc(message.WParam) : System.Drawing.Graphics.FromHwnd(Handle))
+                    using (var brush = new System.Drawing.SolidBrush(BackColor)) graphics.FillRectangle(brush, last.Right + 1, 0, ClientSize.Width - last.Right - 1, last.Bottom + 1);
+            }
+        }
         internal static int Direction(Keys keys)
         { return keys == (Keys.Control | Keys.Tab) ? 1 : keys == (Keys.Control | Keys.Shift | Keys.Tab) ? -1 : 0; }
         protected override bool ProcessCmdKey(ref Message msg, Keys keys)

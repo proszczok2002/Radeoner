@@ -24,6 +24,7 @@ internal static partial class Tests
                 {
                     var edit = number.Controls.OfType<TextBox>().Single();
                     Check(edit.AccessibleName == number.AccessibleName && edit.AccessibleDescription == number.AccessibleDescription, "Inner numeric edit lost label/range");
+                    Check(number.AccessibilityObject.Role == AccessibleRole.Client && edit.AccessibilityObject.Role == AccessibleRole.SpinButton, "Numeric focus role repeats the labelled container or loses numeric semantics");
                 }
                 Check(Field<Button>(form, "aboutProgram").AccessibleName == L.T("info.aboutName") && Field<Button>(form, "supportProject").TabStop, "Information actions inaccessible");
                 Field<ComboBox>(form, "language").SelectedIndex = 1;

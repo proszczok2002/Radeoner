@@ -1,4 +1,8 @@
-# Dostępność / Accessibility — 1.03
+# Dostępność / Accessibility
+
+Aktualne wyniki: [audyt 1.05 — rzeczywiste wypowiedzi NVDA](AUDIT_1.05.md).
+Current results: [1.05 audit with actual NVDA Speech Viewer output](AUDIT_1.05.md).
+Poniższe wyniki opisują wcześniejsze wydania / Older release results follow.
 
 ## Polski
 
