@@ -2,6 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -9,37 +12,37 @@ namespace Radeoner
 {
     internal sealed class DriverUpdateDialog : Form
     {
-        private readonly TextBox details = new TextBox
-        {
-            ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill
-        };
-        private readonly ComboBox offers = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
-        private readonly Button search = Action("wud.check"), license = Action("wud.license"),
-            install = Action("wud.install"), website = Action("amd.website"), close = Action("dialog.close");
-        private readonly string introduction, instanceId, theme;
+        private readonly TextBox details = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
+        private readonly TextBox page = new TextBox { Dock = DockStyle.Fill };
+        private readonly Button check = Action("amd.check"), download = Action("amd.prepare"), install = Action("amd.install"),
+            website = Action("amd.website"), terms = Action("amd.license"), close = Action("dialog.close");
+        private readonly string introduction, instanceId;
+        private readonly Version installedVersion;
         private readonly bool draftChanges;
-        private DriverOffer reviewed;
-        private bool checking, installing, closing;
+        private CancellationTokenSource currentWork;
+        private AmdDriverOffer offer;
+        private AmdDriverPackage prepared;
+        private bool installing, closeAfterWork;
         internal bool RefreshDriver { get; private set; }
 
         internal DriverUpdateDialog(GpuInfo gpu, Font font, string theme, bool draftChanges = false)
         {
-            this.theme = theme;
             this.draftChanges = draftChanges;
             instanceId = gpu == null ? null : gpu.Id;
+            Version.TryParse(gpu == null ? null : gpu.Driver, out installedVersion);
             Text = AccessibleName = L.T("amd.title");
             Font = font;
             AutoScaleMode = AutoScaleMode.Dpi;
             Size = new Size(820, 580);
-            MinimumSize = new Size(480, 430);
+            MinimumSize = new Size(500, 430);
             StartPosition = FormStartPosition.CenterParent;
             ShowInTaskbar = false;
 
-            string driver = gpu == null ? L.T("amd.noGpu") : L.T("amd.installed", gpu.Name, gpu.DriverDescription);
-            introduction = driver + "\r\n\r\n" + L.T(WindowsDriverUpdates.IsAmdInstance(instanceId) ? "wud.instructions" : "wud.noGpu");
+            introduction = (gpu == null ? L.T("amd.noGpu") : L.T("amd.installed", gpu.Name, gpu.DriverDescription))
+                + "\r\n\r\n" + L.T("amd.instructions");
             details.AccessibleName = L.T("amd.details");
             details.Text = introduction;
-            offers.AccessibleName = L.T("wud.offers");
+            page.AccessibleName = L.T("amd.page");
             var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
             var table = new TableLayoutPanel
             {
@@ -47,55 +50,49 @@ namespace Radeoner
                 Padding = new Padding(12), ColumnCount = 1, RowCount = 4
             };
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, Math.Max(208, Font.Height * 5)));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, Math.Max(200, Font.Height * 5)));
+            for (int i = 0; i < 3; i++) table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true };
-            actions.Controls.AddRange(new Control[] { search, license, install, website, close });
+            actions.Controls.AddRange(new Control[] { check, terms, download, install, website, close });
+            var label = new Label { Text = page.AccessibleName, AutoSize = true };
             table.Controls.Add(details, 0, 0);
-            table.Controls.Add(new Label { Text = L.T("wud.offers"), AutoSize = true }, 0, 1);
-            table.Controls.Add(offers, 0, 2);
+            table.Controls.Add(label, 0, 1);
+            table.Controls.Add(page, 0, 2);
             table.Controls.Add(actions, 0, 3);
             scroll.Controls.Add(table);
             Controls.Add(scroll);
-            close.DialogResult = DialogResult.Cancel;
             CancelButton = close;
-            search.Click += async (s, e) => await Check();
+            close.Click += (s, e) => Close();
+            website.Click += (s, e) => OpenSite(AmdDriverPackage.SupportUrl);
+            terms.Click += (s, e) => OpenSite(AmdDriverPackage.LicenseUrl);
+            check.Click += async (s, e) => await Check();
+            download.Click += async (s, e) => await Prepare();
             install.Click += async (s, e) => await Install();
-            license.Click += (s, e) =>
-            {
-                var offer = offers.SelectedItem as DriverOffer;
-                if (offer == null || offer.LicenseAccepted) return;
-                using (var dialog = new DetailsDialog(L.T("wud.license"), offer.License, Font, this.theme))
-                    dialog.ShowDialog(this);
-                reviewed = offer;
-                UpdateActions();
-            };
-            offers.SelectedIndexChanged += (s, e) =>
-            {
-                reviewed = null;
-                var offer = offers.SelectedItem as DriverOffer;
-                if (offer != null) SetDetails(Describe(offer));
-                UpdateActions();
-            };
-            website.Click += (s, e) =>
-            {
-                try { using (Process.Start(new ProcessStartInfo(WindowsDriverUpdates.SupportUrl) { UseShellExecute = true })) { } }
-                catch (Exception ex) { FocusStatus(L.T("wud.failed", ex.Message)); }
-            };
+            page.TextChanged += (s, e) => { offer = null; ClearPrepared(); UpdateActions(); };
             FormClosing += (s, e) =>
             {
-                if (installing && e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; return; }
-                closing = true;
+                if (currentWork == null) return;
+                if (e.CloseReason == CloseReason.UserClosing)
+                {
+                    e.Cancel = true;
+                    if (!installing) { closeAfterWork = true; currentWork.Cancel(); }
+                }
+                else if (!installing) currentWork.Cancel();
             };
-            Action fitButtons = () =>
+            Action fit = () =>
             {
                 int width = table.ClientSize.Width - table.Padding.Horizontal - actions.Margin.Horizontal;
-                foreach (Button button in actions.Controls) button.MaximumSize = new Size(Math.Max(1, width - button.Margin.Horizontal - 4), 0);
+                label.MaximumSize = new Size(Math.Max(1, width - label.Margin.Horizontal), 0);
+                foreach (Button button in actions.Controls)
+                    button.MaximumSize = new Size(Math.Max(1, width - button.Margin.Horizontal - 4), 0);
             };
-            scroll.ClientSizeChanged += (s, e) => fitButtons();
-            Shown += (s, e) => { fitButtons(); Accessibility.FitNativeCombos(this); details.Focus(); details.Select(0, 0); };
+            scroll.ClientSizeChanged += (s, e) => fit();
+            Shown += (s, e) => { fit(); FocusDetails(); };
+            Shown += async (s, e) =>
+            {
+                string suggestion = await Task.Run(() => AmdDriverPackage.SuggestedPage(gpu));
+                if (!IsDisposed && currentWork == null && page.TextLength == 0) page.Text = suggestion;
+            };
             Accessibility.Order(this);
             Appearance.Apply(this, theme);
             Appearance.FollowSystem(this, theme);
@@ -113,112 +110,138 @@ namespace Radeoner
 
         private void UpdateActions()
         {
-            bool ready = !checking && !installing;
-            var offer = offers.SelectedItem as DriverOffer;
-            search.Enabled = ready && WindowsDriverUpdates.IsAmdInstance(instanceId);
-            website.Enabled = ready;
-            offers.Enabled = ready && offers.Items.Count > 0;
-            license.Enabled = ready && offer != null && !offer.LicenseAccepted;
-            install.Enabled = ready && offer != null && (offer.LicenseAccepted || reviewed == offer);
+            bool ready = currentWork == null;
+            page.ReadOnly = !ready;
+            check.Enabled = ready && AmdDisplayInf.IsAmdInstance(instanceId);
+            download.Enabled = ready && offer != null && prepared == null && !RefreshDriver
+                && (installedVersion == null || offer.StoreVersions.Length == 0 || offer.StoreVersions.Any(v => v > installedVersion));
+            install.Enabled = ready && prepared != null && !RefreshDriver;
+            terms.Enabled = website.Enabled = ready;
             close.Enabled = !installing;
         }
 
-        private static string Describe(DriverOffer offer)
-        {
-            return L.T("wud.offer", offer.Title, offer.Date.ToString("d", L.Culture));
-        }
-
-        private void SetDetails(string message)
+        private void FocusDetails() { details.Focus(); details.Select(0, 0); }
+        private void Status(string message, bool focus = true)
         {
             details.Text = message + "\r\n\r\n" + introduction;
-            details.Select(0, 0);
+            if (focus) FocusDetails();
+            else details.Select(0, 0);
         }
 
-        private void FocusStatus(string message)
+        private void OpenSite(string url)
         {
-            SetDetails(message);
-            details.Focus();
+            try { using (Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })) { } }
+            catch (Win32Exception ex) { Status(L.T("amd.error", ex.Message)); }
         }
 
-        private async Task Check()
+        private async Task Run(string initial, Func<CancellationToken, Task<string>> work)
         {
-            if (!search.Enabled) return;
-            checking = true;
-            offers.Items.Clear();
-            offers.AccessibleDescription = null;
-            UpdateActions();
-            FocusStatus(L.T("wud.checking"));
-            string message;
-            try
+            using (var cancellation = new CancellationTokenSource())
             {
-                var found = await Task.Run(() => WindowsDriverUpdates.Check(instanceId));
-                if (closing) return;
-                offers.Items.AddRange(found.ToArray());
-                message = found.Count == 0 ? L.T("wud.none") : L.T("wud.found", found.Count);
-            }
-            catch (Exception ex) { message = L.T("wud.failed", ex.Message); }
-            finally
-            {
-                checking = false;
-                if (!closing) UpdateActions();
-            }
-            if (closing) return;
-            FocusStatus(message);
-            if (offers.Items.Count == 0) SystemDialogs.Info(this, message, Text);
-            else
-            {
-                offers.AccessibleDescription = message;
-                offers.Focus();
-            }
-        }
-
-        private async Task Install()
-        {
-            var offer = offers.SelectedItem as DriverOffer;
-            if (!install.Enabled || offer == null) return;
-            string confirm = L.T(offer.LicenseAccepted ? "wud.confirm" : "wud.confirmLicense", offer.Title);
-            if (draftChanges) confirm += "\r\n\r\n" + L.T("wud.discardDraft");
-            if (!SystemDialogs.Confirm(this, confirm, Text)) return;
-            installing = true;
-            UpdateActions();
-            FocusStatus(L.T("wud.installing"));
-            string message;
-            try
-            {
-                int code = await Task.Run(() => WindowsDriverUpdates.RequestInstall(instanceId, offer));
-                RefreshDriver |= code == WindowsDriverUpdates.Installed || code == WindowsDriverUpdates.RestartRequired;
-                message = InstallStatus(code);
-                if (!closing) offers.Items.Clear();
-            }
-            catch (Win32Exception ex) { message = ex.NativeErrorCode == 1223 ? L.T("wud.cancelled") : L.T("wud.failed", ex.Message); }
-            catch (Exception ex) { message = L.T("wud.failed", ex.Message); }
-            finally
-            {
-                installing = false;
-                if (!closing) UpdateActions();
-            }
-            if (!closing)
-            {
-                FocusStatus(message);
+                currentWork = cancellation;
+                UpdateActions();
+                Status(initial);
+                string message;
+                try { message = await work(cancellation.Token); }
+                catch (OperationCanceledException) { message = L.T("amd.cancelled"); }
+                catch (Win32Exception ex) { message = ex.NativeErrorCode == 1223 ? L.T("amd.cancelled") : L.T("amd.error", ex.Message); }
+                catch (Exception ex) { message = L.T("amd.error", ex.Message); }
+                if (IsDisposed) return;
+                currentWork = null; installing = false;
+                if (closeAfterWork) { Close(); return; }
+                UpdateActions();
+                Status(message);
                 SystemDialogs.Info(this, message, Text);
             }
         }
 
-        private static string InstallStatus(int code)
+        private Task Check()
         {
-            switch (code)
+            Uri address;
+            if (!Uri.TryCreate(page.Text.Trim(), UriKind.Absolute, out address) || !AmdDriverPackage.IsProductPage(address))
             {
-                case WindowsDriverUpdates.Installed: return L.T("wud.installed");
-                case WindowsDriverUpdates.RestartRequired: return L.T("wud.restart");
-                case WindowsDriverUpdates.OfferChanged: return L.T("wud.changed");
-                case WindowsDriverUpdates.WindowsBusy: return L.T("wud.busy");
-                default: return L.T("wud.failed", "0x" + code.ToString("X8"));
+                Status(L.T("amd.pageError")); SystemDialogs.Info(this, L.T("amd.pageError"), Text); page.Focus();
+                return Task.FromResult(0);
             }
+            ClearPrepared(); offer = null;
+            return Run(L.T("amd.checking"), async token =>
+            {
+                offer = await AmdDriverPackage.Check(address, token);
+                string versions = offer.StoreVersions.Length == 0 ? L.T("common.unavailable") : string.Join(", ", offer.StoreVersions.Select(v => v.ToString()));
+                string message = L.T("amd.available", offer.Release, versions);
+                if (installedVersion != null && offer.StoreVersions.Length > 0 && offer.StoreVersions.All(v => v <= installedVersion))
+                    message += "\r\n" + L.T("amd.current");
+                return message;
+            });
+        }
+
+        private Task Prepare()
+        {
+            var found = offer;
+            if (found == null || !SystemDialogs.Confirm(this, L.T("amd.agree", found.Release, AmdDriverPackage.LicenseUrl), Text))
+                return Task.FromResult(0);
+            return Run(L.T("amd.downloading", 0), async token =>
+            {
+                AmdDriverPackage stage = new AmdDriverPackage();
+                try
+                {
+                    var progress = new Progress<long>(bytes =>
+                    {
+                        if (!token.IsCancellationRequested && currentWork != null && !IsDisposed) Status(L.T("amd.downloading", bytes), false);
+                    });
+                    await stage.Download(found, progress, token);
+                    if (!IsDisposed) Status(L.T("amd.verifying"));
+                    await Task.Run(() => stage.Prepare(instanceId, null, token));
+                    token.ThrowIfCancellationRequested();
+                    if (stage.Driver == null) return L.T("amd.incompatible");
+                    if (!stage.Driver.Newer) return L.T("amd.notNewer", stage.Driver.Version, stage.Driver.CurrentVersion);
+                    prepared = stage; stage = null;
+                    return L.T("amd.ready", prepared.Driver.CurrentVersion, prepared.Driver.Version);
+                }
+                finally { if (stage != null) stage.Dispose(); }
+            });
+        }
+
+        private Task Install()
+        {
+            var selected = prepared;
+            if (selected == null) return Task.FromResult(0);
+            string question = L.T("amd.confirm", selected.Driver.Version);
+            if (draftChanges) question += "\r\n\r\n" + L.T("amd.discardDraft");
+            if (!SystemDialogs.Confirm(this, question, Text)) return Task.FromResult(0);
+            installing = true;
+            return Run(L.T("amd.installing"), async token =>
+            {
+                int result;
+                try { result = await Task.Run(() => AmdDriverPackage.RequestInstall(instanceId, selected)); }
+                finally { ClearPrepared(); }
+                RefreshDriver = result == AmdDisplayInf.Installed || result == AmdDisplayInf.RestartRequired;
+                switch (result)
+                {
+                    case AmdDisplayInf.Installed: return L.T("amd.installedOk");
+                    case AmdDisplayInf.RestartRequired: return L.T("amd.restart");
+                    case AmdDisplayInf.Changed: return L.T("amd.changed");
+                    case AmdDisplayInf.NotBetter: return L.T("amd.current");
+                    default: return L.T("amd.error", "0x" + result.ToString("X8"));
+                }
+            });
+        }
+
+        private void ClearPrepared()
+        {
+            if (prepared == null) return;
+            prepared.Dispose(); prepared = null;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !installing) ClearPrepared();
+            base.Dispose(disposing);
         }
 
         protected override bool ProcessCmdKey(ref Message message, Keys keys)
         {
-            if (keys == Keys.F6) { details.Focus(); details.Select(0, 0); return true; }
+            if (keys == Keys.F6) { FocusDetails(); return true; }
             return base.ProcessCmdKey(ref message, keys);
         }
     }

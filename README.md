@@ -37,12 +37,12 @@ rollback to the previous driver. On laptops, also check the manufacturer's
 driver. [Official AMD installation instructions](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
 To update a driver, select your GPU and open **Settings → Updates → AMD driver
-updates**. Check Windows Update, select an offered driver, review the license
-if required, and choose **Install driver**. Windows asks for administrator
-permission and handles the download and installation from the system catalog.
-Radeoner shows the result and tells you if a restart is needed. The driver
-offered by Windows can differ from the latest AMD download. Application
-updates have separate controls.
+updates**. Check the AMD product page, read AMD’s license, and choose
+**Download and check package**. Radeoner verifies AMD’s signature and asks
+Windows which display INF matches the selected GPU. If the matched driver is
+newer, choose **Install AMD graphics driver**. Windows asks for administrator
+permission and uses the verified display files. AMD’s setup program is never
+started. Radeoner reports whether a restart is required.
 [AMD downloads](https://www.amd.com/en/support/download/drivers.html) ·
 [Driver architecture, update options and legacy support](docs/AMD_DRIVERS.md)
 
@@ -93,7 +93,7 @@ The **Settings** tab offers checks at startup, an interval of **5–10080 minute
 initially enabled and can be switched off. Checking never installs an update
 automatically. A new version opens a native Windows dialog containing release
 notes. **Yes** downloads and installs; **No** postpones the update.
-**All changes** opens the full text for reading and copying.
+The full release notes appear in a focused, scrollable, read-only field.
 
 Updates come from this repository's latest stable [GitHub release](https://github.com/proszczok2002/Radeoner/releases).
 Radeoner verifies the ZIP and each file using SHA-256, exits, replaces the

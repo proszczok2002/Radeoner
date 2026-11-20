@@ -180,6 +180,48 @@ internal static partial class Tests
         }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 2; }
     }
+    private static int LiveNvdaUpdateNotes(string output)
+    {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var speech = new NvdaSpeech(output);
+            foreach (string language in L.Languages)
+            {
+                L.Load(language);
+                using (var dialog = new DetailsDialog(L.T("update.availableTitle", "99.0"), L.T("update.noNotes"),
+                    SystemFonts.MessageBoxFont, "system", true))
+                {
+                    Exception failure = null;
+                    dialog.Shown += async (sender, args) =>
+                    {
+                        try
+                        {
+                            var body = Descendants(dialog).OfType<TextBox>().Single();
+                            Check(body.Focused, "Release notes did not get focus when the dialog was shown.");
+                            await speech.Focus(dialog, body, language + "/release notes");
+                            foreach (var button in Descendants(dialog).OfType<Button>())
+                                await speech.Focus(dialog, button, language + "/" + button.AccessibleName);
+                        }
+                        catch (Exception ex) { failure = ex; }
+                        finally { dialog.Close(); }
+                    };
+                    Application.Run(dialog);
+                    if (failure != null) throw failure;
+                }
+            }
+            File.AppendAllText(output, "\r\nPASS NVDA release notes dialog in six languages.\r\n");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(output, "\r\nNOT VERIFIED: " + ex.Message + "\r\n");
+            Console.Error.WriteLine(ex.Message);
+            return 2;
+        }
+    }
+
     private static int LiveNvdaAmd(string output)
     {
         Application.EnableVisualStyles();
@@ -198,15 +240,9 @@ internal static partial class Tests
                     {
                         try
                         {
-                            var details = Descendants(dialog).OfType<TextBox>().Single();
-                            var offers = Descendants(dialog).OfType<ComboBox>().Single();
-                            offers.Items.Add(TestDriverOffer(false));
-                            offers.Items.Add(TestDriverOffer());
-                            offers.SelectedIndex = 0;
-                            await speech.Focus(dialog, offers, language + "/driver list");
-                            var license = Descendants(dialog).OfType<Button>().Single(b => b.Enabled && b.AccessibleName == L.T("wud.license"));
-                            await speech.Focus(dialog, license, language + "/license");
-                            offers.SelectedIndex = 1;
+                            var details = Descendants(dialog).OfType<TextBox>().Single(t => t.Multiline);
+                            var page = Descendants(dialog).OfType<TextBox>().Single(t => !t.Multiline);
+                            await speech.Focus(dialog, page, language + "/AMD product page");
                             foreach (var button in Descendants(dialog).OfType<Button>().Where(b => b.Enabled))
                                 await speech.Focus(dialog, button, language + "/" + button.AccessibleName);
                             await speech.Focus(dialog, details, language + "/driver information");

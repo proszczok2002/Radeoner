@@ -31,7 +31,7 @@ Settings tab: optional checks at startup and every 5-10080 minutes (default 60).
 Check now also works when automatic checks are off. Download and install uses
 the latest stable GitHub release, verifies SHA-256 and restarts Radeoner.
 A new version opens a native Windows prompt containing release notes.
-Yes installs; No postpones. All changes opens the full, copyable text.
+The full release notes are focused in a scrollable read-only field. Use Download and install or Later.
 The old executable remains in a temporary backup until the new window has
 initialized successfully, then the backup and temporary helper are removed.
 If startup fails, the updater attempts to restore the previous files.
@@ -100,7 +100,7 @@ Radeoner JSON profiles currently store ADLX tuning, not RGB settings.
 
 AMD DRIVER UPDATES
 Open Settings → Updates → AMD driver updates for the selected GPU.
-Check Windows Update, choose an offered driver and read the license if needed.
-Choose Install driver and confirm. Windows asks for administrator permission.
-Radeoner reports the result and whether a restart is needed. Windows Update
-can offer a different version than the AMD website, or no driver at all.
+Check the AMD product page, read AMD’s license and download the full package.
+Radeoner validates the AMD signature and asks Windows to match a display INF.
+If the compatible driver is newer, confirm installation and the administrator
+prompt. Radeoner reports the result and whether a restart is required.

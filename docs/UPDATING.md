@@ -5,8 +5,9 @@
 W Ustawieniach można włączyć lub wyłączyć sprawdzanie, wybrać sprawdzanie
 przy starcie i odstęp 5–10080 minut. Ustawienia są pamiętane w
 `Radeoner.settings.json`. `Sprawdź teraz` działa także przy wyłączonym harmonogramie.
-Nowa wersja pokazuje systemowe okno z opisem zmian z treści wydania GitHub.
-Tak pobiera i instaluje, Nie odkłada; Wszystkie zmiany otwiera pełny tekst.
+Okno aktualizacji pokazuje pełny opis wydania GitHub w polu tylko do odczytu.
+Pole otrzymuje fokus od razu. Pobierz i zainstaluj rozpoczyna aktualizację.
+Później lub Escape zamyka okno.
 Odmowa nie jest ponawiana automatycznie dla tej samej wersji w bieżącej sesji.
 Sprawdź teraz lub Pobierz i zainstaluj pozwala wrócić do propozycji. Przed restartem
 wyeksportuj niezastosowane pola, jeżeli chcesz je zachować.
@@ -103,9 +104,10 @@ potwierdzeniem działania EXE. Dowiązania w ścieżce plików aplikacji nie są
 
 The Settings tab controls automatic checks, startup checks and a 5–10080 minute
 interval. Preferences persist next to the EXE. Check now works independently.
-Checking never installs automatically. A new version opens a native Windows
-prompt with GitHub release notes: Yes downloads and installs; No postpones.
-All changes opens the full readable/copyable text. An automatic offer appears
+Checking never installs automatically. The update dialog focuses the
+scrollable, read-only field with the complete GitHub release notes.
+Choose Download and install to update. Later or Escape closes the dialog.
+An automatic offer appears
 once per version per session; manual checks can reopen it.
 Export unapplied edits before restarting if you want to retain them.
 
