@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace Radeoner
 {
@@ -33,36 +34,96 @@ namespace Radeoner
     // driver is bundled. Only an explicitly requested loopback connection is used.
     internal sealed class OpenRgbClient : IDisposable
     {
+        private sealed class DeviceListChangedException : IOException
+        {
+            internal DeviceListChangedException() : base(L.T("rgb.devicesChanged")) { }
+        }
+
         private readonly TcpClient socket = new TcpClient();
         private NetworkStream stream;
-        private bool disposed;
-        internal OpenRgbClient(int port)
+        private int disposed;
+        internal OpenRgbClient(int port) : this(port, CancellationToken.None) { }
+
+        private OpenRgbClient(int port, CancellationToken cancellation)
         {
             if (port < 1 || port > 65535) throw new ArgumentOutOfRangeException("port");
             try
             {
-                var connect = socket.ConnectAsync(IPAddress.Loopback, port);
-                if (!connect.Wait(1500)) throw new IOException(L.T("rgb.noServer"));
-                connect.GetAwaiter().GetResult(); socket.NoDelay = true;
-                stream = socket.GetStream(); stream.ReadTimeout = stream.WriteTimeout = 2000;
-                byte[] version = Request(0, 40, BitConverter.GetBytes(3u));
-                if (version.Length != 4 || BitConverter.ToUInt32(version, 0) < 3) throw new IOException(L.T("rgb.oldProtocol"));
-                Send(0, 50, Encoding.UTF8.GetBytes("Radeoner v" + L.Version + "\0"));
+                using (cancellation.Register(Dispose))
+                {
+                    cancellation.ThrowIfCancellationRequested();
+                    var connect = socket.ConnectAsync(IPAddress.Loopback, port);
+                    if (!connect.Wait(1500)) throw new IOException(L.T("rgb.noServer"));
+                    socket.NoDelay = true;
+                    stream = socket.GetStream(); stream.ReadTimeout = stream.WriteTimeout = 3000;
+                    byte[] version = Request(0, 40, BitConverter.GetBytes(3u));
+                    if (version.Length != 4) throw new IOException(L.T("rgb.badPacket"));
+                    if (BitConverter.ToUInt32(version, 0) < 3) throw new IOException(L.T("rgb.oldProtocol"));
+                    Send(0, 50, Encoding.UTF8.GetBytes("Radeoner v" + L.Version + "\0"));
+                }
+                cancellation.ThrowIfCancellationRequested();
             }
-            catch (Exception ex) { Dispose(); if (ex.GetBaseException() is SocketException) throw new IOException(L.T("rgb.noServer"), ex); throw; }
+            catch (Exception ex)
+            {
+                Dispose();
+                cancellation.ThrowIfCancellationRequested();
+                if (ex.GetBaseException() is SocketException) throw new IOException(L.T("rgb.noServer"), ex);
+                throw;
+            }
+        }
+
+        internal static OpenRgbClient Discover(int port, CancellationToken cancellation, out List<RgbDevice> devices)
+        {
+            for (int attempt = 0; ; attempt++)
+            {
+                OpenRgbClient connection = null;
+                try
+                {
+                    connection = new OpenRgbClient(port, cancellation);
+                    using (cancellation.Register(connection.Dispose)) devices = connection.Devices();
+                    cancellation.ThrowIfCancellationRequested();
+                    return connection;
+                }
+                catch (Exception ex)
+                {
+                    if (connection != null) connection.Dispose();
+                    cancellation.ThrowIfCancellationRequested();
+                    if (!(ex is DeviceListChangedException) || attempt == 2) throw;
+                    // A fresh connection discards the outstanding reply and stale indices.
+                    if (cancellation.WaitHandle.WaitOne(250)) cancellation.ThrowIfCancellationRequested();
+                }
+            }
         }
         private static byte[] Bytes(Action<BinaryWriter> write)
         { using (var memory = new MemoryStream()) { using (var output = new BinaryWriter(memory, Encoding.UTF8, true)) write(output); return memory.ToArray(); } }
         private void Send(uint device, uint command, byte[] payload)
         {
-            if (disposed) throw new ObjectDisposedException("OpenRgbClient");
+            if (Volatile.Read(ref disposed) != 0) throw new IOException(L.T("rgb.disconnected"));
             byte[] packet = Bytes(w => { w.Write(new byte[] { 79, 82, 71, 66 }); w.Write(device); w.Write(command); w.Write((uint)payload.Length); w.Write(payload); });
-            stream.Write(packet, 0, packet.Length);
+            try { stream.Write(packet, 0, packet.Length); }
+            catch (IOException ex)
+            {
+                if (ex.InnerException is SocketException) throw new IOException(L.T("rgb.disconnected"), ex);
+                throw;
+            }
         }
         private byte[] Read(int count)
         {
             var bytes = new byte[count]; int offset = 0;
-            while (offset < count) { int read = stream.Read(bytes, offset, count - offset); if (read == 0) throw new IOException(L.T("rgb.disconnected")); offset += read; }
+            try
+            {
+                while (offset < count)
+                {
+                    int read = stream.Read(bytes, offset, count - offset);
+                    if (read == 0) throw new IOException(L.T("rgb.disconnected"));
+                    offset += read;
+                }
+            }
+            catch (IOException ex)
+            {
+                if (ex.InnerException is SocketException) throw new IOException(L.T("rgb.disconnected"), ex);
+                throw;
+            }
             return bytes;
         }
         private byte[] Request(uint device, uint command, byte[] payload)
@@ -71,7 +132,7 @@ namespace Radeoner
             byte[] header = Read(16);
             uint size = BitConverter.ToUInt32(header, 12), actual = BitConverter.ToUInt32(header, 8);
             if (header[0] != 79 || header[1] != 82 || header[2] != 71 || header[3] != 66 || size > 4 * 1024 * 1024) throw new IOException(L.T("rgb.badPacket"));
-            if (actual == 100) throw new IOException(L.T("rgb.devicesChanged"));
+            if (actual == 100 && size == 0) throw new DeviceListChangedException();
             if (actual != command || BitConverter.ToUInt32(header, 4) != device) throw new IOException(L.T("rgb.badPacket"));
             return Read((int)size);
         }
@@ -165,10 +226,17 @@ namespace Radeoner
             });
             Send(current.Index, 1101, Bytes(w => { w.Write((uint)(8 + modeData.Length)); w.Write(modeIndex); w.Write(modeData); }));
             if (mode.PerLed) Send(current.Index, 1050, Bytes(w => { w.Write((uint)(6 + current.Colors.Count * 4)); w.Write((ushort)current.Colors.Count); for (int i = 0; i < current.Colors.Count; i++) w.Write(color); }));
-            var result = Parse(current.Index, Request(current.Index, 1, BitConverter.GetBytes(3u)));
-            if (result.Identity != selected.Identity || result.ActiveMode != modeIndex) throw new IOException(L.T("rgb.notConfirmed"));
-            var reported = result.Modes[modeIndex];
-            if (mode.NativeBrightness && reported.Brightness != brightness || mode.PerLed && (result.Colors.Count != current.Colors.Count || result.Colors.Any(c => c != color)) || mode.ModeColor && (reported.Colors.Count != colors || reported.Colors.Any(c => c != color))) throw new IOException(L.T("rgb.notConfirmed"));
+            RgbDevice result = null;
+            // Some servers expose the new state after their controller thread has
+            // finished processing the write. Repeat the read, never the write.
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                if (attempt > 0) Thread.Sleep(150);
+                result = Parse(current.Index, Request(current.Index, 1, BitConverter.GetBytes(3u)));
+                if (result.Type != 2 || result.Identity != selected.Identity) throw new IOException(L.T("rgb.devicesChanged"));
+                if (Matches(result, modeIndex, mode, brightness, current.Colors.Count, colors, color)) break;
+                if (attempt == 2) throw new IOException(L.T("rgb.notConfirmed"));
+            }
             foreach (var cached in selected.Modes)
             {
                 var updated = result.Modes.FirstOrDefault(m => m.Name == cached.Name && m.Value == cached.Value);
@@ -176,6 +244,18 @@ namespace Radeoner
             }
             selected.Colors = result.Colors; selected.ActiveMode = result.ActiveMode;
         }
-        public void Dispose() { disposed = true; socket.Close(); }
+        private static bool Matches(RgbDevice result, int index, RgbMode mode, uint brightness, int ledCount, int colors, uint color)
+        {
+            if (result.ActiveMode != index) return false;
+            var reported = result.Modes[index];
+            if (reported.Name != mode.Name || reported.Value != mode.Value) return false;
+            if (mode.NativeBrightness && reported.Brightness != brightness) return false;
+            if (mode.PerLed && (result.Colors.Count != ledCount || result.Colors.Any(c => c != color))) return false;
+            return !mode.ModeColor || (reported.Colors.Count == colors && reported.Colors.All(c => c == color));
+        }
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) == 0) socket.Close();
+        }
     }
 }

@@ -19,6 +19,8 @@ internal static partial class Tests
         private TcpClient accepted;
         private volatile bool disposed;
         internal volatile bool ChangeIdentity, BadMagic;
+        internal volatile bool NoticeOnNextDescription, DelayReadback;
+        internal volatile int TopologyNotices, Connections;
         internal readonly bool NativeBrightness, ModeSpecific, IncludeOff;
         internal int Port, Updates, ActiveMode;
         internal uint Brightness = 110;
@@ -26,73 +28,114 @@ internal static partial class Tests
         internal uint ModeColor = 0xFFFFFF;
         internal Exception Failure;
         internal System.Threading.ManualResetEventSlim ListRequested, ListRelease;
-        internal RgbServer(bool nativeBrightness = false, bool modeSpecific = false, bool includeOff = true)
+        internal RgbServer(bool nativeBrightness = false, bool modeSpecific = false, bool includeOff = true, int topologyNotices = 0)
         {
+            TopologyNotices = topologyNotices;
             NativeBrightness = nativeBrightness; ModeSpecific = modeSpecific; IncludeOff = includeOff; listener.Start(); Port = ((IPEndPoint)listener.LocalEndpoint).Port;
             task = Task.Run(() =>
             {
                 try
                 {
-                    accepted = listener.AcceptTcpClient();
-                    using (var stream = accepted.GetStream())
-                    using (var r = new BinaryReader(stream))
-                    using (var w = new BinaryWriter(stream))
+                    while (!disposed)
                     {
-                        while (!disposed)
+                        accepted = listener.AcceptTcpClient(); Connections++;
+                        byte[] staleDescription = null;
+                        using (var stream = accepted.GetStream())
+                        using (var r = new BinaryReader(stream, Encoding.UTF8, true))
+                        using (var w = new BinaryWriter(stream, Encoding.UTF8, true))
                         {
-                            Check(r.ReadUInt32() == 0x4247524F, "Invalid OpenRGB request magic");
-                            uint device = r.ReadUInt32(), command = r.ReadUInt32(); int length = checked((int)r.ReadUInt32());
-                            Check(length < 100000, "Unbounded RGB request"); byte[] data = r.ReadBytes(length); Check(data.Length == length, "Truncated RGB request"); byte[] response = null;
-                            if (command == 40) { Check(BitConverter.ToUInt32(data, 0) == 3, "Protocol 3 was not negotiated"); response = BitConverter.GetBytes(6u); }
-                            else if (command == 50) Check(Encoding.UTF8.GetString(data).StartsWith("Radeoner v"), "RGB client version absent");
-                            else if (command == 0)
+                            while (!disposed)
                             {
-                                if (ListRequested != null) { ListRequested.Set(); Check(ListRelease.Wait(3000), "RGB list gate timed out"); }
-                                response = BitConverter.GetBytes(2u);
-                            }
-                            else if (command == 1)
-                            {
-                                Check(data.SequenceEqual(BitConverter.GetBytes(3u)), "Controller requested at wrong protocol");
-                                response = device == 0 ? new byte[] { 8, 0, 0, 0, 0, 0, 0, 0 } : Description();
-                            }
-                            else
-                            {
-                                Check(device == 1, "RGB write targeted a non-GPU"); Updates++;
-                                using (var payload = new BinaryReader(new MemoryStream(data)))
+                                uint magic;
+                                try { magic = r.ReadUInt32(); }
+                                catch (EndOfStreamException) { break; }
+                                catch (IOException ex)
                                 {
-                                    Check(payload.ReadUInt32() == data.Length, "RGB payload size excludes its own size field");
-                                    if (command == 1101)
+                                    if (ex.InnerException is SocketException) break;
+                                    throw;
+                                }
+                                Check(magic == 0x4247524F, "Invalid OpenRGB request magic");
+                                uint device = r.ReadUInt32(), command = r.ReadUInt32(); int length = checked((int)r.ReadUInt32());
+                                Check(length < 100000, "Unbounded RGB request"); byte[] data = r.ReadBytes(length); Check(data.Length == length, "Truncated RGB request"); byte[] response = null;
+                                if (command == 40) { Check(BitConverter.ToUInt32(data, 0) == 3, "Protocol 3 was not negotiated"); response = BitConverter.GetBytes(6u); }
+                                else if (command == 50) Check(Encoding.UTF8.GetString(data).StartsWith("Radeoner v"), "RGB client version absent");
+                                else if (command == 0)
+                                {
+                                    if (ListRequested != null) { ListRequested.Set(); Check(ListRelease.Wait(3000), "RGB list gate timed out"); }
+                                    if (TopologyNotices > 0)
                                     {
-                                        ActiveMode = payload.ReadInt32(); Check(ActiveMode == 0 || ActiveMode == 1, "Invalid lighting mode");
-                                        Check(ReadString(payload) == (ActiveMode == 0 ? "Direct" : "Off"), "Mode name changed");
-                                        Check(payload.ReadUInt32() == (ActiveMode == 0 ? 0xFFFFu : 0), "Mode value changed");
-                                        uint flags = payload.ReadUInt32(); Check(flags == (ActiveMode == 0 ? (ModeSpecific ? 64u : 32u) | (NativeBrightness ? 16u : 0) : 0), "Mode flags changed");
-                                        Check(payload.ReadUInt32() == 0 && payload.ReadUInt32() == 0, "Speed range changed");
-                                        uint min = payload.ReadUInt32(), max = payload.ReadUInt32();
-                                        Check(min == (ActiveMode == 0 && NativeBrightness ? 10u : 0) && max == (ActiveMode == 0 && NativeBrightness ? 110u : 0), "Brightness range changed");
-                                        uint colorCount = ActiveMode == 0 && ModeSpecific ? 1u : 0;
-                                        Check(payload.ReadUInt32() == colorCount && payload.ReadUInt32() == colorCount && payload.ReadUInt32() == 0, "Colors/speed metadata changed");
-                                        Brightness = payload.ReadUInt32(); Check(payload.ReadUInt32() == 0, "Direction changed");
-                                        Check(payload.ReadUInt32() == (ActiveMode == 0 ? ModeSpecific ? 2u : 1u : 0), "Invalid color mode"); Check(payload.ReadUInt16() == colorCount, "Unexpected mode colors"); if (colorCount == 1) ModeColor = payload.ReadUInt32();
+                                        TopologyNotices--;
+                                        WriteFrame(w, 0, 100, new byte[0]);
+                                        continue;
                                     }
-                                    else if (command == 1050)
+                                    response = BitConverter.GetBytes(2u);
+                                }
+                                else if (command == 1)
+                                {
+                                    Check(data.SequenceEqual(BitConverter.GetBytes(3u)), "Controller requested at wrong protocol");
+                                    if (NoticeOnNextDescription) { NoticeOnNextDescription = false; WriteFrame(w, 0, 100, new byte[0]); continue; }
+                                    response = device == 0 ? new byte[] { 8, 0, 0, 0, 0, 0, 0, 0 } : staleDescription ?? Description();
+                                    if (device == 1) staleDescription = null;
+                                }
+                                else
+                                {
+                                    Check(device == 1, "RGB write targeted a non-GPU"); Updates++;
+                                    if (DelayReadback) { staleDescription = Description(); DelayReadback = false; }
+                                    using (var payload = new BinaryReader(new MemoryStream(data)))
                                     {
-                                        Check(payload.ReadUInt16() == 2, "LED count changed"); Colors[0] = payload.ReadUInt32(); Colors[1] = payload.ReadUInt32();
+                                        Check(payload.ReadUInt32() == data.Length, "RGB payload size excludes its own size field");
+                                        if (command == 1101)
+                                        {
+                                            ActiveMode = payload.ReadInt32(); Check(ActiveMode == 0 || ActiveMode == 1, "Invalid lighting mode");
+                                            Check(ReadString(payload) == (ActiveMode == 0 ? "Direct" : "Off"), "Mode name changed");
+                                            Check(payload.ReadUInt32() == (ActiveMode == 0 ? 0xFFFFu : 0), "Mode value changed");
+                                            uint flags = payload.ReadUInt32(); Check(flags == (ActiveMode == 0 ? (ModeSpecific ? 64u : 32u) | (NativeBrightness ? 16u : 0) : 0), "Mode flags changed");
+                                            Check(payload.ReadUInt32() == 0 && payload.ReadUInt32() == 0, "Speed range changed");
+                                            uint min = payload.ReadUInt32(), max = payload.ReadUInt32();
+                                            Check(min == (ActiveMode == 0 && NativeBrightness ? 10u : 0) && max == (ActiveMode == 0 && NativeBrightness ? 110u : 0), "Brightness range changed");
+                                            uint colorCount = ActiveMode == 0 && ModeSpecific ? 1u : 0;
+                                            Check(payload.ReadUInt32() == colorCount && payload.ReadUInt32() == colorCount && payload.ReadUInt32() == 0, "Colors/speed metadata changed");
+                                            Brightness = payload.ReadUInt32(); Check(payload.ReadUInt32() == 0, "Direction changed");
+                                            Check(payload.ReadUInt32() == (ActiveMode == 0 ? ModeSpecific ? 2u : 1u : 0), "Invalid color mode"); Check(payload.ReadUInt16() == colorCount, "Unexpected mode colors"); if (colorCount == 1) ModeColor = payload.ReadUInt32();
+                                        }
+                                        else if (command == 1050)
+                                        {
+                                            Check(payload.ReadUInt16() == 2, "LED count changed"); Colors[0] = payload.ReadUInt32(); Colors[1] = payload.ReadUInt32();
+                                        }
+                                        else throw new Exception("Unexpected RGB command " + command);
+                                        Check(payload.BaseStream.Position == data.Length, "Trailing RGB request bytes");
                                     }
-                                    else throw new Exception("Unexpected RGB command " + command);
-                                    Check(payload.BaseStream.Position == data.Length, "Trailing RGB request bytes");
+                                }
+                                if (response != null)
+                                {
+                                    // Send header and payload separately to exercise TCP framing.
+                                    WriteFrame(w, device, command, response);
                                 }
                             }
-                            if (response != null)
-                            {
-                                // Send header and payload separately to exercise TCP framing.
-                                w.Write(BadMagic ? 0x00000000u : 0x4247524Fu); w.Write(device); w.Write(command); w.Write((uint)response.Length); w.Flush(); w.Write(response); w.Flush();
-                            }
                         }
+                        accepted.Close();
                     }
+                }
+                catch (IOException ex)
+                {
+                    // The close-during-discovery test can disconnect before the gated reply.
+                    if (!disposed && (ListRequested == null || !(ex.InnerException is SocketException))) Failure = ex;
                 }
                 catch (Exception ex) { if (!disposed) Failure = ex; }
             });
+        }
+        private void WriteFrame(BinaryWriter writer, uint device, uint command, byte[] payload)
+        {
+            writer.Write(BadMagic ? 0u : 0x4247524Fu);
+            writer.Write(device);
+            writer.Write(command);
+            writer.Write((uint)payload.Length);
+            writer.Flush();
+            if (payload.Length != 0)
+            {
+                writer.Write(payload);
+                writer.Flush();
+            }
         }
         private static void String(BinaryWriter w, string value) { byte[] text = Encoding.UTF8.GetBytes(value + "\0"); w.Write((ushort)text.Length); w.Write(text); }
         private static string ReadString(BinaryReader r) { return Encoding.UTF8.GetString(r.ReadBytes(r.ReadUInt16())).TrimEnd('\0'); }
@@ -120,6 +163,42 @@ internal static partial class Tests
     }
     private static void RunRgbTests()
     {
+        Test("OpenRGB read-only discovery recovers from rescans with fresh connections and a retry limit", () =>
+        {
+            System.Collections.Generic.List<RgbDevice> devices;
+            using (var server = new RgbServer(topologyNotices: 1))
+            using (var client = OpenRgbClient.Discover(server.Port, System.Threading.CancellationToken.None, out devices))
+            {
+                Check(devices.Count == 1 && server.Connections == 2 && server.Updates == 0, "Discovery did not recover safely");
+                server.NoticeOnNextDescription = true;
+                bool rejected = false;
+                try { client.Apply(devices[0], 0, 100, 0, 0, 100, false); }
+                catch (IOException ex) { rejected = ex.Message == L.T("rgb.devicesChanged"); }
+                Check(rejected && server.Connections == 2 && server.Updates == 0, "An apply after a rescan was retried or sent to a stale index");
+                server.CheckHealthy();
+            }
+            using (var server = new RgbServer(topologyNotices: 5))
+            {
+                string error = null;
+                try { using (OpenRgbClient.Discover(server.Port, System.Threading.CancellationToken.None, out devices)) { } }
+                catch (IOException ex) { error = ex.Message; }
+                server.CheckHealthy();
+                Check(error == L.T("rgb.devicesChanged") && server.Connections == 3 && server.Updates == 0,
+                    "Discovery retries were not bounded: connections=" + server.Connections + ", writes=" + server.Updates + ", error=" + error);
+            }
+        });
+        Test("OpenRGB delayed confirmation repeats the read without sending the lighting command again", () =>
+        {
+            using (var server = new RgbServer())
+            using (var client = new OpenRgbClient(server.Port))
+            {
+                var device = client.Devices().Single();
+                server.DelayReadback = true;
+                client.Apply(device, 0, 123, 45, 67, 100, false);
+                Check(server.Updates == 2 && device.Colors.All(c => c == 0x432D7B), "Lighting was replayed or stale data was accepted");
+                server.CheckHealthy();
+            }
+        });
         Test("OpenRGB loopback protocol 3 discovers only GPUs and applies color, software dimming and Off", () =>
         {
             foreach (bool offMode in new[] { true, false })
