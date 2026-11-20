@@ -13,6 +13,10 @@ folderu `niepotrzebne/`. Nie usuwaj ich domyślnie.
   pliki generowane i opcjonalne materiały SDK archiwizuj po zakończeniu pracy.
 - Służy do tego `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Cleanup.ps1`.
   Skrypt zapisuje indeks przeniesionych ścieżek i nie modyfikuje źródeł.
+- Każde wydanie zakończ uruchomieniem `tools/Cleanup.ps1` po ostatnim buildzie
+  i testach. Przenieś stare EXE i kopie paczek do `niepotrzebne/`, zachowaj
+  aktualny portable z danymi użytkownika i zapisz indeks w `STAN_PRAC.md`.
+  Archiwum pozostaw do samodzielnego sprzątania przez użytkownika.
 - Po buildzie/testach ponownie uporządkuj pliki robocze. Unikaj tworzenia
   kolejnych pełnych klonów bez potrzeby; używaj istniejących źródeł i folderów wynikowych.
 - Przed przenoszeniem katalogów sprawdzaj ich pełne ścieżki. Nie przenoś
@@ -28,3 +32,5 @@ test output and separately obtained SDK material into `niepotrzebne/` using
 `tools/Cleanup.ps1`. Keep only the current release ZIP/manifest/checksums active.
 Preserve user preferences/profiles. Archive instead of deleting by default;
 verify absolute paths and retain the move index for recovery.
+Finish each release with `tools/Cleanup.ps1` after the final build and tests.
+Record the archive index in `STAN_PRAC.md`. Leave archive pruning to the user.

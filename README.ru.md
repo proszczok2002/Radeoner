@@ -3,7 +3,7 @@
 Лёгкая переносимая панель AMD GPU для Windows со стандартными элементами
 Windows Forms, управлением с клавиатуры и поддержкой NVDA.
 
-[Polski](README.md) · [English](README.en.md) · [Deutsch](README.de.md) ·
+[Polski](README.pl.md) · [English](README.md) · [Deutsch](README.de.md) ·
 **Русский** · [Español](README.es.md) · [Français](README.fr.md)
 
 ## Загрузка и запуск
@@ -16,6 +16,9 @@ Windows Forms, управлением с клавиатуры и поддерж�
 Режима Driver Only достаточно, если драйвер содержит ADLX. Панель Adrenalin
 не нужна. Библиотека драйвера загружается только из System32; Radeoner
 не устанавливает собственный драйвер ядра для управления GPU.
+
+Для Radeoner рекомендуется **Driver Only** в дополнительных параметрах установщика AMD. Если панель Adrenalin остаётся, настраивайте GPU только одной программой. Для обычного обновления оставьте Factory Reset выключенным. При чистой переустановке этот режим удаляет старые пакеты AMD и лишает возможности отката. Для ноутбука также проверьте драйвер производителя.
+[Драйверы AMD и старые GPU](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
 ## Возможности и версия 1.06
 

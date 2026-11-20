@@ -3,7 +3,7 @@
 Ein leichtes, portables AMD-GPU-Panel für Windows mit nativen Windows-Forms-
 Steuerelementen, Tastaturbedienung und Unterstützung für NVDA.
 
-[Polski](README.md) · [English](README.en.md) · **Deutsch** ·
+[Polski](README.pl.md) · [English](README.md) · **Deutsch** ·
 [Русский](README.ru.md) · [Español](README.es.md) · [Français](README.fr.md)
 
 ## Herunterladen und starten
@@ -16,6 +16,9 @@ Benötigt werden Windows 10/11 x64, Microsoft .NET Framework 4.8 und ein AMD-
 Treiber mit ADLX. Eine Driver-Only-Installation genügt, wenn sie ADLX enthält.
 Das Adrenalin-Bedienfeld wird nicht benötigt. Die Treiberbibliothek wird nur
 aus System32 geladen. Radeoner installiert keinen eigenen GPU-Kerneltreiber.
+
+Für Radeoner empfehlen wir **Driver Only** unter den zusätzlichen Optionen des AMD-Installers. Wer das Adrenalin-Bedienfeld behält, sollte die GPU nur mit einer Anwendung einstellen. Ein normaler Treiberwechsel benötigt keinen Factory Reset. Bei einer sauberen Neuinstallation entfernt Factory Reset alte AMD-Pakete und verhindert die Rückkehr zum vorherigen Treiber. Bei Notebooks auch den Hersteller-Treiber prüfen.
+[AMD-Treiber und ältere GPUs](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
 ## Funktionen und Version 1.06
 

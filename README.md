@@ -1,141 +1,147 @@
 # Radeoner
 
-**1.06:** funkcje i zakładki dopasowane do możliwości GPU, tray bez wentylatorów
-integry oraz sześć języków z instrukcjami offline w F1.
+**1.06:** capability-based GPU controls and tabs, integrated-GPU tray without fan
+announcements, and six languages with offline F1 guides.
 
-**Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
+**A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 
-[English documentation](README.en.md) · [Pobierz / Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Zgłoś problem / Issues](https://github.com/proszczok2002/Radeoner/issues) · [Współpraca / Contributing](CONTRIBUTING.md)
+[Polski](README.pl.md) · [Download](https://github.com/proszczok2002/Radeoner/releases/latest) · [Report an issue](https://github.com/proszczok2002/Radeoner/issues) · [Contribute](CONTRIBUTING.md)
 
 [Deutsch](README.de.md) · [Русский](README.ru.md) · [Español](README.es.md) · [Français](README.fr.md)
 
-Radeoner komunikuje się ze sterownikiem AMD przez publiczne API ADLX. Pozwala
-korzystać z odczytów i regulacji udostępnianych przez kartę bez instalowania
-panelu Adrenalin. Interfejs to Microsoft Windows Forms i .NET Framework 4.8:
-standardowe kontrolki, obsługa klawiatury, jawne nazwy dla czytników ekranu
-i tekstowe wyniki. Bez przeglądarki, usługi działającej w tle i dodatkowego
-sterownika Radeonera.
+Radeoner communicates with the installed AMD driver through the public ADLX API.
+Use the monitoring and tuning capabilities your GPU exposes without installing
+the Adrenalin control panel. Its Microsoft Windows Forms/.NET Framework 4.8 UI
+uses standard controls, keyboard navigation, explicit screen-reader names and
+text results. No browser runtime, Radeoner service or extra kernel driver.
 
-Kod aplikacji jest publiczny na licencji **MIT**. Możesz zgłaszać błędy,
-proponować funkcje, ulepszać tłumaczenia i przesyłać pull requesty.
+The application source is public under the **MIT license**. Bug reports,
+translations, accessibility improvements and pull requests are welcome.
 
-## Pobranie i uruchomienie
+## Download and run
 
-1. Pobierz `Radeoner-<wersja>-portable.zip` ze strony [wydań](https://github.com/proszczok2002/Radeoner/releases).
-2. Rozpakuj cały ZIP do folderu z prawem zapisu.
-3. Uruchom **Radeoner.exe**. Instalator i uprawnienia administratora nie są wymagane.
+1. Download `Radeoner-<version>-portable.zip` from [Releases](https://github.com/proszczok2002/Radeoner/releases).
+2. Extract the complete archive into a writable folder.
+3. Run **Radeoner.exe**. No installer or administrator privileges are required.
 
-Wymagania: **Windows 10/11 x64, .NET Framework 4.8** oraz sterownik AMD
-udostępniający ADLX. Tryb instalacji sterownika **Driver Only** jest obsługiwany,
-jeśli ten sterownik zawiera ADLX. Biblioteka jest wczytywana z System32;
-nie jest dołączana ani pobierana oddzielnie przez aplikację.
+Requirements: **Windows 10/11 x64, .NET Framework 4.8**, and an AMD driver that
+supplies ADLX. Radeoner loads the installed ADLX library from System32.
 
-## Co potrafi
+**Recommended setup for Radeoner: Driver Only.** Download the correct AMD
+package and choose **Additional Options → Driver Only** in the installer.
+The full Adrenalin control panel is optional. If you keep it, use a single
+app for GPU tuning and turn off automatic Adrenalin tuning before writing
+with Radeoner. Leave **Factory Reset** off for a routine update. For a clean
+reinstall, AMD's optional Factory Reset removes previous packages and disables
+rollback to the previous driver. On laptops, also check the manufacturer's
+driver. [Official AMD installation instructions](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-| Obszar | Funkcje |
+For driver updates, use AMD Auto-Detect for supported hardware or the product
+selector for legacy GPUs. The Radeoner updater updates the application.
+[AMD downloads](https://www.amd.com/en/support/download/drivers.html) ·
+[Driver architecture, update options and legacy support](docs/AMD_DRIVERS.md)
+
+## Features
+
+| Area | Capabilities |
 | --- | --- |
-| Karty | Wybór AMD GPU i rozpoznawanie integry/karty dedykowanej przez sterownik |
-| Odczyty | Natywna lista parametrów i wartości, domyślnie aktualizowana co sekundę, także w trayu |
-| Regulacja | Procentowy limit mocy, zegary GPU/VRAM, napięcie, stany starszych kart |
-| RGB | Kolor, jasność i wyłączenie przez opcjonalny lokalny serwer OpenRGB |
-| Chłodzenie | Krzywa wentylatora, Zero RPM, minimalne/docelowe RPM, jeśli dostępne |
-| Profile | Eksport/import JSON z kontrolą modelu GPU, podsystemu, jednostek i zakresów |
-| Tray | Alt+F4 chowa okno; ikona pokazuje nazwę GPU i rzeczywiste odczyty |
-| Ustawienia | Polski, English, Deutsch, Русский, Español, Français z LNG, motyw i tekst 100–200% |
-| Start systemu | Opcjonalny autostart do traya dla bieżącego użytkownika |
-| Aktualizacje | Ręczne i opcjonalne okresowe sprawdzanie, pobieranie i podmiana plików |
+| GPUs | Select an AMD GPU; integrated/discrete identification from the driver |
+| Monitoring | Native parameter/value list, live every second by default, including the tray |
+| Tuning | Percentage power limit, GPU/VRAM clocks, voltage and legacy performance states |
+| RGB | Color, brightness and off through an optional local OpenRGB SDK server |
+| Cooling | Fan curve, Zero RPM, minimum/target RPM when exposed |
+| Profiles | JSON export/import with GPU/subsystem, unit and range validation |
+| Tray | Alt+F4 hides the window; the icon shows the GPU and actual readings |
+| Settings | Polish, English, German, Russian, Spanish, French LNG sources, themes, text 100–200% |
+| Windows startup | Optional startup to the tray for the current user |
+| Updates | Manual and optional scheduled checks, download and executable replacement |
 
-Uruchomienie aplikacji nie stosuje profilu GPU. Import jedynie wypełnia pola;
-**Zastosuj** wyświetla listę zmian, zapisuje je i sprawdza odczytem sterownika.
-Po błędzie zapisu program próbuje odtworzyć poprzednie wartości. Eksport
-obejmuje także niezastosowane pola; aby wykonać kopię bieżącego stanu
-sterownika, najpierw odśwież odczyt klawiszem F5.
+Starting the app never applies a GPU profile. Import only fills the editor.
+**Apply** shows the changes, writes them and verifies driver readback. A failed
+write triggers an attempt to restore previous values. Export includes unapplied
+editor values; press F5 first when backing up the current driver settings.
 
-## Ograniczenia sprzętu i weryfikacji
+## Hardware support and validation limits
 
-**Nie każda karta, integra ani laptop udostępnia regulację.** Radeoner pyta
-sterownik o możliwości i ukrywa nieobsługiwane pola oraz puste zakładki regulacji.
-Obsługiwane funkcje integry pozostają dostępne. Szczegóły braków są w Raporcie.
-Nie odblokowuje BIOS-u ani
-kontrolera wentylatorów laptopa. Na lokalnie sprawdzonym Radeon 880M działały
-odczyty, lecz sterownik nie udostępniał ręcznej regulacji.
+**Not every GPU, integrated GPU or laptop exposes tuning.** Radeoner queries
+capabilities and hides unavailable fields and empty tuning/fan pages. Supported
+integrated-GPU features remain available; diagnostic reasons stay in Report.
+It does not unlock firmware or
+control a laptop's embedded fan controller. The tested Radeon 880M exposed
+sensors but no manual tuning through its installed driver.
 
-Limit mocy jest procentem względem fabrycznego limitu, **nie TDP w watach**
-ani wspólnym limitem CPU/iGPU. Na Navi4+ maksymalny zegar i napięcie mogą
-oznaczać przesunięcie względem wartości bazowej. Zmiany parametrów mogą wpływać
-na stabilność; aplikacja nie wykonuje testu stabilności.
+The power limit is a percentage relative to the factory setting, **not TDP in
+watts** or a shared CPU/iGPU power limit. On Navi4+, maximum clock and voltage
+may be offsets from base values. Tuning can affect stability; Radeoner does not
+run a stability test.
 
-Testy dostępności obejmują kontrolki WinForms/MSAA i przechwytywanie tekstu
-rzeczywistych wypowiedzi NVDA z Podglądu mowy. Nie jest to deklaracja odsłuchu
-audio ani weryfikacji każdej konfiguracji czytnika. Zapisy sprawdzono na
-symulowanych interfejsach ADLX; fizyczna regulacja na kartach z odblokowanymi
-funkcjami wymaga dalszych testów społeczności. Pełny zakres: [stan weryfikacji](docs/VALIDATION.md).
+Accessibility checks cover WinForms/MSAA and actual NVDA speech text captured
+from Speech Viewer. This does not claim an audio listening session or coverage
+of every screen-reader configuration. Writes have been tested against
+in-memory ADLX interfaces; physical tuning on supported GPUs needs further
+community testing. See [validation status](docs/VALIDATION.md).
 
-## Aktualizacje
+## Updates
 
-Zakładka **Ustawienia** udostępnia sprawdzanie przy starcie, odstęp **5–10080
-minut** (domyślnie 60), **Sprawdź teraz** oraz **Pobierz i zainstaluj**.
-Sprawdzanie jest początkowo włączone i można je wyłączyć. Samo sprawdzanie
-nie instaluje aktualizacji automatycznie. Nowa wersja otwiera systemowe okno
-z opisem zmian. **Tak** pobiera i instaluje; **Nie** odkłada aktualizację.
-Przycisk **Wszystkie zmiany** otwiera pełny tekst do odczytu i kopiowania.
+The **Settings** tab offers checks at startup, an interval of **5–10080 minutes**
+(default 60), **Check now**, and **Download and install**. Automatic checks are
+initially enabled and can be switched off. Checking never installs an update
+automatically. A new version opens a native Windows dialog containing release
+notes. **Yes** downloads and installs; **No** postpones the update.
+**All changes** opens the full text for reading and copying.
 
-Źródłem są najnowsze stabilne [wydania tego repozytorium](https://github.com/proszczok2002/Radeoner/releases).
-Program sprawdza SHA-256 ZIP-u i wszystkich plików, zamyka się, podmienia
-pliki i uruchamia nową wersję. Poprzedni EXE pozostaje w kopii do potwierdzenia
-startu nowego okna. Następnie stary EXE i tymczasowy pomocnik są usuwane.
-Jeżeli kandydat nie wystartuje, updater próbuje przywrócić poprzednie pliki.
-Profile i `Radeoner.settings.json` są zachowywane. Sterowniki i ustawienia
-GPU nie są aktualizowane ani stosowane.
+Updates come from this repository's latest stable [GitHub release](https://github.com/proszczok2002/Radeoner/releases).
+Radeoner verifies the ZIP and each file using SHA-256, exits, replaces the
+files and starts the new version. The old EXE stays in a backup until the new
+window confirms successful initialization. It then removes the previous EXE
+and temporary helper. If the candidate fails to start, the updater attempts
+to restore the previous files. User profiles and `Radeoner.settings.json` are
+preserved. Driver packages and GPU tuning settings are not updated or applied.
 
-Szczegóły formatu, odzyskiwania i testowania: [aktualizacje / updates](docs/UPDATING.md).
-Pełna aktualizacja **1.0 → 1.01 z publicznego GitHuba została sprawdzona**:
-[wynik testu i sumy plików](docs/UPDATE_TEST.md).
-Także **1.01 → 1.02** przeszło pełny test publicznego kanału:
-[wynik testu 1.02](docs/UPDATE_TEST_1.02.md).
-Także **1.02 → 1.03** przeszło pełny test aktualizacji z GitHuba:
-[wynik testu 1.03](docs/UPDATE_TEST_1.03.md).
-Także **1.03 → 1.04** przeszło pełny test publicznego kanału:
-[wynik testu 1.04 / update test](docs/UPDATE_TEST_1.04.md).
-Także **1.04 → 1.05** przeszło pełny test aktualizacji z GitHuba:
-[wynik testu 1.05 / update test](docs/UPDATE_TEST_1.05.md).
-Najnowsze **1.05 → 1.06** przeszło lokalny i publiczny test GitHub latest,
-z zachowaniem profili i preferencji: [wynik 1.06](docs/UPDATE_TEST_1.06.md).
-[Audyt NVDA 1.06](docs/AUDIT_1.06.md): 900 punktów UI, 180 dialogów i 72 traya.
+See [update format, recovery and tests](docs/UPDATING.md) for details.
+The complete **1.0 → 1.01 update from public GitHub has been verified**:
+[test result and file checksums](docs/UPDATE_TEST.md).
+The **1.01 → 1.02** public-feed integration test also passed:
+[1.02 test result](docs/UPDATE_TEST_1.02.md).
+The **1.02 → 1.03** public GitHub update also passed:
+[1.03 test result](docs/UPDATE_TEST_1.03.md).
+The **1.03 → 1.04** and **1.04 → 1.05** public updates also passed:
+[1.04](docs/UPDATE_TEST_1.04.md), [1.05](docs/UPDATE_TEST_1.05.md).
+The latest **1.05 → 1.06** passed local and anonymous GitHub-latest E2E,
+preserving profiles/preferences: [1.06 result](docs/UPDATE_TEST_1.06.md).
+[NVDA 1.06 audit](docs/AUDIT_1.06.md): 900 UI, 180 dialog and 72 tray checkpoints.
 
-## Klawiatura, tray i pliki
+## Keyboard, tray and preferences
 
-| Skrót | Działanie |
+| Shortcut | Action |
 | --- | --- |
-| Tab / Shift+Tab | Pola i przyciski |
-| Strzałki góra/dół | Wiersze listy odczytów |
-| Ctrl+Tab / Ctrl+Shift+Tab | Dostępne zakładki, z pominięciem nieobsługiwanych |
-| Ctrl+1 … Ctrl+5 | Odczyty, Regulacja, Wentylator, Raport, Ustawienia |
-| F5 | Odczyt ustawień i czujników |
-| Ctrl+Enter | Zastosowanie zmian |
-| Ctrl+E / Ctrl+I | Eksport / import profilu |
-| Ctrl+Shift+S | Zapis raportu |
-| F6 / F1 | Tekst ostatniego komunikatu / pomoc |
-| Alt+F4 | Ukrycie do traya |
+| Tab / Shift+Tab | Fields and buttons |
+| Up / Down | Sensor rows |
+| Ctrl+Tab / Ctrl+Shift+Tab | Tabs |
+| Ctrl+1 … Ctrl+5 | Readings, Tuning, Fan, Report, Settings |
+| F5 | Read settings and sensors |
+| Ctrl+Enter | Apply edits |
+| Ctrl+E / Ctrl+I | Export / import a profile |
+| Ctrl+Shift+S | Save a report |
+| F6 / F1 | Latest status text / help |
+| Alt+F4 | Hide to the tray |
 
-**Zakończ** w oknie lub menu traya kończy cały program. Ponowne uruchomienie
-EXE otwiera istniejące okno. Odświeżanie czujników co sekundę jest domyślnie włączone
-i działa także w trayu; może podtrzymywać aktywność GPU na baterii.
+**Exit** in the window or tray menu stops the app completely. Launching the
+EXE again shows the existing window. Sensor updates every second are enabled by default and continue in the tray and can keep a laptop GPU awake.
 
-Preferencje zapisują się obok EXE w `Radeoner.settings.json`. Sześć języków
-i instrukcji jest wbudowanych w EXE. Źródła tłumaczeń: `lang/*.lng` (UTF-8,
-`klucz=tekst`, `\n` oznacza nową linię). Własny `lang/<kod>.lng` zastępuje
-wbudowane teksty. Nowe języki nie wymagają dodatkowych plików w paczce portable,
-dzięki czemu aktualizacja ze starszych wersji zachowuje zgodność.
-Instrukcja F1 działa offline. Ctrl+1…5 zachowują stałe znaczenie; skrót do
-nieobsługiwanej zakładki wybiera Odczyty. Integra nie ma wzmianki o wentylatorze
-w trayu; dla pozostałych GPU obroty pojawiają się tylko z poprawnego odczytu,
-w tym 0 RPM. RGB nadal wymaga OpenRGB: [stan i dalsze prace](docs/NATIVE_RGB.md).
-Motyw Systemowy odczytuje jasny/ciemny wygląd aplikacji Windows.
-Wysoki kontrast Windows ma pierwszeństwo przed motywem. Po przeniesieniu
-folderu wyłącz i włącz autostart ponownie, aby zaktualizować ścieżkę.
+Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
+`lang/*.lng` sources (UTF-8, `key=value`, `\n` for a new line). All six languages
+and guides are embedded in the EXE. A local `lang/<code>.lng` overrides embedded
+text. New languages require no extra portable files, preserving compatibility
+with older updaters. F1 opens the full translated offline guide.
+Ctrl+Tab skips unavailable pages. Ctrl+1…5 keep their logical meaning; an
+unavailable page returns to Readings. Integrated GPUs never announce fans in
+the tray; other GPUs announce only valid RPM readings, including 0 RPM.
+RGB still requires OpenRGB: [native RGB status](docs/NATIVE_RGB.md).
+The System theme follows the Windows app light/dark setting. Windows high contrast overrides the chosen theme. After moving the folder,
+turn Windows startup off and on again to register the new executable location.
 
-## Kompilacja i współpraca
+## Build and contribute
 
 ```powershell
 git clone https://github.com/proszczok2002/Radeoner.git
@@ -144,63 +150,47 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1 -Test
 powershell -NoProfile -ExecutionPolicy Bypass -File .\package.ps1
 ```
 
-Gotowy EXE trafia do `portable/`, a ZIP, `update.json` i sumy SHA-256 do
-`artifacts/releases/<wersja>/`. Wykorzystywany jest kompilator dostarczany
-z .NET Framework; Visual Studio, `dotnet SDK`, NuGet i SDK AMD nie są potrzebne.
-Testy domyślne nie wymagają fizycznej karty AMD i nie zmieniają ustawień GPU.
+The EXE is written to `portable/`. The ZIP, `update.json` and checksums are
+written to `artifacts/releases/<version>/`. The build uses the compiler supplied
+with .NET Framework; Visual Studio, `dotnet SDK`, NuGet and the AMD SDK are not
+required. Default tests do not need an AMD GPU and never change GPU settings.
 
-[CONTRIBUTING.md](CONTRIBUTING.md) opisuje strukturę kodu, testy, tłumaczenia
-i zgłaszanie zmian. [CHANGELOG.md](CHANGELOG.md) zawiera historię wydań.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers source layout, tests, translations and
+pull requests. See [CHANGELOG.md](CHANGELOG.md) for releases.
 
-## Licencja i powiązania
+## License and attribution
 
-Kod aplikacji: [MIT](LICENSE). SDK AMD i pliki sterownika nie są dołączane;
-szczegóły: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-Radeoner jest niezależnym projektem społecznościowym, nie produktem AMD ani Microsoft.
+Application source: [MIT](LICENSE). The AMD SDK and driver binaries are not
+redistributed; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Radeoner is an independent community project, not an AMD or Microsoft product.
 
----
+## Author, support and contact
 
-**English:** Radeoner is a lightweight, portable Windows AMD GPU panel designed
-for keyboard and NVDA accessibility. It offers driver-exposed monitoring and
-tuning, JSON profiles, tray readings, personalization and optional GitHub
-updates. GPU/firmware support varies. The source is MIT licensed and
-contributions are welcome. See the [full English README](README.en.md).
+**Settings** contains **About** and **Support and contact**.
+Support is optional; link buttons open your browser.
 
-## Autor, wsparcie i kontakt
-
-W **Ustawieniach** dostępne są **O programie** oraz **Wsparcie i kontakt**.
-Wsparcie jest dobrowolne; przyciski otwierają przeglądarkę.
-
-- [Strona autora](https://proszczok.pl/)
+- [Author website](https://proszczok.pl/)
 - [PayPal](https://paypal.me/proszczok)
 - [Revolut](https://revolut.me/r_rosiejka)
-- [Kontakt na Telegramie](https://t.me/proszczok)
+- [Contact on Telegram](https://t.me/proszczok)
 
-Zakres audytu i lista prób z czytnikiem: [dostępność](docs/ACCESSIBILITY.md).
+Audit scope and screen-reader checklist: [accessibility](docs/ACCESSIBILITY.md).
 
-## Odczyty na żywo i RGB w 1.03
+## Live readings and RGB in 1.03
 
-Odczyty i tray odświeżają się co sekundę. Lista zachowuje wybrany wiersz
-i pokazuje nowe wartości również z fokusem. Ctrl+A zaznacza wszystkie wiersze,
-Ctrl+C kopiuje zaznaczone. Tytuł i tray zawierają numer, np. **Radeoner v1.03**.
-Ctrl+Tab i Ctrl+Shift+Tab działają z pól, listy i przycisków, także poza zakładkami.
+Readings and tray update every second. The native list preserves selection
+and updates values while focused. Ctrl+A selects all rows; Ctrl+C copies them.
+Window title and tray include the version, such as **Radeoner v1.03**.
+Ctrl+Tab/Ctrl+Shift+Tab work from controls inside and outside tab pages.
 
-ADLX działa w osobnym procesie uruchamianym z tego samego EXE. Awaria lub
-przekroczenie czasu odpowiedzi pomocnika nie zamyka okna. Pojedynczy błąd
-nie wyłącza odświeżania; stare dane są oznaczane, odczyty są ponawiane.
-Log lokalny: `Radeoner.log`. Niczego nie wysyłamy automatycznie.
-Pomocnik kończy się z aplikacją; nie jest instalowaną usługą.
-[Szczegóły stabilności i ograniczenia testu RX 9060](docs/STABILITY.md).
+ADLX runs in an owned child process using the same EXE. A native helper crash
+or timeout leaves the UI open. A single failed read no longer disables polling:
+last values are marked stale and reads are retried. `Radeoner.log` stays local.
+The helper exits with the app; no service is installed.
+[Stability and RX 9060 verification limits](docs/STABILITY.md).
 
-**Regulacja → Podświetlenie karty (RGB)** otwiera standardowe okno z wyborem
-karty, trybu, gotowego koloru lub kanałów R/G/B 0–255 oraz jasności 0–100%.
-Wymaga uruchomionego **OpenRGB z włączonym lokalnym serwerem SDK** (domyślnie
-port 6742). Składnik jest opcjonalny: Radeoner nie instaluje OpenRGB i nie
-łączy się z nim bez użycia Połącz. Od **1.04** przycisk **Pobierz OpenRGB**
-pobiera oficjalny ZIP 1.1 dla Windows 64-bit w wybrane miejsce, z kontrolą
-SHA-256, postępem i anulowaniem. Rozpakuj go i włącz serwer SDK w OpenRGB.
-[Instrukcja i ograniczenia RGB / English instructions](docs/RGB.md).
-
-**1.04:** The RGB dialog can download the official OpenRGB 1.1 Windows 64-bit
-portable ZIP to a chosen location, with hash verification and cancellation.
-Extract it and start OpenRGB with its SDK server enabled before connecting.
+**Tuning → GPU lighting (RGB)** opens standard controls for device, mode,
+preset or R/G/B 0–255, and brightness 0–100%. This optional feature requires
+**OpenRGB with its local SDK server enabled** (default port 6742). Radeoner
+does not install OpenRGB or connect until Connect is selected.
+[RGB setup and limitations](docs/RGB.md).
