@@ -180,6 +180,113 @@ internal static partial class Tests
         }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 2; }
     }
+    private static int LiveNvdaAmd(string output)
+    {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var speech = new NvdaSpeech(output);
+            foreach (string language in L.Languages)
+            {
+                L.Load(language);
+                using (var dialog = new DriverUpdateDialog(new GpuInfo { Name = "Radeon test GPU", Id = TestInstanceId, Driver = "32.0.12345.67" },
+                    SystemFonts.MessageBoxFont, "system"))
+                {
+                    Exception failure = null;
+                    dialog.Shown += async (sender, args) =>
+                    {
+                        try
+                        {
+                            var details = Descendants(dialog).OfType<TextBox>().Single();
+                            var offers = Descendants(dialog).OfType<ComboBox>().Single();
+                            offers.Items.Add(TestDriverOffer(false));
+                            offers.Items.Add(TestDriverOffer());
+                            offers.SelectedIndex = 0;
+                            await speech.Focus(dialog, offers, language + "/driver list");
+                            var license = Descendants(dialog).OfType<Button>().Single(b => b.Enabled && b.AccessibleName == L.T("wud.license"));
+                            await speech.Focus(dialog, license, language + "/license");
+                            offers.SelectedIndex = 1;
+                            foreach (var button in Descendants(dialog).OfType<Button>().Where(b => b.Enabled))
+                                await speech.Focus(dialog, button, language + "/" + button.AccessibleName);
+                            await speech.Focus(dialog, details, language + "/driver information");
+                        }
+                        catch (Exception ex) { failure = ex; }
+                        finally { dialog.Close(); }
+                    };
+                    Application.Run(dialog);
+                    if (failure != null) throw failure;
+                }
+            }
+            File.AppendAllText(output, "\r\nPASS NVDA AMD driver updates dialog in six languages.\r\n");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(output, "\r\nNOT VERIFIED: " + ex.Message + "\r\n");
+            Console.Error.WriteLine(ex.Message);
+            return 2;
+        }
+    }
+
+    private static int LiveNvdaRgb(string output)
+    {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var speech = new NvdaSpeech(output);
+            foreach (string language in L.Languages)
+            {
+                L.Load(language);
+                using (var server = new RgbServer(topologyNotices: 1))
+                using (var dialog = new RgbDialog(SystemFonts.MessageBoxFont, "system"))
+                {
+                    Exception failure = null;
+                    dialog.Shown += async (sender, args) =>
+                    {
+                        try
+                        {
+                            var connect = Descendants(dialog).OfType<Button>().Single(b => b.AccessibleName == L.T("rgb.connect"));
+                            var port = Descendants(dialog).OfType<NumericUpDown>().Single(n => n.AccessibleName == L.T("rgb.port"));
+                            var status = Descendants(dialog).OfType<TextBox>().Single(t => t.AccessibleName == L.T("rgb.status"));
+                            var device = Descendants(dialog).OfType<ComboBox>().Single(c => c.AccessibleName == L.T("rgb.device"));
+                            var connectAsync = typeof(RgbDialog).GetMethod("Connect", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                            var unused = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+                            unused.Start();
+                            try { port.Value = ((System.Net.IPEndPoint)unused.LocalEndpoint).Port; }
+                            finally { unused.Stop(); }
+                            await speech.Focus(dialog, connect, language + "/connect");
+                            string before = await speech.SnapshotAsync();
+                            await (Task)connectAsync.Invoke(dialog, null);
+                            Check(status.Focused, "Connection error did not focus status");
+                            await speech.Native(dialog.Handle, before, language + "/unavailable", L.T("rgb.noServer"));
+                            port.Value = server.Port;
+                            connect.Focus();
+                            before = await speech.SnapshotAsync();
+                            await (Task)connectAsync.Invoke(dialog, null);
+                            Check(device.Focused && server.Connections == 2 && server.Updates == 0, "RGB discovery did not restore the GPU list");
+                            await speech.Native(dialog.Handle, before, language + "/recovered", L.T("rgb.device"));
+                            server.CheckHealthy();
+                        }
+                        catch (Exception ex) { failure = ex; }
+                        finally { dialog.Close(); }
+                    };
+                    Application.Run(dialog);
+                    if (failure != null) throw failure;
+                }
+            }
+            File.AppendAllText(output, "\r\nPASS NVDA RGB error and rescan recovery in six languages.\r\n");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(output, "\r\nNOT VERIFIED: " + ex.Message + "\r\n");
+            Console.Error.WriteLine(ex.Message);
+            return 2;
+        }
+    }
+
     private static int LiveNvda(string output)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));

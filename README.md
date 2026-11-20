@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.06:** capability-based GPU controls and tabs, integrated-GPU tray without fan
-announcements, and six languages with offline F1 guides.
+**1.07** adds AMD driver updates through Windows Update and improves OpenRGB
+device discovery after rescans. [Release notes](docs/releases/v1.07.md)
 
 **A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 
@@ -36,8 +36,13 @@ reinstall, AMD's optional Factory Reset removes previous packages and disables
 rollback to the previous driver. On laptops, also check the manufacturer's
 driver. [Official AMD installation instructions](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-For driver updates, use AMD Auto-Detect for supported hardware or the product
-selector for legacy GPUs. The Radeoner updater updates the application.
+To update a driver, select your GPU and open **Settings → Updates → AMD driver
+updates**. Check Windows Update, select an offered driver, review the license
+if required, and choose **Install driver**. Windows asks for administrator
+permission and handles the download and installation from the system catalog.
+Radeoner shows the result and tells you if a restart is needed. The driver
+offered by Windows can differ from the latest AMD download. Application
+updates have separate controls.
 [AMD downloads](https://www.amd.com/en/support/download/drivers.html) ·
 [Driver architecture, update options and legacy support](docs/AMD_DRIVERS.md)
 

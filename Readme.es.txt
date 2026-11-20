@@ -78,3 +78,10 @@ Autor: https://proszczok.pl/ — Telegram: https://t.me/proszczok
 PayPal: https://paypal.me/proszczok — Revolut: https://revolut.me/r_rosiejka
 Los enlaces están en Ajustes > Acerca de / Apoyo y contacto. Para informar
 de un problema, indique versiones de aplicación, Windows, NVDA, modelo GPU y pasos.
+
+ACTUALIZAR EL CONTROLADOR AMD
+Abre Ajustes → Actualizaciones → Actualizar controlador AMD para la GPU
+seleccionada. Busca en Windows Update, elige un controlador y lee la licencia
+si es necesario. Pulsa Instalar controlador, confirma y concede los permisos
+de administrador. Radeoner muestra el resultado e indica si debes reiniciar.
+La versión ofrecida puede ser distinta de la publicada en el sitio de AMD.

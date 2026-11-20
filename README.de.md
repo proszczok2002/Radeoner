@@ -1,5 +1,7 @@
 # Radeoner
 
+**1.07** aktualisiert AMD-Treiber über Windows Update und verbessert die Erkennung nach einem erneuten OpenRGB-Scan. [Änderungen](docs/releases/v1.07.md#deutsch)
+
 Ein leichtes, portables AMD-GPU-Panel für Windows mit nativen Windows-Forms-
 Steuerelementen, Tastaturbedienung und Unterstützung für NVDA.
 
@@ -19,6 +21,8 @@ aus System32 geladen. Radeoner installiert keinen eigenen GPU-Kerneltreiber.
 
 Für Radeoner empfehlen wir **Driver Only** unter den zusätzlichen Optionen des AMD-Installers. Wer das Adrenalin-Bedienfeld behält, sollte die GPU nur mit einer Anwendung einstellen. Ein normaler Treiberwechsel benötigt keinen Factory Reset. Bei einer sauberen Neuinstallation entfernt Factory Reset alte AMD-Pakete und verhindert die Rückkehr zum vorherigen Treiber. Bei Notebooks auch den Hersteller-Treiber prüfen.
 [AMD-Treiber und ältere GPUs](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
+
+Wählen Sie Ihre GPU und öffnen Sie **Einstellungen → Aktualisierungen → AMD-Treiber aktualisieren**. Suchen Sie in Windows Update, wählen Sie einen angebotenen Treiber, lesen Sie bei Bedarf die Lizenzbedingungen und wählen Sie **Treiber installieren**. Windows fordert Administratorrechte an und installiert das Paket aus dem Systemkatalog. Radeoner meldet das Ergebnis und einen erforderlichen Neustart. Der angebotene Treiber kann von der neuesten Version auf der AMD-Website abweichen.
 
 ## Funktionen und Version 1.06
 

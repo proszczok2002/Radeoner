@@ -14,6 +14,7 @@ namespace Radeoner
         private readonly Button connect = Button("rgb.connect"), apply = Button("rgb.apply"), off = Button("rgb.off"), close = Button("dialog.closeName");
         private readonly Button download = Button("rgb.download"), cancelDownload = Button("rgb.downloadCancel");
         private CancellationTokenSource downloadCancellation;
+        private CancellationTokenSource connectionCancellation;
         private readonly TextBox status = new TextBox { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
         private readonly Label dimming = new Label { AutoSize = true, MaximumSize = new Size(680, 0) };
         private OpenRgbClient client;
@@ -60,7 +61,13 @@ namespace Radeoner
             };
             preset.SelectedIndexChanged += (s, e) => { if (preset.SelectedIndex >= colors.Length || preset.SelectedIndex < 0) return; changing = true; var color = colors[preset.SelectedIndex]; red.Value = color[0]; green.Value = color[1]; blue.Value = color[2]; changing = false; };
             foreach (var channel in new[] { red, green, blue }) channel.ValueChanged += (s, e) => { if (!changing) preset.SelectedIndex = colors.Length; };
-            FormClosing += (s, e) => { closing = true; if (downloadCancellation != null) downloadCancellation.Cancel(); if (client != null) client.Dispose(); };
+            FormClosing += (s, e) =>
+            {
+                closing = true;
+                if (downloadCancellation != null) downloadCancellation.Cancel();
+                if (connectionCancellation != null) connectionCancellation.Cancel();
+                if (client != null) client.Dispose();
+            };
             Shown += (s, e) => { Accessibility.FitNativeCombos(this); FitLayout(layout); connect.Focus(); };
             viewport.ClientSizeChanged += (s, e) => FitLayout(layout);
             FitLayout(layout);
@@ -119,32 +126,67 @@ namespace Radeoner
         }
         private async Task Connect()
         {
-            if (busy) return; busy = true; UpdateActions(); status.Text = L.T("rgb.connecting");
-            OpenRgbClient next = null;
+            if (busy) return;
+            busy = true;
+            UpdateActions();
+            status.Text = L.T("rgb.connecting");
+            connectionCancellation = new CancellationTokenSource();
+            var cancellation = connectionCancellation.Token;
             try
             {
-                if (client != null) { client.Dispose(); client = null; } devices.Items.Clear(); modes.Items.Clear(); int selectedPort = (int)port.Value;
-                var found = await Task.Run(() => { next = new OpenRgbClient(selectedPort); client = next; if (closing) { next.Dispose(); throw new ObjectDisposedException("RgbDialog"); } return next.Devices(); });
-                if (closing || IsDisposed || Disposing) { next.Dispose(); return; } client = next; devices.Items.AddRange(found.ToArray());
+                if (client != null) { client.Dispose(); client = null; }
+                devices.Items.Clear();
+                modes.Items.Clear();
+                int selectedPort = (int)port.Value;
+                var result = await Task.Run(() =>
+                {
+                    System.Collections.Generic.List<RgbDevice> found;
+                    var connection = OpenRgbClient.Discover(selectedPort, cancellation, out found);
+                    return Tuple.Create(connection, found);
+                });
+                if (closing || IsDisposed || Disposing) { result.Item1.Dispose(); return; }
+                client = result.Item1;
+                var foundDevices = result.Item2;
+                devices.Items.AddRange(foundDevices.ToArray());
                 if (devices.Items.Count > 0) devices.SelectedIndex = 0;
-                status.Text = L.T(found.Count == 0 ? "rgb.noGpu" : modes.Items.Count == 0 ? "rgb.noColor" : "rgb.connected", found.Count);
-                if (found.Count > 0) devices.Focus(); else status.Focus();
+                status.Text = L.T(foundDevices.Count == 0 ? "rgb.noGpu" : modes.Items.Count == 0 ? "rgb.noColor" : "rgb.connected", foundDevices.Count);
             }
-            catch (Exception ex) { if (next != null) next.Dispose(); if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.failed", ex.Message); status.Focus(); } }
-            finally { busy = false; if (!closing && !IsDisposed && !Disposing) { UpdateActions(); if (devices.Items.Count > 0) devices.Focus(); } }
+            catch (Exception ex)
+            {
+                if (!closing && !IsDisposed && !Disposing)
+                {
+                    if (client != null) { client.Dispose(); client = null; }
+                    devices.Items.Clear();
+                    modes.Items.Clear();
+                    status.Text = L.T("rgb.failed", ex.Message);
+                }
+            }
+            finally
+            {
+                connectionCancellation.Dispose();
+                connectionCancellation = null;
+                busy = false;
+                if (!closing && !IsDisposed && !Disposing)
+                {
+                    UpdateActions();
+                    if (devices.Items.Count > 0) devices.Focus();
+                    else { status.Focus(); status.SelectAll(); }
+                }
+            }
         }
         private async Task Apply(bool turnOff)
         {
             var device = devices.SelectedItem as RgbDevice; var mode = modes.SelectedItem as RgbMode;
             if (busy || client == null || device == null || (!turnOff && mode == null)) return;
+            var connection = client;
             busy = true; UpdateActions(); status.Text = L.T("rgb.sending");
             int index = mode == null ? -1 : device.Modes.IndexOf(mode), r = (int)red.Value, g = (int)green.Value, b = (int)blue.Value, level = (int)brightness.Value;
             try
             {
-                await Task.Run(() => client.Apply(device, index, r, g, b, level, turnOff));
+                await Task.Run(() => connection.Apply(device, index, r, g, b, level, turnOff));
                 if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.sent"); status.Focus(); }
             }
-            catch (Exception ex) { if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.failed", ex.GetBaseException().Message); if (client != null) client.Dispose(); client = null; devices.Items.Clear(); modes.Items.Clear(); status.Focus(); } }
+            catch (Exception ex) { if (!closing && !IsDisposed && !Disposing) { status.Text = L.T("rgb.failed", ex.Message); if (client != null) client.Dispose(); client = null; devices.Items.Clear(); modes.Items.Clear(); status.Focus(); status.SelectAll(); } }
             finally { busy = false; if (!closing && !IsDisposed && !Disposing) UpdateActions(); }
         }
         private async Task Download()

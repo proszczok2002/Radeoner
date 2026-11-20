@@ -79,3 +79,11 @@ Autor: https://proszczok.pl/ — Telegram: https://t.me/proszczok
 PayPal: https://paypal.me/proszczok — Revolut: https://revolut.me/r_rosiejka
 Einstellungen > Über Radeoner / Unterstützung und Kontakt öffnet diese Seiten.
 Fehler mit Programm-/Windows-/NVDA-Version, GPU-Modell und Schritten melden.
+
+AMD-TREIBER AKTUALISIEREN
+Öffnen Sie für die gewählte GPU Einstellungen → Aktualisierungen →
+AMD-Treiber aktualisieren. Suchen Sie in Windows Update, wählen Sie einen
+Treiber und lesen Sie bei Bedarf die Lizenzbedingungen. Wählen Sie Treiber
+installieren, bestätigen Sie und erlauben Sie Administratorrechte. Radeoner
+meldet das Ergebnis und einen erforderlichen Neustart. Die angebotene
+Version kann von der auf der AMD-Website abweichen.

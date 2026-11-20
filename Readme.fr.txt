@@ -79,3 +79,10 @@ Auteur : https://proszczok.pl/ — Telegram : https://t.me/proszczok
 PayPal : https://paypal.me/proszczok — Revolut : https://revolut.me/r_rosiejka
 Liens dans Paramètres > À propos / Soutien et contact. Pour signaler un défaut,
 indiquez les versions du programme, Windows et NVDA, le modèle GPU et les étapes.
+
+METTRE À JOUR LE PILOTE AMD
+Ouvrez Paramètres → Mises à jour → Mettre à jour le pilote AMD pour le GPU
+sélectionné. Recherchez dans Windows Update, choisissez un pilote et consultez
+la licence si nécessaire. Sélectionnez Installer le pilote, confirmez, puis
+autorisez les droits d’administration. Radeoner indique le résultat et si
+un redémarrage est requis. La version peut différer de celle du site d’AMD.

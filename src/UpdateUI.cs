@@ -18,6 +18,7 @@ namespace Radeoner
         private readonly NumericUpDown updateMinutes = new NumericUpDown { Minimum = 5, Maximum = 10080, Width = 130 };
         private readonly Label updateIntervalLabel = new Label { AutoSize = true }, updateVersionLabel = new Label { AutoSize = true }, updateNote = new Label { AutoSize = true, MaximumSize = new Size(820, 0) };
         private readonly Button checkUpdate = Button(), installUpdate = Button();
+        private readonly Button driverUpdate = Button();
         private readonly TextBox updateStatus = ReadOnlyText();
         private readonly System.Windows.Forms.Timer updateTimer = new System.Windows.Forms.Timer();
         private readonly System.Windows.Forms.Timer offerTimer = new System.Windows.Forms.Timer { Interval = 500 };
@@ -37,6 +38,35 @@ namespace Radeoner
             var interval = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; interval.Controls.Add(updateIntervalLabel); interval.Controls.Add(updateMinutes); updateFields.Controls.Add(interval);
             var actions = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; actions.Controls.Add(checkUpdate); actions.Controls.Add(installUpdate); updateFields.Controls.Add(actions);
             updateStatus.Dock = DockStyle.None; updateStatus.Size = new Size(800, 110); updateFields.Controls.Add(updateStatus); updateFields.Controls.Add(updateNote);
+            updateFields.Controls.Add(driverUpdate);
+            driverUpdate.Click += async (s, e) =>
+            {
+                var selected = snapshot == null ? null : snapshot.Gpu;
+                SetBusy(true);
+                try
+                {
+                    await FinishSensorRead();
+                    if (disposed) return;
+                    using (var dialog = new DriverUpdateDialog(selected, Font, settings.Theme, dirty))
+                    {
+                        dialog.ShowDialog(this);
+                        if (dialog.RefreshDriver && !disposed)
+                        {
+                            if (backend != null) { backend.Dispose(); backend = null; }
+                            loadingSelection = true;
+                            gpu.Items.Clear();
+                            loadingSelection = false;
+                            snapshot = sensors = null;
+                            lastApply = null;
+                            dirty = false;
+                            ClearFields(tuningFields);
+                            ClearFields(fanFields);
+                            await Initialize(selected == null ? null : selected.Id);
+                        }
+                    }
+                }
+                finally { SetBusy(false); }
+            };
             automaticUpdates.CheckedChanged += (s, e) => SaveUpdatePreferences(); updatesAtStartup.CheckedChanged += (s, e) => SaveUpdatePreferences(); updateMinutes.ValueChanged += (s, e) => SaveUpdatePreferences();
             checkUpdate.Click += async (s, e) => await CheckUpdates(true); installUpdate.Click += async (s, e) => await DownloadAndInstallUpdate();
             updateTimer.Tick += async (s, e) => await CheckUpdates(false);
@@ -51,6 +81,7 @@ namespace Radeoner
             Accessibility.Number(updateMinutes);
             updateVersionLabel.Text = L.T("update.current", L.Version); updateNote.Text = L.T("update.note");
             SetButton(checkUpdate, "update.check", "update.checkName"); SetButton(installUpdate, "update.install", "update.installName");
+            SetButton(driverUpdate, "amd.title", "amd.title");
             updateStatus.AccessibleName = L.T("update.statusName");
             updateStatus.Text = availableUpdate == null ? L.T("update.source") : L.T("update.available", availableUpdate.Manifest.DisplayVersion);
         }

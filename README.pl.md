@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.06:** funkcje i zakładki dopasowane do możliwości GPU, tray bez wentylatorów
-integry oraz sześć języków z instrukcjami offline w F1.
+**1.07** dodaje aktualizację sterownika AMD przez Windows Update i poprawia
+wykrywanie urządzeń po ponownym skanowaniu OpenRGB. [Opis zmian](docs/releases/v1.07.md#polski)
 
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 
@@ -36,9 +36,13 @@ aktualizacji zostaw **Factory Reset** wyłączony. Przy czystej reinstalacji ta 
 usuwa poprzednie pakiety i odbiera możliwość cofnięcia sterownika. Na laptopie
 sprawdź też sterownik producenta urządzenia. [Instrukcja AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-Do aktualizacji sterownika służy AMD Auto-Detect dla obsługiwanych urządzeń
-lub ręczny wybór produktu dla starszych kart. Aktualizator Radeonera aktualizuje
-aplikację. [Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
+Wybierz kartę i otwórz **Ustawienia → Aktualizacje → Aktualizacja sterownika AMD**.
+Sprawdź w Windows Update, wybierz sterownik, przeczytaj warunki licencji, jeśli
+są wymagane, i wybierz **Zainstaluj sterownik**. Windows poprosi o uprawnienia
+administratora i zainstaluje pakiet z katalogu systemowego. Radeoner poda wynik i
+informację o ewentualnym restarcie. Wersja z Windows Update może się różnić
+od dostępnej na stronie AMD. Sam Radeoner aktualizuje się przez osobne przyciski.
+[Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
 [Budowa sterownika, aktualizacje i starsze karty](docs/AMD_DRIVERS.md#polski)
 
 ## Co potrafi

@@ -97,3 +97,10 @@ portable ZIP to your chosen location, with SHA-256 checks, progress and cancel.
 Extract the ZIP, run OpenRGB.exe, enable its SDK server, then Connect in Radeoner.
 A failed/cancelled download preserves any existing destination file.
 Radeoner JSON profiles currently store ADLX tuning, not RGB settings.
+
+AMD DRIVER UPDATES
+Open Settings → Updates → AMD driver updates for the selected GPU.
+Check Windows Update, choose an offered driver and read the license if needed.
+Choose Install driver and confirm. Windows asks for administrator permission.
+Radeoner reports the result and whether a restart is needed. Windows Update
+can offer a different version than the AMD website, or no driver at all.
