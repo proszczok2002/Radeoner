@@ -12,6 +12,7 @@ namespace Radeoner
     internal sealed class AmdDisplayInf
     {
         internal const int Installed = 0, RestartRequired = 3010, Changed = 11, Failed = 13, NotBetter = 259;
+        private const uint EnumerateSingleInf = 0x00010000, QuietInstall = 0x00800000, InstallNonInteractive = 0x00000004;
         private static readonly Guid DisplayClass = new Guid("4D36E968-E325-11CE-BFC1-08002BE10318");
         private static readonly Regex InstancePattern = new Regex(@"\APCI\\VEN_1002&DEV_[0-9A-F]{4}[A-Z0-9&_.-]*\\[A-Z0-9&_.-]+\z", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         internal string Path, Hash, HardwareId;
@@ -77,7 +78,7 @@ namespace Radeoner
                 if (!SetupDiOpenDeviceInfo(devices, instanceId, IntPtr.Zero, 0, ref device)) throw new Win32Exception();
                 var parameters = new InstallParams { Size = (uint)Marshal.SizeOf(typeof(InstallParams)) };
                 if (!SetupDiGetDeviceInstallParams(devices, ref device, ref parameters)) throw new Win32Exception();
-                parameters.Flags |= 0x10000 | 0x80; // DI_ENUMSINGLEINF and DI_QUIETINSTALL
+                parameters.Flags |= EnumerateSingleInf | QuietInstall;
                 string bestPath = null;
                 Version bestVersion = null;
                 uint bestRank = uint.MaxValue;
@@ -138,7 +139,7 @@ namespace Radeoner
                 return Changed;
             bool reboot;
             // Windows checks the signed catalog and the current rank. No force or interactive flags.
-            if (!UpdateDriverForPlugAndPlayDevices(IntPtr.Zero, HardwareId, Path, 0x4, out reboot))
+            if (!UpdateDriverForPlugAndPlayDevices(IntPtr.Zero, HardwareId, Path, InstallNonInteractive, out reboot))
             {
                 int error = Marshal.GetLastWin32Error();
                 return error == 0 ? Failed : error;

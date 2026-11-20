@@ -16,6 +16,8 @@ internal static partial class Tests
         {
             var address = new Uri(TestAmdPage);
             Check(AmdDriverPackage.SuggestedPage(new GpuInfo { Name = "AMD Radeon RX 9070 XT" }) == TestAmdPage, "RX 9070 XT page was not recognized");
+            Check(AmdDriverPackage.SuggestedPage(new GpuInfo { Name = "AMD Radeon RX 9060 XT", Memory = "8192 MB, GDDR6" })
+                .EndsWith("amd-radeon-rx-9060-xt-8gb.html", StringComparison.Ordinal), "RX 9060 XT 8GB page was not recognized");
             const string marker = "<h2><button>Windows 11 - 64-Bit Edition</button></h2>";
             const string note = "/en/resources/support-articles/release-notes/RN-RAD-WIN-26-11-2.html";
             Func<string, string> entry = url => "<article><a href='" + url + "'>Download</a><a href='" + note + "'>Notes</a></article>";

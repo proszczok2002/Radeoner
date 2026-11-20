@@ -58,11 +58,14 @@ namespace Radeoner
         internal static string SuggestedPage(GpuInfo gpu)
         {
             if (gpu == null) return "";
-            var model = Regex.Match(gpu.Name ?? "", @"\bRX\s+([5679])([0-9]{3})(?:\s*(XTX|XT|GRE))?\s*\z", RegexOptions.IgnoreCase);
+            var model = Regex.Match(gpu.Name ?? "", @"\bRX\s+([5679])([0-9]{3})(?:\s*(XTX|XT|GRE))?(?:\s*\(?(8|16)\s*GB\)?)?\s*\z", RegexOptions.IgnoreCase);
             if (model.Success)
             {
                 string number = model.Groups[1].Value + model.Groups[2].Value;
                 string variant = model.Groups[3].Success ? "-" + model.Groups[3].Value.ToLowerInvariant() : "";
+                if (number == "9060" && variant == "-xt" && (model.Groups[4].Value == "8"
+                    || (!model.Groups[4].Success && (gpu.Memory ?? "").StartsWith("8192 MB", StringComparison.Ordinal))))
+                    variant += "-8gb";
                 return "https://www.amd.com" + ProductPath + "graphics/radeon-rx/radeon-rx-" + number[0] + "000-series/amd-radeon-rx-" + number + variant + ".html";
             }
             if (gpu.Type != 1) return "";
