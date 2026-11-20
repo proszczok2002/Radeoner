@@ -77,8 +77,8 @@ mantienen la compatibilidad con el actualizador 1.05. Las preferencias están
 en `Radeoner.settings.json` junto al EXE. Los perfiles de GPU se exportan
 por separado y no se aplican automáticamente al iniciar.
 
-Se verificó la actualización **1.06 → 1.07** con el paquete local y el canal
-público de GitHub. Se conservaron los perfiles y las preferencias. [Resultado](docs/UPDATE_TEST_1.07.md#español)
+Se verificó la actualización **1.07 → 1.08** con el paquete local y el canal
+público de GitHub. Se conservaron los perfiles y las preferencias. [Resultado](docs/UPDATE_TEST_1.08.md#español)
 
 [Guía completa](Readme.es.txt) · [Cambios 1.06](docs/releases/v1.06.md#español)
 

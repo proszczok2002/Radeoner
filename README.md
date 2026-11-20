@@ -112,8 +112,8 @@ The **1.02 → 1.03** public GitHub update also passed:
 [1.03 test result](docs/UPDATE_TEST_1.03.md).
 The **1.03 → 1.04** and **1.04 → 1.05** public updates also passed:
 [1.04](docs/UPDATE_TEST_1.04.md), [1.05](docs/UPDATE_TEST_1.05.md).
-The **1.06 → 1.07** update passed with the local package and the public GitHub
-channel, preserving profiles and preferences. [Test result](docs/UPDATE_TEST_1.07.md)
+The **1.07 → 1.08** update passed with the local package and the public GitHub
+channel, preserving profiles and preferences. [Test result](docs/UPDATE_TEST_1.08.md)
 [NVDA 1.06 audit](docs/AUDIT_1.06.md): 900 UI, 180 dialog and 72 tray checkpoints.
 
 ## Keyboard, tray and preferences
