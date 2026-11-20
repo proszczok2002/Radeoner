@@ -79,3 +79,9 @@ Auteur : https://proszczok.pl/ — Telegram : https://t.me/proszczok
 PayPal : https://paypal.me/proszczok — Revolut : https://revolut.me/r_rosiejka
 Liens dans Paramètres > À propos / Soutien et contact. Pour signaler un défaut,
 indiquez les versions du programme, Windows et NVDA, le modèle GPU et les étapes.
+
+METTRE À JOUR LE PILOTE AMD
+Paramètres → Mises à jour → Mettre à jour le pilote AMD affiche la version
+installée. Téléchargez AMD Auto-Detect et confirmez le lancement du programme
+vérifié. Choisissez le paquet et Driver Only si cette option est proposée.
+Un ancien GPU ou un portable peut nécessiter un paquet choisi manuellement.

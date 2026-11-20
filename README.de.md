@@ -20,6 +20,8 @@ aus System32 geladen. Radeoner installiert keinen eigenen GPU-Kerneltreiber.
 Für Radeoner empfehlen wir **Driver Only** unter den zusätzlichen Optionen des AMD-Installers. Wer das Adrenalin-Bedienfeld behält, sollte die GPU nur mit einer Anwendung einstellen. Ein normaler Treiberwechsel benötigt keinen Factory Reset. Bei einer sauberen Neuinstallation entfernt Factory Reset alte AMD-Pakete und verhindert die Rückkehr zum vorherigen Treiber. Bei Notebooks auch den Hersteller-Treiber prüfen.
 [AMD-Treiber und ältere GPUs](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
+**Einstellungen → Aktualisierungen → AMD-Treiber aktualisieren** zeigt den installierten Treiber. Laden Sie AMD Auto-Detect herunter und starten Sie das geprüfte Programm nach Bestätigung. Wählen Sie das Paket und, falls verfügbar, Driver Only im AMD-Programm.
+
 ## Funktionen und Version 1.06
 
 - Messwerte werden standardmäßig jede Sekunde aktualisiert, auch im Infobereich.

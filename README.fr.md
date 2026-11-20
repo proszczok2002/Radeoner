@@ -20,6 +20,8 @@ depuis System32. Radeoner n'installe aucun pilote noyau propre pour la GPU.
 Pour Radeoner, privilégiez **Driver Only** dans les options supplémentaires du programme d’installation AMD. Si vous gardez le panneau Adrenalin, utilisez une seule application pour régler la carte. Laissez Factory Reset désactivé pour une mise à jour courante. Lors d’une réinstallation propre, cette option supprime les anciens paquets AMD et empêche le retour au pilote précédent. Pour un portable, consultez aussi son fabricant.
 [Pilotes AMD et anciennes cartes](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
+**Paramètres → Mises à jour → Mettre à jour le pilote AMD** affiche la version installée. Téléchargez AMD Auto-Detect et confirmez le lancement du programme vérifié. Choisissez le paquet et Driver Only dans l’installateur AMD si cette option est proposée.
+
 ## Fonctions et version 1.06
 
 - Les relevés sont actualisés chaque seconde par défaut, même dans la zone

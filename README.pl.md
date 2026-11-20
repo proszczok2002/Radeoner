@@ -36,9 +36,10 @@ aktualizacji zostaw **Factory Reset** wyłączony. Przy czystej reinstalacji ta 
 usuwa poprzednie pakiety i odbiera możliwość cofnięcia sterownika. Na laptopie
 sprawdź też sterownik producenta urządzenia. [Instrukcja AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-Do aktualizacji sterownika służy AMD Auto-Detect dla obsługiwanych urządzeń
-lub ręczny wybór produktu dla starszych kart. Aktualizator Radeonera aktualizuje
-aplikację. [Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
+Otwórz **Ustawienia → Aktualizacje → Aktualizacja sterownika AMD**, aby sprawdzić
+zainstalowaną wersję, pobrać i uruchomić zweryfikowany instalator AMD Auto-Detect.
+Dla starszych kart wybierz ręcznie produkt na stronie AMD. Sam Radeoner aktualizuje
+się przez osobne przyciski. [Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
 [Budowa sterownika, aktualizacje i starsze karty](docs/AMD_DRIVERS.md#polski)
 
 ## Co potrafi

@@ -79,3 +79,9 @@ Autor: https://proszczok.pl/ — Telegram: https://t.me/proszczok
 PayPal: https://paypal.me/proszczok — Revolut: https://revolut.me/r_rosiejka
 Einstellungen > Über Radeoner / Unterstützung und Kontakt öffnet diese Seiten.
 Fehler mit Programm-/Windows-/NVDA-Version, GPU-Modell und Schritten melden.
+
+AMD-TREIBER AKTUALISIEREN
+Einstellungen → Aktualisierungen → AMD-Treiber aktualisieren zeigt die installierte
+Version. Laden Sie AMD Auto-Detect herunter und starten Sie das geprüfte
+Programm nach Bestätigung. Wählen Sie dort Paket und Driver Only, falls
+verfügbar. Ältere GPUs und Notebooks können ein manuelles Paket benötigen.

@@ -201,3 +201,9 @@ Możesz anulować pobieranie; istniejący plik pozostanie bez zmian w razie bł�
 Rozpakuj ZIP, uruchom OpenRGB.exe, włącz serwer SDK i wybierz Połącz w Radeonerze.
 OpenRGB nie jest dołączony ani instalowany automatycznie. Profile JSON Radeonera
 zawierają regulacje ADLX; nie zapisują obecnie ustawień podświetlenia.
+
+AKTUALIZACJA STEROWNIKA AMD
+Otwórz Ustawienia → Aktualizacje → Aktualizacja sterownika AMD, aby zobaczyć
+zainstalowaną wersję. Pobierz AMD Auto-Detect i potwierdź uruchomienie
+zweryfikowanego instalatora. W AMD wybierz pakiet oraz Driver Only, jeśli
+jest dostępne. Starsze karty i laptopy mogą wymagać ręcznego wyboru pakietu.

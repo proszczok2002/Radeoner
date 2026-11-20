@@ -45,6 +45,7 @@ internal static partial class Tests
         if (args.Length == 2 && args[0] == "--live-dialogs") return LiveDialogs(args[1]);
         if (args.Length == 2 && args[0] == "--live-nvda") return LiveNvda(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-rgb") return LiveNvdaRgb(args[1]);
+        if (args.Length == 2 && args[0] == "--nvda-amd") return LiveNvdaAmd(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-numeric") return NvdaNumbers(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-dialogs") return NvdaNativeDialogs(args[1]);
         if (args.Length == 3 && args[0] == "--nvda-dialogs" && L.Supported(args[2])) return NvdaNativeDialogs(args[1], args[2]);
@@ -58,6 +59,13 @@ internal static partial class Tests
             if (args.Length == 1 && args[0] == "--capabilities") { RunCapabilityTests(); return 0; }
             if (args.Length == 1 && args[0] == "--languages") { RunLanguageTests(); return 0; }
             if (args.Length == 1 && args[0] == "--rgb") { RunRgbTests(); return 0; }
+            if (args.Length == 1 && args[0] == "--amd") { RunAmdInstallerTests(); return 0; }
+            if (args.Length == 2 && args[0] == "--download-amd")
+            {
+                string hash = AmdInstaller.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+                Console.WriteLine("PASS official AMD download and Windows signature: " + hash);
+                return 0;
+            }
             if (args.Length == 2 && args[0] == "--download-openrgb")
             {
                 OpenRgbDownload.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
@@ -212,6 +220,7 @@ internal static partial class Tests
             RunRgbDownloadTests();
             RunFullAccessibilityTests();
             RunLanguageTests();
+            RunAmdInstallerTests();
             RunCapabilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;

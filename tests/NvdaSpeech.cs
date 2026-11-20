@@ -180,6 +180,47 @@ internal static partial class Tests
         }
         catch (Exception ex) { Console.Error.WriteLine(ex); return 2; }
     }
+    private static int LiveNvdaAmd(string output)
+    {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var speech = new NvdaSpeech(output);
+            foreach (string language in L.Languages)
+            {
+                L.Load(language);
+                using (var dialog = new DriverUpdateDialog(new GpuInfo { Name = "Radeon test GPU", Driver = "32.0.12345.67" },
+                    SystemFonts.MessageBoxFont, "system"))
+                {
+                    Exception failure = null;
+                    dialog.Shown += async (sender, args) =>
+                    {
+                        try
+                        {
+                            var details = Descendants(dialog).OfType<TextBox>().Single();
+                            foreach (var button in Descendants(dialog).OfType<Button>().Where(b => b.Enabled))
+                                await speech.Focus(dialog, button, language + "/" + button.AccessibleName);
+                            await speech.Focus(dialog, details, language + "/driver information");
+                        }
+                        catch (Exception ex) { failure = ex; }
+                        finally { dialog.Close(); }
+                    };
+                    Application.Run(dialog);
+                    if (failure != null) throw failure;
+                }
+            }
+            File.AppendAllText(output, "\r\nPASS NVDA AMD driver updates dialog in six languages.\r\n");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(output, "\r\nNOT VERIFIED: " + ex.Message + "\r\n");
+            Console.Error.WriteLine(ex.Message);
+            return 2;
+        }
+    }
+
     private static int LiveNvdaRgb(string output)
     {
         Application.EnableVisualStyles();

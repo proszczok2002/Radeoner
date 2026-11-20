@@ -20,6 +20,8 @@ System32. Radeoner no instala un controlador de núcleo propio para la GPU.
 Para Radeoner recomendamos **Driver Only** en las opciones adicionales del instalador de AMD. Si mantiene el panel Adrenalin, ajuste la GPU con una sola aplicación. Deje Factory Reset desactivado en una actualización normal. En una reinstalación limpia, esa opción elimina los paquetes anteriores y suprime la posibilidad de volver al controlador previo. En portátiles, consulte también al fabricante.
 [Controladores AMD y GPU antiguas](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
+**Ajustes → Actualizaciones → Actualizar controlador AMD** muestra la versión instalada. Descarga AMD Auto-Detect y confirma el inicio del instalador verificado. Elige el paquete y Driver Only en el instalador de AMD si aparece esa opción.
+
 ## Funciones y versión 1.06
 
 - Las lecturas se actualizan cada segundo por defecto, incluso en la bandeja.

@@ -78,3 +78,9 @@ Autor: https://proszczok.pl/ — Telegram: https://t.me/proszczok
 PayPal: https://paypal.me/proszczok — Revolut: https://revolut.me/r_rosiejka
 Los enlaces están en Ajustes > Acerca de / Apoyo y contacto. Para informar
 de un problema, indique versiones de aplicación, Windows, NVDA, modelo GPU y pasos.
+
+ACTUALIZAR EL CONTROLADOR AMD
+Ajustes → Actualizaciones → Actualizar controlador AMD muestra la
+versión instalada. Descarga AMD Auto-Detect y confirma el inicio del
+instalador verificado. Elige el paquete y Driver Only si está disponible.
+Para una GPU antigua o un portátil, puede ser necesario un paquete manual.
