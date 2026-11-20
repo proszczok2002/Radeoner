@@ -46,6 +46,7 @@ internal static partial class Tests
         if (args.Length == 2 && args[0] == "--live-nvda") return LiveNvda(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-rgb") return LiveNvdaRgb(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-amd") return LiveNvdaAmd(args[1]);
+        if (args.Length == 2 && args[0] == "--nvda-notes") return LiveNvdaUpdateNotes(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-numeric") return NvdaNumbers(args[1]);
         if (args.Length == 2 && args[0] == "--nvda-dialogs") return NvdaNativeDialogs(args[1]);
         if (args.Length == 3 && args[0] == "--nvda-dialogs" && L.Supported(args[2])) return NvdaNativeDialogs(args[1], args[2]);
@@ -59,12 +60,29 @@ internal static partial class Tests
             if (args.Length == 1 && args[0] == "--capabilities") { RunCapabilityTests(); return 0; }
             if (args.Length == 1 && args[0] == "--languages") { RunLanguageTests(); return 0; }
             if (args.Length == 1 && args[0] == "--rgb") { RunRgbTests(); return 0; }
-            if (args.Length == 1 && args[0] == "--amd") { RunWindowsDriverUpdateTests(); return 0; }
-            if (args.Length == 2 && args[0] == "--check-amd-updates")
+            if (args.Length == 1 && args[0] == "--amd") { RunAmdDriverTests(); return 0; }
+            if (args.Length == 2 && args[0] == "--check-amd-page")
             {
-                var offers = WindowsDriverUpdates.Check(args[1]);
-                Console.WriteLine("PASS Windows Update search for the selected AMD display adapter. Applicable offers: " + offers.Count);
-                foreach (var offer in offers) Console.WriteLine(offer.Title);
+                var offer = AmdDriverPackage.Check(new Uri(args[1]), System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+                Console.WriteLine("AMD " + offer.Release + " / " + offer.Package + " / " + string.Join(", ", offer.StoreVersions.Select(v => v.ToString())));
+                return 0;
+            }
+            if (args.Length == 3 && (args[0] == "--inspect-amd-package" || args[0] == "--download-test-amd"))
+            {
+                using (var package = new AmdDriverPackage())
+                {
+                    if (args[0] == "--inspect-amd-package") File.Copy(args[1], package.FilePath);
+                    else
+                    {
+                        var offer = AmdDriverPackage.Check(new Uri(args[1]), System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+                        package.Download(offer, null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+                    }
+                    package.Prepare(args[2], null, System.Threading.CancellationToken.None);
+                    Console.WriteLine("AMD signature and archive verified. SHA-256 " + package.Hash);
+                    if (package.Driver == null) { Console.WriteLine("No compatible display INF."); return 3; }
+                    Console.WriteLine("Compatible " + Path.GetFileName(package.Driver.Path) + " / " + package.Driver.Version
+                        + " / installed " + package.Driver.CurrentVersion + " / newer " + package.Driver.Newer);
+                }
                 return 0;
             }
             if (args.Length == 2 && args[0] == "--download-openrgb")
@@ -221,7 +239,7 @@ internal static partial class Tests
             RunRgbDownloadTests();
             RunFullAccessibilityTests();
             RunLanguageTests();
-            RunWindowsDriverUpdateTests();
+            RunAmdDriverTests();
             RunCapabilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;

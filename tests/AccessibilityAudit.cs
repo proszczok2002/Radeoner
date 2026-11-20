@@ -51,21 +51,42 @@ internal static partial class Tests
             }
             finally { Appearance.TestSystemDark = null; }
         });
-        Test("Update prompt exposes release notes before confirmation and No never downloads", () =>
+        Test("Update prompt focuses the full read-only notes and Later never downloads", () =>
         {
             using (var form = TestForm("update-prompt"))
             {
-                var update = new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = "## Polski\n- **Dostępność** i [kontakt](https://t.me/proszczok)" };
-                SetField(form, "availableUpdate", update); bool shown = false;
-                try
+                string finalLine = "Ostatnia pozycja listy zmian.";
+                string notes = "## Polski\n- **Dostępność** i [kontakt](https://t.me/proszczok)\n"
+                    + string.Join("\n", Enumerable.Repeat("- Dłuższy wpis listy zmian.", 140)) + "\n- " + finalLine;
+                var update = new AvailableUpdate { Manifest = new UpdateManifest { Version = "99.0.0.0", DisplayVersion = "99.0" }, ReleaseNotes = notes };
+                SetField(form, "availableUpdate", update);
+                Exception failure = null;
+                bool shown = false;
+                using (var watch = new Timer { Interval = 30 })
                 {
-                    SystemDialogs.TestShow = (title, content, question) => { shown = true; Check(question && content.Contains("Dostępność") && content.Contains("https://t.me/proszczok") && !content.Contains("**"), "Changelog absent or unreadable"); return 7; };
-                    // A hidden form must not be shown by the test; only exercise the prompt on a created window.
+                    watch.Tick += (sender, args) =>
+                    {
+                        var prompt = Application.OpenForms.OfType<DetailsDialog>().SingleOrDefault();
+                        if (prompt == null) return;
+                        watch.Stop();
+                        try
+                        {
+                            shown = true;
+                            var body = Descendants(prompt).OfType<TextBox>().Single();
+                            Check(body.ReadOnly && body.Focused && body.SelectionStart == 0, "Release notes did not receive initial focus");
+                            Check(body.Text.Contains("Dostępność") && body.Text.Contains("https://t.me/proszczok") && !body.Text.Contains("**")
+                                && body.Text.Contains(finalLine), "Release notes are missing, truncated or unreadable");
+                        }
+                        catch (Exception ex) { failure = ex; }
+                        finally { ((Button)prompt.CancelButton).PerformClick(); }
+                    };
                     form.Opacity = 0; form.ShowInTaskbar = false; SetField(form, "started", true);
-                    ((Task)Call(form, "DownloadAndInstallUpdate")).GetAwaiter().GetResult();
-                    Check(shown && !Field<bool>(form, "updateInstalling") && !Field<bool>(form, "busy"), "No began an installation");
+                    watch.Start();
+                    try { ((Task)Call(form, "DownloadAndInstallUpdate")).GetAwaiter().GetResult(); }
+                    finally { SetField(form, "exitRequested", true); form.Close(); }
                 }
-                finally { SystemDialogs.TestShow = null; SetField(form, "exitRequested", true); form.Close(); }
+                if (failure != null) throw failure;
+                Check(shown && !Field<bool>(form, "updateInstalling") && !Field<bool>(form, "busy"), "Later began an installation");
             }
             Check(UpdateFeed.ReadableNotes(null) == L.T("update.noNotes"), "Missing notes have no accessible fallback");
         });

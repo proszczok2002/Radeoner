@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.07** actualiza los controladores AMD mediante Windows Update y mejora la detección tras un nuevo escaneo de OpenRGB. [Cambios](docs/releases/v1.07.md#español)
+**1.08** muestra todos los cambios en la ventana de actualización y busca controladores en las páginas de productos de AMD. [Cambios](docs/releases/v1.08.md#español)
 
 Panel AMD GPU ligero y portátil para Windows, con controles nativos de
 Windows Forms, manejo por teclado y compatibilidad con NVDA.
@@ -22,7 +22,7 @@ System32. Radeoner no instala un controlador de núcleo propio para la GPU.
 Para Radeoner recomendamos **Driver Only** en las opciones adicionales del instalador de AMD. Si mantiene el panel Adrenalin, ajuste la GPU con una sola aplicación. Deje Factory Reset desactivado en una actualización normal. En una reinstalación limpia, esa opción elimina los paquetes anteriores y suprime la posibilidad de volver al controlador previo. En portátiles, consulte también al fabricante.
 [Controladores AMD y GPU antiguas](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-Selecciona tu GPU y abre **Ajustes → Actualizaciones → Actualizar controlador AMD**. Busca en Windows Update, selecciona un controlador, consulta la licencia si es necesario y elige **Instalar controlador**. Windows solicita permisos de administrador e instala el paquete desde el catálogo del sistema. Radeoner muestra el resultado e indica si debes reiniciar. El controlador ofrecido puede diferir de la versión más reciente del sitio de AMD.
+Selecciona tu GPU y abre **Ajustes → Actualizaciones → Actualizar controlador AMD**. Consulta la página del producto, lee la licencia de AMD y descarga el paquete completo para verificarlo. Radeoner valida la firma y Windows identifica el INF gráfico compatible. Puedes instalar un controlador más reciente tras confirmar los permisos de administrador. La ventana de actualización de Radeoner muestra todos los cambios en un campo de solo lectura que recibe el foco al abrirse.
 
 ## Funciones y versión 1.06
 

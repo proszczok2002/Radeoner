@@ -144,11 +144,13 @@ namespace Radeoner
             ShowFromTray();
             bool accepted; showingUpdateOffer = true; notifiedVersion = availableUpdate.Manifest.Version;
             string notes = UpdateFeed.ReadableNotes(availableUpdate.ReleaseNotes);
-            string preview = notes.Length > 1800 ? notes.Substring(0, 1800) + "\r\n" + L.T("update.notesTruncated") : notes;
-            try { accepted = SystemDialogs.Show(this, "Radeoner", L.T("update.availableTitle", availableUpdate.Manifest.DisplayVersion),
-                L.T("update.confirm", L.Version, availableUpdate.Manifest.DisplayVersion) + (dirty ? "\r\n" + L.T("update.unsaved") : "") + "\r\n\r\n" +
-                L.T("update.changes") + "\r\n" + preview, true,
-                new DialogAction { Id = 101, Text = L.T("update.fullNotes"), Invoke = window => SystemDialogs.Details(new SystemDialogs.WindowOwner(window), L.T("update.changes"), notes) }) == 6; }
+            string summary = L.T("update.confirm", L.Version, availableUpdate.Manifest.DisplayVersion) + (dirty ? "\r\n" + L.T("update.unsaved") : "");
+            try
+            {
+                using (var dialog = new DetailsDialog(L.T("update.availableTitle", availableUpdate.Manifest.DisplayVersion),
+                    summary + "\r\n\r\n" + L.T("update.changes") + "\r\n" + notes, Font, settings.Theme, true))
+                    accepted = dialog.ShowDialog(this) == DialogResult.Yes;
+            }
             finally { showingUpdateOffer = false; }
             if (!accepted) return;
             updateInstalling = true; SetBusy(true); UpdatePlan plan = null; bool workerStarted = false;

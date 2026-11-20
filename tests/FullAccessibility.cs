@@ -135,6 +135,15 @@ internal static partial class Tests
                     using (var image = new Bitmap(details.Width, details.Height)) { details.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size)); image.Save(TestFile("audit-details-" + language + "-" + theme + ".png")); }
                     details.Close();
                 }
+                using (var update = new DetailsDialog(L.T("update.availableTitle", "99.0"), "Notes", font, theme, true))
+                {
+                    update.Opacity = 0; update.Show(); Application.DoEvents();
+                    var body = Descendants(update).OfType<TextBox>().Single();
+                    Check(body.Focused && body.ReadOnly && body.AccessibleName == L.T("update.changes"), "Update notes were not immediately available");
+                    foreach (var control in Descendants(update).Where(c => c is TextBox || c is Button))
+                        CheckFocusVisible(control, "update notes/" + language + "/" + theme);
+                    update.Close();
+                }
                 using (var server = new RgbServer())
                 using (var rgb = new RgbDialog(font, theme))
                 {

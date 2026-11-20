@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.07** met à jour les pilotes AMD via Windows Update et améliore la détection après une nouvelle recherche OpenRGB. [Changements](docs/releases/v1.07.md#français)
+**1.08** affiche tous les changements dans la fenêtre de mise à jour et recherche les pilotes sur les pages produit AMD. [Changements](docs/releases/v1.08.md#français)
 
 Panneau AMD GPU léger et portable pour Windows, avec contrôles Windows Forms
 natifs, navigation au clavier et prise en charge de NVDA.
@@ -22,7 +22,7 @@ depuis System32. Radeoner n'installe aucun pilote noyau propre pour la GPU.
 Pour Radeoner, privilégiez **Driver Only** dans les options supplémentaires du programme d’installation AMD. Si vous gardez le panneau Adrenalin, utilisez une seule application pour régler la carte. Laissez Factory Reset désactivé pour une mise à jour courante. Lors d’une réinstallation propre, cette option supprime les anciens paquets AMD et empêche le retour au pilote précédent. Pour un portable, consultez aussi son fabricant.
 [Pilotes AMD et anciennes cartes](docs/AMD_DRIVERS.md) · [AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-Sélectionnez votre GPU et ouvrez **Paramètres → Mises à jour → Mettre à jour le pilote AMD**. Lancez la recherche dans Windows Update, sélectionnez un pilote, consultez la licence si nécessaire, puis choisissez **Installer le pilote**. Windows demande les droits d’administration et installe le paquet depuis le catalogue système. Radeoner affiche le résultat et indique si un redémarrage est nécessaire. Le pilote proposé peut différer de la dernière version sur le site d’AMD.
+Sélectionnez votre GPU et ouvrez **Paramètres → Mises à jour → Mettre à jour le pilote AMD**. Consultez la page produit et la licence AMD, puis téléchargez le paquet complet pour le vérifier. Radeoner vérifie la signature et Windows identifie le fichier INF graphique compatible. Un pilote plus récent peut être installé après autorisation administrative. La fenêtre de mise à jour de Radeoner affiche l’intégralité des changements dans un champ en lecture seule qui reçoit le focus à l’ouverture.
 
 ## Fonctions et version 1.06
 

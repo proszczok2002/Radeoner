@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.07** dodaje aktualizację sterownika AMD przez Windows Update i poprawia
-wykrywanie urządzeń po ponownym skanowaniu OpenRGB. [Opis zmian](docs/releases/v1.07.md#polski)
+**1.08** pokazuje pełną listę zmian w oknie aktualizacji i sprawdza sterowniki
+bezpośrednio na stronach produktów AMD. [Opis zmian](docs/releases/v1.08.md#polski)
 
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 
@@ -37,11 +37,12 @@ usuwa poprzednie pakiety i odbiera możliwość cofnięcia sterownika. Na laptop
 sprawdź też sterownik producenta urządzenia. [Instrukcja AMD](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
 Wybierz kartę i otwórz **Ustawienia → Aktualizacje → Aktualizacja sterownika AMD**.
-Sprawdź w Windows Update, wybierz sterownik, przeczytaj warunki licencji, jeśli
-są wymagane, i wybierz **Zainstaluj sterownik**. Windows poprosi o uprawnienia
-administratora i zainstaluje pakiet z katalogu systemowego. Radeoner poda wynik i
-informację o ewentualnym restarcie. Wersja z Windows Update może się różnić
-od dostępnej na stronie AMD. Sam Radeoner aktualizuje się przez osobne przyciski.
+Sprawdź stronę produktu AMD, przeczytaj licencję i wybierz **Pobierz i sprawdź
+pakiet**. Radeoner weryfikuje podpis AMD, a Windows dopasowuje plik INF grafiki
+do wybranej karty. Jeśli pasujący sterownik jest nowszy, możesz wybrać
+**Zainstaluj sterownik grafiki AMD**. Windows poprosi o uprawnienia administratora.
+Instalacja korzysta z plików sterownika grafiki i odbywa się w Radeonerze.
+Program poda wynik i informację o ewentualnym restarcie.
 [Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
 [Budowa sterownika, aktualizacje i starsze karty](docs/AMD_DRIVERS.md#polski)
 
@@ -93,7 +94,7 @@ minut** (domyślnie 60), **Sprawdź teraz** oraz **Pobierz i zainstaluj**.
 Sprawdzanie jest początkowo włączone i można je wyłączyć. Samo sprawdzanie
 nie instaluje aktualizacji automatycznie. Nowa wersja otwiera systemowe okno
 z opisem zmian. **Tak** pobiera i instaluje; **Nie** odkłada aktualizację.
-Przycisk **Wszystkie zmiany** otwiera pełny tekst do odczytu i kopiowania.
+Pełna lista zmian jest od razu w przewijalnym polu tylko do odczytu, które otrzymuje fokus.
 
 Źródłem są najnowsze stabilne [wydania tego repozytorium](https://github.com/proszczok2002/Radeoner/releases).
 Program sprawdza SHA-256 ZIP-u i wszystkich plików, zamyka się, podmienia

@@ -96,7 +96,7 @@ Oba pola są początkowo włączone. Możesz je wyłączyć; Sprawdź teraz dzia
 niezależnie od ustawień automatycznych. Sprawdzanie nie pobiera i nie instaluje
 nowego programu bez zgody. Nowa wersja od razu pokazuje systemowe okno
 z opisem zmian i przyciskami Tak/Nie. Tak rozpoczyna aktualizację.
-Wszystkie zmiany otwiera pełny tekst do odczytu i kopiowania.
+Pełna lista zmian od razu otrzymuje fokus w przewijalnym polu tylko do odczytu.
 Źródło: https://github.com/proszczok2002/Radeoner/releases
 Pobierana jest najnowsza stabilna wersja. Program weryfikuje SHA-256 archiwum
 i każdego pliku. Po pobraniu zamyka się, podmienia pliki i uruchamia nową wersję.
@@ -204,7 +204,7 @@ zawierają regulacje ADLX; nie zapisują obecnie ustawień podświetlenia.
 
 AKTUALIZACJA STEROWNIKA AMD
 Wybierz kartę i otwórz Ustawienia → Aktualizacje → Aktualizacja sterownika AMD.
-Wybierz Sprawdź w Windows Update, wybierz pakiet i przeczytaj warunki licencji,
-jeśli są wymagane. Wybierz Zainstaluj sterownik, potwierdź i zaakceptuj prośbę
-Windows o uprawnienia administratora. Radeoner poda wynik i informację o
-ewentualnym restarcie. Wersja może się różnić od tej dostępnej na stronie AMD.
+Sprawdź stronę produktu AMD, przeczytaj licencję i pobierz pełny pakiet do
+sprawdzenia. Radeoner zweryfikuje podpis. Jeśli Windows dopasuje nowszy INF
+grafiki, możesz zatwierdzić instalację i prośbę o prawa administratora.
+Radeoner poda wynik i informację o ewentualnym restarcie.
