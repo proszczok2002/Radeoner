@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.07** met à jour les pilotes AMD via Windows Update et améliore la détection après une nouvelle recherche OpenRGB. [Changements](docs/releases/v1.07.md#français)
+**1.08** affiche tous les changements dans la fenêtre de mise à jour et recherche les pilotes sur les pages produit AMD. [Changements](docs/releases/v1.08.md#français)
 
 Panneau AMD GPU léger et portable pour Windows, avec contrôles Windows Forms
 natifs, navigation au clavier et prise en charge de NVDA.

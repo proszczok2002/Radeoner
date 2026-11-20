@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.07** adds AMD driver updates through Windows Update and improves OpenRGB
-device discovery after rescans. [Release notes](docs/releases/v1.07.md)
+**1.08** shows the full release notes in the update window and checks drivers
+directly on AMD’s product pages. [Release notes](docs/releases/v1.08.md)
 
 **A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 
