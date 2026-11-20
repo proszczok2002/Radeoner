@@ -76,8 +76,8 @@ Acht-Dateien-Struktur bleibt mit dem Updater 1.05 kompatibel. Einstellungen
 stehen neben der EXE in `Radeoner.settings.json`; GPU-Profile werden separat
 exportiert und beim Start nicht automatisch angewendet.
 
-Das öffentliche Update 1.05 → 1.06 wurde mit unveränderten Profil-/Einstellungs-
-Prüfsummen bestätigt: [Prüfbericht](docs/UPDATE_TEST_1.06.md).
+Das Update **1.06 → 1.07** wurde mit dem lokalen Paket und über den öffentlichen
+GitHub-Kanal bestätigt. Profile und Einstellungen blieben erhalten. [Prüfbericht](docs/UPDATE_TEST_1.07.md#deutsch)
 
 [Vollständiges Handbuch](Readme.de.txt) · [Änderungen 1.06](docs/releases/v1.06.md#deutsch)
 
