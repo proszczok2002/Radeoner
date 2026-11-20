@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.06:** funkcje i zakładki dopasowane do możliwości GPU, tray bez wentylatorów
-integry oraz sześć języków z instrukcjami offline w F1.
+**1.07** dodaje aktualizację sterownika AMD przez Windows Update i poprawia
+wykrywanie urządzeń po ponownym skanowaniu OpenRGB. [Opis zmian](docs/releases/v1.07.md#polski)
 
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 

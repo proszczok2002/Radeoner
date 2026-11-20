@@ -1,5 +1,7 @@
 # Radeoner
 
+**1.07** aktualisiert AMD-Treiber über Windows Update und verbessert die Erkennung nach einem erneuten OpenRGB-Scan. [Änderungen](docs/releases/v1.07.md#deutsch)
+
 Ein leichtes, portables AMD-GPU-Panel für Windows mit nativen Windows-Forms-
 Steuerelementen, Tastaturbedienung und Unterstützung für NVDA.
 

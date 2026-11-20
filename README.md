@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.06:** capability-based GPU controls and tabs, integrated-GPU tray without fan
-announcements, and six languages with offline F1 guides.
+**1.07** adds AMD driver updates through Windows Update and improves OpenRGB
+device discovery after rescans. [Release notes](docs/releases/v1.07.md)
 
 **A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 

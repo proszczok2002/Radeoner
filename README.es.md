@@ -1,5 +1,7 @@
 # Radeoner
 
+**1.07** actualiza los controladores AMD mediante Windows Update y mejora la detección tras un nuevo escaneo de OpenRGB. [Cambios](docs/releases/v1.07.md#español)
+
 Panel AMD GPU ligero y portátil para Windows, con controles nativos de
 Windows Forms, manejo por teclado y compatibilidad con NVDA.
 
