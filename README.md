@@ -36,10 +36,13 @@ reinstall, AMD's optional Factory Reset removes previous packages and disables
 rollback to the previous driver. On laptops, also check the manufacturer's
 driver. [Official AMD installation instructions](https://www.amd.com/en/resources/support-articles/faqs/RSX2-INSTALL.html)
 
-For drivers, open **Settings → Updates → AMD driver updates**. Radeoner shows
-the installed version and lets you download and run the verified AMD Auto-Detect
-installer. Use the AMD product selector for legacy GPUs. Application updates
-have separate controls.
+To update a driver, select your GPU and open **Settings → Updates → AMD driver
+updates**. Check Windows Update, select an offered driver, review the license
+if required, and choose **Install driver**. Windows asks for administrator
+permission and handles the download and installation from the system catalog.
+Radeoner shows the result and tells you if a restart is needed. The driver
+offered by Windows can differ from the latest AMD download. Application
+updates have separate controls.
 [AMD downloads](https://www.amd.com/en/support/download/drivers.html) ·
 [Driver architecture, update options and legacy support](docs/AMD_DRIVERS.md)
 

@@ -80,7 +80,8 @@ Los enlaces están en Ajustes > Acerca de / Apoyo y contacto. Para informar
 de un problema, indique versiones de aplicación, Windows, NVDA, modelo GPU y pasos.
 
 ACTUALIZAR EL CONTROLADOR AMD
-Ajustes → Actualizaciones → Actualizar controlador AMD muestra la
-versión instalada. Descarga AMD Auto-Detect y confirma el inicio del
-instalador verificado. Elige el paquete y Driver Only si está disponible.
-Para una GPU antigua o un portátil, puede ser necesario un paquete manual.
+Abre Ajustes → Actualizaciones → Actualizar controlador AMD para la GPU
+seleccionada. Busca en Windows Update, elige un controlador y lee la licencia
+si es necesario. Pulsa Instalar controlador, confirma y concede los permisos
+de administrador. Radeoner muestra el resultado e indica si debes reiniciar.
+La versión ofrecida puede ser distinta de la publicada en el sitio de AMD.

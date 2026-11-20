@@ -59,11 +59,12 @@ internal static partial class Tests
             if (args.Length == 1 && args[0] == "--capabilities") { RunCapabilityTests(); return 0; }
             if (args.Length == 1 && args[0] == "--languages") { RunLanguageTests(); return 0; }
             if (args.Length == 1 && args[0] == "--rgb") { RunRgbTests(); return 0; }
-            if (args.Length == 1 && args[0] == "--amd") { RunAmdInstallerTests(); return 0; }
-            if (args.Length == 2 && args[0] == "--download-amd")
+            if (args.Length == 1 && args[0] == "--amd") { RunWindowsDriverUpdateTests(); return 0; }
+            if (args.Length == 2 && args[0] == "--check-amd-updates")
             {
-                string hash = AmdInstaller.DownloadAsync(args[1], null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
-                Console.WriteLine("PASS official AMD download and Windows signature: " + hash);
+                var offers = WindowsDriverUpdates.Check(args[1]);
+                Console.WriteLine("PASS Windows Update search for the selected AMD display adapter. Applicable offers: " + offers.Count);
+                foreach (var offer in offers) Console.WriteLine(offer.Title);
                 return 0;
             }
             if (args.Length == 2 && args[0] == "--download-openrgb")
@@ -220,7 +221,7 @@ internal static partial class Tests
             RunRgbDownloadTests();
             RunFullAccessibilityTests();
             RunLanguageTests();
-            RunAmdInstallerTests();
+            RunWindowsDriverUpdateTests();
             RunCapabilityTests();
             Console.WriteLine("Passed: " + passed + ". No real driver was loaded; no real tuning settings were changed.");
             return 0;

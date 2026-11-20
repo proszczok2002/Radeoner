@@ -190,7 +190,7 @@ internal static partial class Tests
             foreach (string language in L.Languages)
             {
                 L.Load(language);
-                using (var dialog = new DriverUpdateDialog(new GpuInfo { Name = "Radeon test GPU", Driver = "32.0.12345.67" },
+                using (var dialog = new DriverUpdateDialog(new GpuInfo { Name = "Radeon test GPU", Id = TestInstanceId, Driver = "32.0.12345.67" },
                     SystemFonts.MessageBoxFont, "system"))
                 {
                     Exception failure = null;
@@ -199,6 +199,14 @@ internal static partial class Tests
                         try
                         {
                             var details = Descendants(dialog).OfType<TextBox>().Single();
+                            var offers = Descendants(dialog).OfType<ComboBox>().Single();
+                            offers.Items.Add(TestDriverOffer(false));
+                            offers.Items.Add(TestDriverOffer());
+                            offers.SelectedIndex = 0;
+                            await speech.Focus(dialog, offers, language + "/driver list");
+                            var license = Descendants(dialog).OfType<Button>().Single(b => b.Enabled && b.AccessibleName == L.T("wud.license"));
+                            await speech.Focus(dialog, license, language + "/license");
+                            offers.SelectedIndex = 1;
                             foreach (var button in Descendants(dialog).OfType<Button>().Where(b => b.Enabled))
                                 await speech.Focus(dialog, button, language + "/" + button.AccessibleName);
                             await speech.Focus(dialog, details, language + "/driver information");

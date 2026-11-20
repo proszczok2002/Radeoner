@@ -389,16 +389,25 @@ namespace Radeoner
         }
         private async Task FinishSensorRead() { if (sensorTask != null) try { await sensorTask; } catch { } }
         private void Failed(Exception ex) { if (disposed) return; if (TestFailure != null) { TestFailure(ex); return; } ShowFromTray(); Announce(ex.Message); MessageBox.Show(this, ex.Message, L.T("ui.messageTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information); }
-        private async Task Initialize()
+        private async Task Initialize(string preferredAdapter = null)
         {
             SetBusy(true);
             try
             {
                 backend = await Task.Run<IBackend>(() => { try { return new IsolatedBackend(); } catch (Exception ex) { Diagnostics.Log("driver host startup", ex); return new UnavailableBackend(ex.Message); } });
                 if (disposed) { backend.Dispose(); return; }
-                loadingSelection = true; foreach (var info in backend.Gpus) gpu.Items.Add(info); if (gpu.Items.Count > 0) gpu.SelectedIndex = 0; loadingSelection = false;
+                int selected = 0;
+                loadingSelection = true;
+                foreach (var info in backend.Gpus)
+                {
+                    if (preferredAdapter != null && string.Equals(info.Id, preferredAdapter, StringComparison.OrdinalIgnoreCase))
+                        selected = gpu.Items.Count;
+                    gpu.Items.Add(info);
+                }
+                if (gpu.Items.Count > 0) gpu.SelectedIndex = selected;
+                loadingSelection = false;
                 if (gpu.Items.Count == 0) { report.Text = backend.Status; overview.Text = L.T("ui.noGpu", backend.Status); Announce(overview.Text); initializedSuccessfully = true; return; }
-                snapshot = await Task.Run(() => backend.Read(0)); if (disposed) return; Render(); Announce(L.T("ui.ready")); initializedSuccessfully = true; if (Visible) gpu.Focus();
+                snapshot = await Task.Run(() => backend.Read(backend.Gpus[selected].Index)); if (disposed) return; Render(); Announce(L.T("ui.ready")); initializedSuccessfully = true; if (Visible) gpu.Focus();
             }
             catch (Exception ex) { Failed(ex); } finally { SetBusy(false); }
         }

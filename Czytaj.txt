@@ -203,7 +203,8 @@ OpenRGB nie jest dołączony ani instalowany automatycznie. Profile JSON Radeone
 zawierają regulacje ADLX; nie zapisują obecnie ustawień podświetlenia.
 
 AKTUALIZACJA STEROWNIKA AMD
-Otwórz Ustawienia → Aktualizacje → Aktualizacja sterownika AMD, aby zobaczyć
-zainstalowaną wersję. Pobierz AMD Auto-Detect i potwierdź uruchomienie
-zweryfikowanego instalatora. W AMD wybierz pakiet oraz Driver Only, jeśli
-jest dostępne. Starsze karty i laptopy mogą wymagać ręcznego wyboru pakietu.
+Wybierz kartę i otwórz Ustawienia → Aktualizacje → Aktualizacja sterownika AMD.
+Wybierz Sprawdź w Windows Update, wybierz pakiet i przeczytaj warunki licencji,
+jeśli są wymagane. Wybierz Zainstaluj sterownik, potwierdź i zaakceptuj prośbę
+Windows o uprawnienia administratora. Radeoner poda wynik i informację o
+ewentualnym restarcie. Wersja może się różnić od tej dostępnej na stronie AMD.

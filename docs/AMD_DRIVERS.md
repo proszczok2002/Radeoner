@@ -36,18 +36,18 @@ If ADLX initialization fails, Windows inventory can still list AMD adapters and
 their installed driver versions.
 
 **Update through Radeoner.** Select your GPU, then open Settings → Updates →
-AMD driver updates. The dialog shows the installed Windows driver. Choose
-Download AMD installer and select a location for the EXE. Radeoner gets the
-Auto-Detect link from AMD's download page and checks the publisher and
-Authenticode signature in Windows. Choose Run AMD installer and confirm.
-AMD Auto-Detect searches this PC for compatible components and handles the
-installation. Review what AMD selected and choose Driver Only if offered.
-Close Radeoner before applying the driver changes.
+AMD driver updates. Choose Check Windows Update and select a driver for the
+selected GPU. If the offer requires you to accept its license, open License terms.
+Choose Install driver, confirm the selected package and approve the standard
+Windows administrator prompt. The Windows Update Agent downloads and installs
+the selected graphics driver, and Radeoner reports the result and any required
+restart. Radeoner keeps the restart under your control.
 
-Use Open AMD drivers website if the automatic download is unavailable or for
-the legacy product selector. On notebooks, also check the PC manufacturer's
-package. The application updater has separate controls and a separate source.
-[AMD Auto-Detect and legacy selector](https://www.amd.com/en/resources/support-articles/faqs/gpu-131.html) ·
+Results come from the Windows Update source configured on the PC. The catalog
+can offer a different driver version than the AMD website, or no package at all.
+Open AMD drivers website for manual downloads, including the legacy product
+selector. On notebooks, the PC manufacturer's package is another source.
+[Microsoft Windows Update Agent](https://learn.microsoft.com/en-us/windows/win32/wua_sdk/searching--downloading--and-installing-specific-updates) ·
 [Microsoft driver package selection](https://learn.microsoft.com/en-us/windows-hardware/drivers/install/overview-of-the-driver-selection-process)
 
 **Older cards and more controls.** AMD documents reduced ADLX functionality on
@@ -87,18 +87,19 @@ warstwa podświetlenia. Lokalny odczyt wykazał podpisany sterownik Radeon 880M
 32.0.32015.12012, ADLX 1.5.0.124 i ADL 7.26.20.1616.
 
 **Aktualizacja z Radeonera.** Wybierz kartę i otwórz Ustawienia → Aktualizacje →
-Aktualizacja sterownika AMD. Okno podaje zainstalowaną wersję sterownika Windows.
-Wybierz Pobierz instalator AMD i wskaż miejsce zapisu EXE. Radeoner pobierze
-Auto-Detect z oficjalnej strony AMD i sprawdzi w Windows podpis oraz wydawcę.
-Wybierz Uruchom instalator AMD i potwierdź. Auto-Detect wykrywa zgodne składniki
-na tym komputerze i przeprowadza instalację. Sprawdź proponowany pakiet, wybierz
-Driver Only, jeśli opcja jest dostępna, i zamknij Radeonera przed zastosowaniem
-zmian sterownika.
+Aktualizacja sterownika AMD. Wybierz Sprawdź w Windows Update oraz sterownik
+dla wybranej karty. Jeśli pakiet wymaga akceptacji licencji, otwórz Warunki
+licencji. Wybierz Zainstaluj sterownik, potwierdź pakiet i zaakceptuj systemową
+prośbę o uprawnienia administratora. Usługa Windows Update pobierze i zainstaluje
+wybrany sterownik grafiki. Radeoner poda wynik i poinformuje, czy trzeba
+ponownie uruchomić komputer. Tę decyzję podejmujesz samodzielnie.
 
-Przycisk Otwórz stronę sterowników AMD przydaje się przy ręcznym wyborze
-pakietu dla starszej karty. Na laptopie sprawdź też pakiet producenta.
-Aktualizacje samego Radeonera są dostępne w osobnych kontrolkach.
+Wyniki pochodzą ze źródła Windows Update ustawionego na komputerze. Katalog
+może zaoferować inną wersję niż strona AMD albo nie mieć pakietu dla karty.
+Przycisk Otwórz stronę sterowników AMD pozwala przejść do ręcznego wyboru
+pakietu, także dla starszej karty. Na laptopie dostępny może być pakiet producenta.
 [Sterowniki AMD](https://www.amd.com/en/support/download/drivers.html) ·
+[Obsługa aktualizacji przez Windows](https://learn.microsoft.com/en-us/windows/win32/wua_sdk/searching--downloading--and-installing-specific-updates) ·
 [Jak Windows wybiera pakiet](https://learn.microsoft.com/en-us/windows-hardware/drivers/install/overview-of-the-driver-selection-process)
 
 **Starsze karty i nowe ustawienia.** Dla starszych kart z ADLX Radeoner już

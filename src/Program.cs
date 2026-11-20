@@ -20,6 +20,7 @@ namespace Radeoner
         {
             if (args.Length == 2 && args[0] == "--apply-update") return UpdateInstall.RunWorker(Path.GetFullPath(args[1]));
             if (args.Length == 2 && args[0] == "--driver-worker") return DriverHost.Run(int.Parse(args[1]), DriverHost.CreateBackend);
+            if (args.Length == 5 && args[0] == "--install-windows-amd") return WindowsDriverUpdates.RunInstall(args[1], args[2], args[3], args[4]);
             L.Load(AppSettings.Load(AppSettings.DefaultPath).Language);
             if ((args.Length == 1 || args.Length == 3) && args[0] == "--test-update") return UpdateDiagnostics.RunAsync(args).GetAwaiter().GetResult();
             if (args.Length == 2 && args[0] == "--report")

@@ -81,7 +81,8 @@ Liens dans Paramètres > À propos / Soutien et contact. Pour signaler un défau
 indiquez les versions du programme, Windows et NVDA, le modèle GPU et les étapes.
 
 METTRE À JOUR LE PILOTE AMD
-Paramètres → Mises à jour → Mettre à jour le pilote AMD affiche la version
-installée. Téléchargez AMD Auto-Detect et confirmez le lancement du programme
-vérifié. Choisissez le paquet et Driver Only si cette option est proposée.
-Un ancien GPU ou un portable peut nécessiter un paquet choisi manuellement.
+Ouvrez Paramètres → Mises à jour → Mettre à jour le pilote AMD pour le GPU
+sélectionné. Recherchez dans Windows Update, choisissez un pilote et consultez
+la licence si nécessaire. Sélectionnez Installer le pilote, confirmez, puis
+autorisez les droits d’administration. Radeoner indique le résultat et si
+un redémarrage est requis. La version peut différer de celle du site d’AMD.

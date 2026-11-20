@@ -39,10 +39,33 @@ namespace Radeoner
             var actions = new FlowLayoutPanel { AutoSize = true, WrapContents = true }; actions.Controls.Add(checkUpdate); actions.Controls.Add(installUpdate); updateFields.Controls.Add(actions);
             updateStatus.Dock = DockStyle.None; updateStatus.Size = new Size(800, 110); updateFields.Controls.Add(updateStatus); updateFields.Controls.Add(updateNote);
             updateFields.Controls.Add(driverUpdate);
-            driverUpdate.Click += (s, e) =>
+            driverUpdate.Click += async (s, e) =>
             {
-                using (var dialog = new DriverUpdateDialog(snapshot == null ? null : snapshot.Gpu, Font, settings.Theme))
-                    dialog.ShowDialog(this);
+                var selected = snapshot == null ? null : snapshot.Gpu;
+                SetBusy(true);
+                try
+                {
+                    await FinishSensorRead();
+                    if (disposed) return;
+                    using (var dialog = new DriverUpdateDialog(selected, Font, settings.Theme, dirty))
+                    {
+                        dialog.ShowDialog(this);
+                        if (dialog.RefreshDriver && !disposed)
+                        {
+                            if (backend != null) { backend.Dispose(); backend = null; }
+                            loadingSelection = true;
+                            gpu.Items.Clear();
+                            loadingSelection = false;
+                            snapshot = sensors = null;
+                            lastApply = null;
+                            dirty = false;
+                            ClearFields(tuningFields);
+                            ClearFields(fanFields);
+                            await Initialize(selected == null ? null : selected.Id);
+                        }
+                    }
+                }
+                finally { SetBusy(false); }
             };
             automaticUpdates.CheckedChanged += (s, e) => SaveUpdatePreferences(); updatesAtStartup.CheckedChanged += (s, e) => SaveUpdatePreferences(); updateMinutes.ValueChanged += (s, e) => SaveUpdatePreferences();
             checkUpdate.Click += async (s, e) => await CheckUpdates(true); installUpdate.Click += async (s, e) => await DownloadAndInstallUpdate();

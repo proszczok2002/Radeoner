@@ -81,7 +81,9 @@ Einstellungen > Über Radeoner / Unterstützung und Kontakt öffnet diese Seiten
 Fehler mit Programm-/Windows-/NVDA-Version, GPU-Modell und Schritten melden.
 
 AMD-TREIBER AKTUALISIEREN
-Einstellungen → Aktualisierungen → AMD-Treiber aktualisieren zeigt die installierte
-Version. Laden Sie AMD Auto-Detect herunter und starten Sie das geprüfte
-Programm nach Bestätigung. Wählen Sie dort Paket und Driver Only, falls
-verfügbar. Ältere GPUs und Notebooks können ein manuelles Paket benötigen.
+Öffnen Sie für die gewählte GPU Einstellungen → Aktualisierungen →
+AMD-Treiber aktualisieren. Suchen Sie in Windows Update, wählen Sie einen
+Treiber und lesen Sie bei Bedarf die Lizenzbedingungen. Wählen Sie Treiber
+installieren, bestätigen Sie und erlauben Sie Administratorrechte. Radeoner
+meldet das Ergebnis und einen erforderlichen Neustart. Die angebotene
+Version kann von der auf der AMD-Website abweichen.

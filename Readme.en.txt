@@ -99,7 +99,8 @@ A failed/cancelled download preserves any existing destination file.
 Radeoner JSON profiles currently store ADLX tuning, not RGB settings.
 
 AMD DRIVER UPDATES
-Open Settings → Updates → AMD driver updates to see the installed driver.
-Download AMD Auto-Detect, then confirm to run the verified installer.
-Choose the graphics package and Driver Only if offered by AMD. Older GPUs
-and notebooks may require a package selected on AMD's or the vendor's site.
+Open Settings → Updates → AMD driver updates for the selected GPU.
+Check Windows Update, choose an offered driver and read the license if needed.
+Choose Install driver and confirm. Windows asks for administrator permission.
+Radeoner reports the result and whether a restart is needed. Windows Update
+can offer a different version than the AMD website, or no driver at all.
