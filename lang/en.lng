@@ -425,3 +425,17 @@ amd.changed=The files or the selected device changed. Check the package again.
 amd.installedOk=Windows installed the AMD graphics driver.
 amd.restart=Windows installed the AMD graphics driver. Restart Windows to finish.
 amd.additionalSoftware=This display archive includes an additional application installer.
+
+amdBackground.group=AMD background components
+amdBackground.check=Disable optional AMD background components
+amdBackground.note=Applies to AMD Install Manager, the older updater and Adrenalin startup tasks. Clear this check box to restore the previous settings.
+amdBackground.confirmPause=Disable recognized tasks and services for optional AMD software? The graphics driver, chipset services and power management stay active. Windows will ask for administrator permission.
+amdBackground.confirmRestore=Restore the previous settings for AMD tasks and services changed by Radeoner? Windows will ask for administrator permission.
+amdBackground.working=Changing AMD background settings…
+amdBackground.paused=Recognized AMD background components were disabled.
+amdBackground.restored=The previous AMD background settings were restored.
+amdBackground.nothing=No enabled AMD components supported by this option were found.
+amdBackground.active=AMD Install Manager, a recognized AMD task or a settings change is in progress. Wait for it to finish and try again.
+amdBackground.pending=Some previous settings still need to be restored. Clear the check box again to retry.
+amdBackground.failed=Windows could not complete the change to AMD background settings.
+amdBackground.cancelled=The AMD background settings change was cancelled.

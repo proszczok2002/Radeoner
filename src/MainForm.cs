@@ -90,7 +90,7 @@ namespace Radeoner
             var actions = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, WrapContents = true };
             actions.Controls.AddRange(new Control[] { apply, undo, factory, help, exit }); layout.Controls.Add(actions, 0, 3);
             status.Dock = DockStyle.Fill; layout.Controls.Add(status, 0, 4);
-            BuildPersonalization(); BuildUpdates(); BuildInformation();
+            BuildPersonalization(); BuildAmdBackground(); BuildUpdates(); BuildInformation();
             personalFields.ClientSizeChanged += (s, e) => FitSettings();
             trayMenu.Items.AddRange(new ToolStripItem[] { trayShow, trayRead, trayPersonalize, new ToolStripSeparator(), trayExit });
             trayShow.Click += (s, e) => ShowFromTray(); trayRead.Click += async (s, e) => await RefreshSensors(true);
@@ -209,7 +209,7 @@ namespace Radeoner
             appearanceGroup.Text = appearanceGroup.AccessibleName = L.T("settings.appearance");
             trayShow.Text = L.T("tray.show"); trayRead.Text = L.T("tray.refresh"); trayPersonalize.Text = L.T("settings.tab"); trayExit.Text = L.T("ui.exit");
             foreach (ToolStripItem item in trayMenu.Items) item.AccessibleName = item.Text.Replace("&", ""); gpu.Refresh(); UpdateTray(false);
-            LocalizeUpdates(); LocalizeInformation();
+            LocalizeAmdBackground(); LocalizeUpdates(); LocalizeInformation();
         }
         private static void SetButton(Button button, string textKey, string nameKey) { button.Text = L.T(textKey); button.AccessibleName = L.T(nameKey); }
         private void SystemPreferencesChanged(object sender, UserPreferenceChangedEventArgs e)

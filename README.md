@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.08** shows the full release notes in the update window and checks drivers
-directly on AMD’s product pages. [Release notes](docs/releases/v1.08.md)
+**1.09** adds a reversible option to disable optional AMD background components
+from Settings. [Release notes](docs/releases/v1.09.md)
 
 **A lightweight, portable AMD GPU panel for Windows, designed with NVDA in mind.**
 
@@ -133,6 +133,12 @@ channel, preserving profiles and preferences. [Test result](docs/UPDATE_TEST_1.0
 
 **Exit** in the window or tray menu stops the app completely. Launching the
 EXE again shows the existing window. Sensor updates every second are enabled by default and continue in the tray and can keep a laptop GPU awake.
+
+In **Settings → AMD background components**, select **Disable optional AMD
+background components** to disable recognized AMD Install Manager and legacy
+updater tasks or services and supported Adrenalin startup tasks. Windows asks
+for administrator permission. Clear the check box to restore the previous
+settings. Active installation or update tasks must finish before the change.
 
 Preferences are stored next to the EXE in `Radeoner.settings.json`. Languages:
 `lang/*.lng` sources (UTF-8, `key=value`, `\n` for a new line). All six languages

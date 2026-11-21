@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.08** muestra todos los cambios en la ventana de actualización y busca controladores en las páginas de productos de AMD. [Cambios](docs/releases/v1.08.md#español)
+**1.09** permite desactivar los componentes opcionales de AMD en segundo plano y restaurar su configuración anterior. [Cambios](docs/releases/v1.09.md#español)
 
 Panel AMD GPU ligero y portátil para Windows, con controles nativos de
 Windows Forms, manejo por teclado y compatibilidad con NVDA.
@@ -45,6 +45,12 @@ su servidor SDK son pasos separados. La versión 1.06 no incluye acceso nativo
 independiente a los controladores de iluminación.
 
 ## Teclado y NVDA
+
+En **Configuración → Componentes de AMD en segundo plano** puedes desactivar
+las tareas y los servicios reconocidos de AMD Install Manager y del actualizador
+anterior, así como las tareas de inicio de Adrenalin. Windows solicitará permisos
+de administrador. Desmarca la casilla para restaurar la configuración anterior.
+Espera a que finalice cualquier instalación o actualización en curso.
 
 | Teclas | Acción |
 | --- | --- |

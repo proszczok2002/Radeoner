@@ -425,3 +425,17 @@ amd.changed=Los archivos o la GPU elegida han cambiado. Vuelve a comprobar el pa
 amd.installedOk=Windows instaló el controlador gráfico AMD.
 amd.restart=Windows instaló el controlador gráfico AMD. Reinicia el equipo para terminar.
 amd.additionalSoftware=El archivo gráfico incluye un instalador adicional de aplicaciones.
+
+amdBackground.group=Componentes de AMD en segundo plano
+amdBackground.check=Desactivar componentes opcionales de AMD en segundo plano
+amdBackground.note=Se aplica a AMD Install Manager, al actualizador anterior y a las tareas de inicio de Adrenalin. Desmarca la casilla para restaurar la configuración anterior.
+amdBackground.confirmPause=¿Desactivar las tareas y servicios reconocidos del software opcional de AMD? El controlador gráfico, los servicios del chipset y la gestión de energía seguirán activos. Windows solicitará permisos de administrador.
+amdBackground.confirmRestore=¿Restaurar la configuración anterior de las tareas y los servicios de AMD modificados por Radeoner? Windows solicitará permisos de administrador.
+amdBackground.working=Cambiando la configuración de AMD en segundo plano…
+amdBackground.paused=Se desactivaron los componentes reconocidos de AMD en segundo plano.
+amdBackground.restored=Se restauró la configuración anterior de AMD en segundo plano.
+amdBackground.nothing=No se encontraron componentes activos de AMD compatibles con esta opción.
+amdBackground.active=AMD Install Manager, una tarea reconocida de AMD o un cambio de configuración está en curso. Espera a que termine y vuelve a intentarlo.
+amdBackground.pending=Quedan ajustes anteriores por restaurar. Desmarca la casilla de nuevo para reintentar.
+amdBackground.failed=Windows no pudo completar el cambio en la configuración de AMD en segundo plano.
+amdBackground.cancelled=Se canceló el cambio en la configuración de AMD en segundo plano.

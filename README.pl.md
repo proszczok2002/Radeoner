@@ -1,7 +1,7 @@
 # Radeoner
 
-**1.08** pokazuje pełną listę zmian w oknie aktualizacji i sprawdza sterowniki
-bezpośrednio na stronach produktów AMD. [Opis zmian](docs/releases/v1.08.md#polski)
+**1.09** pozwala wyłączyć dodatkowe składniki AMD w tle i przywrócić ich
+poprzednie ustawienia. [Opis zmian](docs/releases/v1.09.md#polski)
 
 **Lekki, przenośny panel kart AMD dla Windows, projektowany z myślą o NVDA.**
 
@@ -120,6 +120,12 @@ kanału GitHub. Profile i preferencje zostały zachowane. [Wynik testu](docs/UPD
 [Audyt NVDA 1.06](docs/AUDIT_1.06.md): 900 punktów UI, 180 dialogów i 72 traya.
 
 ## Klawiatura, tray i pliki
+
+W **Ustawienia → Składniki AMD w tle** zaznacz **Wyłącz dodatkowe składniki AMD
+w tle**. Opcja obejmuje rozpoznane zadania i usługi AMD Install Managera i
+starszego aktualizatora oraz zadania uruchamiające Adrenalin. Windows poprosi o
+uprawnienia administratora. Odznacz pole, aby przywrócić poprzednie ustawienia.
+Przed zmianą zaczekaj na zakończenie trwającej instalacji lub aktualizacji.
 
 | Skrót | Działanie |
 | --- | --- |
