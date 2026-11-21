@@ -425,3 +425,17 @@ amd.changed=Dateien oder GPU haben sich geändert. Prüfen Sie das Paket erneut.
 amd.installedOk=Windows hat den AMD-Grafiktreiber installiert.
 amd.restart=Windows hat den AMD-Grafiktreiber installiert. Starten Sie den Computer neu.
 amd.additionalSoftware=Das Grafikarchiv enthält ein zusätzliches Anwendungsinstallationsprogramm.
+
+amdBackground.group=AMD-Hintergrundkomponenten
+amdBackground.check=Optionale AMD-Hintergrundkomponenten deaktivieren
+amdBackground.note=Gilt für AMD Install Manager, den älteren Updater und die Startaufgaben von Adrenalin. Deaktivieren Sie dieses Kontrollkästchen, um die vorherigen Einstellungen wiederherzustellen.
+amdBackground.confirmPause=Erkannte Aufgaben und Dienste optionaler AMD-Software deaktivieren? Grafiktreiber, Chipsatzdienste und Energieverwaltung bleiben aktiv. Windows fragt nach Administratorrechten.
+amdBackground.confirmRestore=Die vorherigen Einstellungen der von Radeoner geänderten AMD-Aufgaben und -Dienste wiederherstellen? Windows fragt nach Administratorrechten.
+amdBackground.working=AMD-Hintergrundeinstellungen werden geändert…
+amdBackground.paused=Erkannte AMD-Hintergrundkomponenten wurden deaktiviert.
+amdBackground.restored=Die vorherigen AMD-Hintergrundeinstellungen wurden wiederhergestellt.
+amdBackground.nothing=Es wurden keine aktivierten AMD-Komponenten gefunden, die diese Option unterstützt.
+amdBackground.active=AMD Install Manager, eine erkannte AMD-Aufgabe oder eine Einstellungsänderung läuft gerade. Warten Sie auf den Abschluss und versuchen Sie es erneut.
+amdBackground.pending=Einige vorherige Einstellungen müssen noch wiederhergestellt werden. Deaktivieren Sie das Kontrollkästchen erneut.
+amdBackground.failed=Windows konnte die Änderung der AMD-Hintergrundeinstellungen nicht abschließen.
+amdBackground.cancelled=Die Änderung der AMD-Hintergrundeinstellungen wurde abgebrochen.

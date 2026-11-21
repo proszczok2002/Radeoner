@@ -61,6 +61,14 @@ internal static partial class Tests
             if (args.Length == 1 && args[0] == "--languages") { RunLanguageTests(); return 0; }
             if (args.Length == 1 && args[0] == "--rgb") { RunRgbTests(); return 0; }
             if (args.Length == 1 && args[0] == "--amd") { RunAmdDriverTests(); return 0; }
+            if (args.Length == 1 && args[0] == "--amd-background") { RunAmdBackgroundTests(); return 0; }
+            if (args.Length == 1 && args[0] == "--read-amd-background")
+            {
+                var items = new AmdBackgroundWindows().ReadItems();
+                foreach (var item in items) Console.WriteLine(item.State.Id + " / " + item.State.Mode);
+                Console.WriteLine("Visible components: " + items.Count);
+                return 0;
+            }
             if (args.Length == 2 && args[0] == "--check-amd-page")
             {
                 var offer = AmdDriverPackage.Check(new Uri(args[1]), System.Threading.CancellationToken.None).GetAwaiter().GetResult();
@@ -237,6 +245,7 @@ internal static partial class Tests
             RunStabilityTests();
             RunRgbTests();
             RunRgbDownloadTests();
+            RunAmdBackgroundTests();
             RunFullAccessibilityTests();
             RunLanguageTests();
             RunAmdDriverTests();

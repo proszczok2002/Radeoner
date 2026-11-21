@@ -425,3 +425,17 @@ amd.changed=Les fichiers ou le GPU ont changé. Vérifiez de nouveau le paquet.
 amd.installedOk=Windows a installé le pilote graphique AMD.
 amd.restart=Windows a installé le pilote graphique AMD. Redémarrez pour terminer.
 amd.additionalSoftware=L’archive graphique contient un programme d’installation d’application supplémentaire.
+
+amdBackground.group=Composants AMD en arrière-plan
+amdBackground.check=Désactiver les composants AMD facultatifs en arrière-plan
+amdBackground.note=Concerne AMD Install Manager, l’ancien outil de mise à jour et les tâches de démarrage d’Adrenalin. Décochez la case pour rétablir les paramètres précédents.
+amdBackground.confirmPause=Désactiver les tâches et services reconnus des logiciels AMD facultatifs ? Le pilote graphique, les services du chipset et la gestion de l’alimentation restent actifs. Windows demandera des droits d’administration.
+amdBackground.confirmRestore=Rétablir les paramètres précédents des tâches et services AMD modifiés par Radeoner ? Windows demandera des droits d’administration.
+amdBackground.working=Modification des paramètres AMD en arrière-plan…
+amdBackground.paused=Les composants AMD en arrière-plan reconnus ont été désactivés.
+amdBackground.restored=Les paramètres précédents des composants AMD en arrière-plan ont été rétablis.
+amdBackground.nothing=Aucun composant AMD actif pris en charge par cette option n’a été trouvé.
+amdBackground.active=AMD Install Manager, une tâche AMD reconnue ou la modification des paramètres est en cours. Attendez la fin de l’opération et réessayez.
+amdBackground.pending=Certains paramètres précédents restent à rétablir. Décochez de nouveau la case pour réessayer.
+amdBackground.failed=Windows n’a pas pu terminer la modification des paramètres AMD en arrière-plan.
+amdBackground.cancelled=La modification des paramètres AMD en arrière-plan a été annulée.

@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.08** zeigt alle Änderungen im Updatefenster und sucht Grafiktreiber direkt auf den AMD-Produktseiten. [Änderungen](docs/releases/v1.08.md#deutsch)
+Mit **1.09** lassen sich optionale AMD-Hintergrundkomponenten deaktivieren und ihre vorherigen Einstellungen wiederherstellen. [Änderungen](docs/releases/v1.09.md#deutsch)
 
 Ein leichtes, portables AMD-GPU-Panel für Windows mit nativen Windows-Forms-
 Steuerelementen, Tastaturbedienung und Unterstützung für NVDA.
@@ -45,6 +45,12 @@ Starten und Aktivieren des SDK-Servers erfolgen separat. Eine unabhängige
 Hardwareimplementierung ist in 1.06 nicht enthalten.
 
 ## Tastatur und NVDA
+
+Unter **Einstellungen → AMD-Hintergrundkomponenten** können erkannte Aufgaben und
+Dienste von AMD Install Manager und dem älteren Updater sowie Startaufgaben von
+Adrenalin deaktiviert werden. Windows fragt nach Administratorrechten. Entfernen
+Sie den Haken, um die vorherigen Einstellungen wiederherzustellen. Warten Sie
+vor der Änderung auf den Abschluss laufender Installationen oder Updates.
 
 | Taste | Funktion |
 | --- | --- |

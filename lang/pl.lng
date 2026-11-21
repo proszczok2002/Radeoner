@@ -425,3 +425,17 @@ amd.changed=Pliki lub wybrana karta uległy zmianie. Sprawdź pakiet ponownie.
 amd.installedOk=Windows zainstalował sterownik grafiki AMD.
 amd.restart=Windows zainstalował sterownik grafiki AMD. Uruchom ponownie komputer, aby zakończyć.
 amd.additionalSoftware=Archiwum sterownika grafiki zawiera dodatkowy instalator aplikacji.
+
+amdBackground.group=Składniki AMD w tle
+amdBackground.check=Wyłącz dodatkowe składniki AMD w tle
+amdBackground.note=Dotyczy AMD Install Managera, starszego aktualizatora i zadań uruchamiających Adrenalin. Odznacz pole, aby przywrócić poprzednie ustawienia.
+amdBackground.confirmPause=Wyłączyć rozpoznane zadania i usługi opcjonalnego oprogramowania AMD? Sterownik grafiki, usługi chipsetu i zarządzanie energią pozostaną aktywne. Windows poprosi o uprawnienia administratora.
+amdBackground.confirmRestore=Przywrócić poprzednie ustawienia zadań i usług AMD zmienionych przez Radeonera? Windows poprosi o uprawnienia administratora.
+amdBackground.working=Zmienianie ustawień składników AMD w tle…
+amdBackground.paused=Rozpoznane składniki AMD w tle zostały wyłączone.
+amdBackground.restored=Przywrócono poprzednie ustawienia składników AMD w tle.
+amdBackground.nothing=Nie wykryto włączonych składników AMD obsługiwanych przez tę opcję.
+amdBackground.active=AMD Install Manager, rozpoznane zadanie AMD lub zmiana ustawień są w toku. Poczekaj na zakończenie i spróbuj ponownie.
+amdBackground.pending=Część poprzednich ustawień wymaga przywrócenia. Odznacz pole ponownie, aby ponowić próbę.
+amdBackground.failed=Windows nie pozwolił zakończyć zmiany ustawień składników AMD w tle.
+amdBackground.cancelled=Anulowano zmianę ustawień składników AMD w tle.

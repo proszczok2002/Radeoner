@@ -1,6 +1,6 @@
 # Radeoner
 
-**1.08** affiche tous les changements dans la fenêtre de mise à jour et recherche les pilotes sur les pages produit AMD. [Changements](docs/releases/v1.08.md#français)
+La version **1.09** permet de désactiver les composants AMD facultatifs en arrière-plan et de rétablir leurs paramètres précédents. [Changements](docs/releases/v1.09.md#français)
 
 Panneau AMD GPU léger et portable pour Windows, avec contrôles Windows Forms
 natifs, navigation au clavier et prise en charge de NVDA.
@@ -47,6 +47,12 @@ d'OpenRGB et l'activation de son serveur SDK sont des étapes séparées.
 La version 1.06 n'inclut pas d'accès matériel natif indépendant à l'éclairage.
 
 ## Clavier et NVDA
+
+Dans **Paramètres → Composants AMD en arrière-plan**, vous pouvez désactiver
+les tâches et services reconnus d’AMD Install Manager et de l’ancien outil de
+mise à jour, ainsi que les tâches de démarrage d’Adrenalin. Windows demandera
+des droits d’administration. Décochez la case pour rétablir les paramètres
+précédents. Attendez la fin des installations ou mises à jour en cours.
 
 | Touches | Action |
 | --- | --- |
